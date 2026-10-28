@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { Card, Progress } from '../../types';
 import { DAY } from '../date';
-import { buildQuestions, canAsk, chooseType, makeQuestion, pickCards, pickDistractors, type Pool } from './round';
+import { buildQuestions, canAsk, chooseType, deferIntroduced, makeQuestion, pickCards, pickDistractors, type Pool, type Question } from './round';
 
 let n = 0;
 function card(fr: string, en: string, extra: Partial<Card> = {}): Card {
@@ -161,5 +161,28 @@ describe('buildQuestions', () => {
     const qs = buildQuestions({ mode: 'pairs', length: 10, newPerRound: 3 }, pool(), seeded());
     expect(qs.length).toBeGreaterThan(0);
     expect(qs[0].pairs!.length).toBeGreaterThanOrEqual(3);
+  });
+});
+
+describe('deferIntroduced', () => {
+  const q = (k: string): Question => ({ key: k, type: 'build', card: card(k, k), isNew: true });
+
+  it('asks something else right after a "new word" card and the word two questions later', () => {
+    const qs = [q('a'), q('b'), q('c'), q('d')];
+    const after = deferIntroduced(qs, 0);
+    expect(after.map((x) => x.key)).toEqual(['b', 'c', 'a', 'd']);
+    expect(after[2].introduced).toBe(true);
+    expect(after[0].introduced).toBeUndefined();
+  });
+
+  it('several new words: learn three, then recall them in order', () => {
+    let qs = [q('a'), q('b'), q('c'), q('d'), q('e')];
+    for (let i = 0; i < 3; i++) qs = deferIntroduced(qs, 0);
+    expect(qs.map((x) => x.key)).toEqual(['a', 'b', 'c', 'd', 'e']);
+    expect(qs.slice(0, 3).every((x) => x.introduced)).toBe(true);
+  });
+
+  it('near the end of the round it still moves as far as it can', () => {
+    expect(deferIntroduced([q('a'), q('b')], 0).map((x) => x.key)).toEqual(['b', 'a']);
   });
 });

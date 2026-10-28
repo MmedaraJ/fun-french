@@ -31,6 +31,23 @@ export interface Question {
   g?: GrammarPayload;
   isNew: boolean;
   retry?: boolean;
+  /** Its "new word" card was shown; the question itself comes a few questions later. */
+  introduced?: boolean;
+}
+
+/** Questions between a "new word" card and that word's own question, so it's recalled, not copied. */
+export const INTRO_GAP = 2;
+
+/**
+ * After a "new word" card, its question moves INTRO_GAP questions later; whatever was next is
+ * asked now. Returns the new order (the question at `index` is the one to show next).
+ */
+export function deferIntroduced(questions: Question[], index: number, gap = INTRO_GAP): Question[] {
+  const q = questions[index];
+  if (!q) return questions;
+  const without = [...questions.slice(0, index), ...questions.slice(index + 1)];
+  const at = Math.min(index + gap, without.length);
+  return [...without.slice(0, at), { ...q, introduced: true }, ...without.slice(at)];
 }
 
 export interface RoundConfig {

@@ -25,6 +25,35 @@ test('survival ends after three mistakes', async ({ page }) => {
   await expect(page.getByText(/You survived/)).toBeVisible();
 });
 
+test('a "new word" card is never followed straight away by its own question', async ({ page }) => {
+  await onboarded(page, { introduceNew: true });
+  await page.goto('/#/play/build?len=8');
+  let intros = 0;
+  for (let i = 0; i < 40; i++) {
+    const intro = page.locator('[data-intro]');
+    const live = page.locator('[data-qtype][data-phase="ask"]');
+    await expect(intro.or(live).or(page.locator('.results')).first()).toBeVisible({ timeout: 15_000 });
+    if (await page.locator('.results').isVisible().catch(() => false)) break;
+    if (await intro.isVisible().catch(() => false)) {
+      intros++;
+      const shown = await intro.getAttribute('data-intro');
+      await page.getByRole('button', { name: 'Compris !' }).dispatchEvent('click');
+      await expect(intro.or(live).first()).toBeVisible();
+      // whatever comes next (another new word, or a question) is not this word's question
+      if (await live.isVisible().catch(() => false)) {
+        expect(await live.locator('[data-target]').first().getAttribute('data-target')).not.toBe(shown);
+      }
+      continue;
+    }
+    await answerCurrent(page);
+    const cont = page.getByRole('button', { name: /Continuer|Voir mon score/ });
+    await page.locator('.feedback').waitFor({ state: 'visible', timeout: 8000 });
+    if (await cont.isVisible().catch(() => false)) await cont.click();
+    await page.locator('.feedback').waitFor({ state: 'hidden', timeout: 8000 });
+  }
+  expect(intros).toBeGreaterThan(0);
+});
+
 test.describe('grammar games', () => {
   for (const mode of ['conjugaison', 'temps', 'questions', 'grammaire']) {
     test(mode, async ({ page }) => {

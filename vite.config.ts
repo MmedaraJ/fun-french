@@ -12,6 +12,8 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      // registered by src/lib/updates.ts, which also picks the moment to reload into a new version
+      injectRegister: false,
       includeAssets: ['icons/*.png', 'icons/*.svg'],
       manifest: {
         name: 'Bonbon — fun French',
@@ -30,6 +32,9 @@ export default defineConfig({
         ],
       },
       workbox: {
+        // a new version takes over as soon as it's downloaded; src/lib/updates.ts reloads into it
+        skipWaiting: true,
+        clientsClaim: true,
         globPatterns: ['**/*.{js,css,html,woff2,png,svg,json}'],
         globIgnores: ['vendor/**'],
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,

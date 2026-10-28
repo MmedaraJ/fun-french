@@ -3,7 +3,7 @@ import { expect, type Page } from '@playwright/test';
 export async function onboarded(page: Page, extra: Record<string, unknown> = {}) {
   await page.goto('/');
   await page.evaluate((extra) => {
-    localStorage.setItem('bonbon-settings', JSON.stringify({ state: { onboarded: true, name: 'Test', sound: false, ...extra }, version: 1 }));
+    localStorage.setItem('bonbon-settings', JSON.stringify({ state: { onboarded: true, name: 'Test', sound: false, ...extra }, version: 2 }));
   }, extra);
   await page.goto('/');
   await expect(page.getByText('Révision du jour')).toBeVisible({ timeout: 20_000 });

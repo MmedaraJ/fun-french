@@ -36,6 +36,7 @@ export function IntroCard({ card, autoplay, onDone }: Props) {
 
   return (
     <motion.div
+      data-intro={card.id}
       className="intro"
       initial={{ rotateY: 80, opacity: 0, scale: 0.8 }}
       animate={{ rotateY: 0, opacity: 1, scale: 1 }}

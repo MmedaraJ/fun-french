@@ -10,7 +10,7 @@ import { db } from '../lib/db';
 import { MODE_BY_ID } from '../lib/engine/modes';
 import { loadPool } from '../lib/engine/pool';
 import { recordAnswer, saveSession } from '../lib/engine/record';
-import { buildQuestions, retryQuestion, type Pool, type Question, type RoundConfig } from '../lib/engine/round';
+import { buildQuestions, deferIntroduced, INTRO_GAP, retryQuestion, type Pool, type Question, type RoundConfig } from '../lib/engine/round';
 import { levelFromXp, multiplier, pointsFor, starsFor, XP } from '../lib/engine/scoring';
 import { uid } from '../lib/ids';
 import { computeStreak } from '../lib/stats';
@@ -58,7 +58,7 @@ interface State {
 type Action =
   | { type: 'loaded'; questions: Question[]; introduce: boolean; first: PaletteKey }
   | { type: 'empty' }
-  | { type: 'begin' }
+  | { type: 'begin'; introduce: boolean }
   | { type: 'answer'; result: QResult & AnswerInfo; retry: Question | null; survival: boolean }
   | { type: 'partial'; correct: boolean }
   | { type: 'next'; introduce: boolean; more?: Question[] }
@@ -74,9 +74,13 @@ function colorsFor(n: number, from: PaletteKey[] = []): PaletteKey[] {
   return out;
 }
 
-/** Flashcards and pairs already show the word, so they skip the "new word" card. */
-function wantsIntro(introduce: boolean, q?: Question): boolean {
-  return !!q && introduce && q.isNew && q.type !== 'flash' && q.type !== 'pairs';
+/**
+ * Flashcards and pairs already show the word, so they skip the "new word" card. The card's own
+ * question comes INTRO_GAP questions later (so a card needs that many questions after it).
+ */
+function wantsIntro(introduce: boolean, questions: Question[], index: number): boolean {
+  const q = questions[index];
+  return !!q && introduce && q.isNew && !q.introduced && q.type !== 'flash' && q.type !== 'pairs' && questions.length - index - 1 >= INTRO_GAP;
 }
 
 function reducer(s: State, a: Action): State {
@@ -87,13 +91,16 @@ function reducer(s: State, a: Action): State {
         status: 'playing',
         questions: a.questions,
         index: 0,
-        phase: wantsIntro(a.introduce, a.questions[0]) ? 'intro' : 'ask',
+        phase: wantsIntro(a.introduce, a.questions, 0) ? 'intro' : 'ask',
         colors: colorsFor(a.questions.length + 4, [a.first]),
       };
     case 'empty':
       return { ...s, status: 'empty' };
-    case 'begin':
-      return { ...s, phase: 'ask' };
+    case 'begin': {
+      // the word was just shown: ask something else first, and this word a little later
+      const questions = deferIntroduced(s.questions, s.index);
+      return { ...s, questions, phase: wantsIntro(a.introduce, questions, s.index) ? 'intro' : 'ask' };
+    }
     case 'partial': {
       const combo = a.correct ? s.combo + 1 : 0;
       return { ...s, combo, maxCombo: Math.max(s.maxCombo, combo) };
@@ -125,13 +132,12 @@ function reducer(s: State, a: Action): State {
     case 'next': {
       const questions = a.more ? [...s.questions, ...a.more] : s.questions;
       const index = s.index + 1;
-      const q = questions[index];
       return {
         ...s,
         questions,
         colors: colorsFor(questions.length + 4, s.colors),
         index,
-        phase: wantsIntro(a.introduce, q) ? 'intro' : 'ask',
+        phase: wantsIntro(a.introduce, questions, index) ? 'intro' : 'ask',
         last: undefined,
       };
     }
@@ -511,7 +517,7 @@ export default function Game() {
               autoplay={autoplay}
               onDone={() => {
                 sfx.pop();
-                dispatch({ type: 'begin' });
+                dispatch({ type: 'begin', introduce: introduceNew });
               }}
             />
           ) : q ? (
