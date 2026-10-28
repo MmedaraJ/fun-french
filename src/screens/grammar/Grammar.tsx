@@ -17,7 +17,7 @@ import { inkOn, paletteColor } from '../../lib/palette';
 import { useSettings } from '../../lib/settings';
 import { sfx } from '../../lib/sound';
 import { MAX_BOX } from '../../lib/srs';
-import type { Progress } from '../../types';
+import type { Progress, Session } from '../../types';
 import { Conjugator } from './Conjugator';
 import { LessonView } from './LessonView';
 import './Grammar.css';
@@ -33,6 +33,16 @@ export const UNIT_INFO: Record<Lesson['unit'], { fr: string; en: string; emoji: 
   imperatif: { fr: 'L’impératif', en: 'Commands', emoji: '📣', color: 'var(--leaf)' },
   subjonctif: { fr: 'Le subjonctif', en: 'The subjunctive', emoji: '🎭', color: 'var(--berry)' },
 };
+
+/** A lesson counts as done once one of its practice rounds went well (8+ questions, 80%+ right). */
+export function lessonsDone(sessions: Session[]): Set<string> {
+  return new Set(sessions.filter((s) => s.lesson && s.total >= 8 && s.correct / s.total >= 0.8).map((s) => s.lesson!));
+}
+
+/** Lessons whose practice rounds went well, kept up to date from the stored rounds. */
+export function useLessonsDone(): Set<string> {
+  return useLiveQuery(async () => lessonsDone(await db.sessions.filter((s) => !!s.lesson).toArray()), []) ?? new Set<string>();
+}
 
 /** 0..1 mastery from the skills a lesson trains. */
 export function lessonMastery(lesson: Lesson, skills: Map<string, Progress>): number {
@@ -71,8 +81,9 @@ function GrammarHome() {
     return out;
   }, []);
 
+  const done = useLessonsDone();
   const total = LESSONS.length;
-  const started = LESSONS.filter((l) => lessonMastery(l, skills) > 0).length;
+  const started = LESSONS.filter((l) => lessonMastery(l, skills) > 0 || done.has(l.id)).length;
 
   return (
     <Page className="grammar">
@@ -81,7 +92,8 @@ function GrammarHome() {
         <div>
           <h1 className="screen-title">Grammaire</h1>
           <p className="muted">
-            Every tense, questions, negation: short lessons, then games. {started}/{total} lessons started.
+            Every tense, questions, negation: short lessons, then games. {done.size}/{total} lessons done
+            {started > done.size ? `, ${started - done.size} started` : ''}.
           </p>
         </div>
       </header>
@@ -135,10 +147,11 @@ function GrammarHome() {
             <div className="gr-path">
               {lessons.map((l, i) => {
                 const m = lessonMastery(l, skills);
+                const isDone = done.has(l.id);
                 return (
                   <motion.button
                     key={l.id}
-                    className="gr-lesson"
+                    className={'gr-lesson' + (isDone ? ' is-done' : '')}
                     onClick={() => {
                       sfx.tap();
                       navigate(`/grammaire/lecon/${l.id}`);
@@ -149,8 +162,8 @@ function GrammarHome() {
                     whileTap={{ scale: 0.97 }}
                     style={{ '--unit': u.color } as React.CSSProperties}
                   >
-                    <ProgressRing value={m} size={48} stroke={6} color={u.color}>
-                      {m >= 0.99 ? <Emoji e="⭐" size={20} /> : <span className="gr-num">{LESSONS.indexOf(l) + 1}</span>}
+                    <ProgressRing value={isDone ? Math.max(m, 0.34) : m} size={48} stroke={6} color={u.color}>
+                      {m >= 0.99 ? <Emoji e="⭐" size={20} /> : isDone ? <span className="gr-check" aria-label="done">✓</span> : <span className="gr-num">{LESSONS.indexOf(l) + 1}</span>}
                     </ProgressRing>
                     <span className="gr-lesson-text">
                       <strong>{l.title}</strong>

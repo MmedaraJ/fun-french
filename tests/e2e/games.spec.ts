@@ -74,6 +74,10 @@ test.describe('grammar games', () => {
     await page.getByRole('button', { name: /S’entraîner/ }).click();
     await playRound(page);
     await expect(page.locator('.results-title')).toBeVisible();
+    // the lesson remembers it was done
+    await page.goto('/#/grammaire');
+    await expect(page.getByText(/1\/\d+ lessons done/)).toBeVisible();
+    await expect(page.locator('.gr-lesson.is-done')).toHaveCount(1);
   });
 
   test('daily practice mixes in grammar', async ({ page }) => {

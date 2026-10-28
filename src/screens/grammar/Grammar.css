@@ -71,6 +71,23 @@
   font-size: 1rem;
 }
 
+.lesson-done {
+  background: var(--ok);
+  color: #fff;
+}
+
+.gr-check {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: var(--ok-deep);
+}
+
+.gr-lesson.is-done .gr-lesson-text strong::after {
+  content: ' ✓';
+  color: var(--ok);
+}
+
 .gr-lesson-text {
   flex: 1;
   min-width: 0;

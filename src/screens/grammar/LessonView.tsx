@@ -11,7 +11,7 @@ import { PERSONS, TENSE_BY_ID, type Tense } from '../../lib/grammar/types';
 import { VERB_BY_INF } from '../../lib/grammar/verb-list';
 import { sfx } from '../../lib/sound';
 import { speak } from '../../lib/speech';
-import { UNIT_INFO } from './Grammar';
+import { UNIT_INFO, useLessonsDone } from './Grammar';
 
 /** **bold** and line breaks, nothing more. */
 export function RichText({ text }: { text: string }): ReactNode {
@@ -37,6 +37,7 @@ export function LessonView() {
   const index = LESSONS.findIndex((l) => l.id === lessonId);
   const lesson = LESSONS[index];
   const goRef = useRef<HTMLButtonElement>(null);
+  const done = useLessonsDone();
 
   const tenses = useMemo(() => lesson?.practice.tenses ?? [], [lesson]);
   const verbs = useMemo(() => {
@@ -80,6 +81,7 @@ export function LessonView() {
           <Emoji e={unit.emoji} size={16} /> {unit.fr}
         </span>
         <span className={'badge gr-level l' + lesson.level}>{['', 'A1', 'A2', 'B1'][lesson.level]}</span>
+        {done.has(lesson.id) && <span className="badge lesson-done">✓ Réussie · Done</span>}
       </div>
 
       <motion.header className="lesson-head" initial={{ y: 16, opacity: 0 }} animate={{ y: 0, opacity: 1 }}>
@@ -177,7 +179,7 @@ export function LessonView() {
       )}
 
       <button ref={goRef} className="btn btn--lg btn--block btn--ok lesson-go" onClick={practise}>
-        <Emoji e="🎯" size={24} /> S’entraîner · Practise
+        <Emoji e="🎯" size={24} /> {done.has(lesson.id) ? 'Encore une fois · Practise again' : 'S’entraîner · Practise'}
       </button>
 
       <div className="lesson-nav">
