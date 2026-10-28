@@ -9,6 +9,7 @@ import { Mascot } from '../../components/Mascot';
 import { Page } from '../../components/Page';
 import { ProgressRing } from '../../components/ProgressRing';
 import { LESSONS } from '../../data/grammar/lessons';
+import { getBookGrammar } from '../../lib/book';
 import { db } from '../../lib/db';
 import { MODES, type ModeInfo } from '../../lib/engine/modes';
 import { lessonSkillIds } from '../../lib/grammar/exercises';
@@ -42,6 +43,11 @@ export function lessonsDone(sessions: Session[]): Set<string> {
 /** Lessons whose practice rounds went well, kept up to date from the stored rounds. */
 export function useLessonsDone(): Set<string> {
   return useLiveQuery(async () => lessonsDone(await db.sessions.filter((s) => !!s.lesson).toArray()), []) ?? new Set<string>();
+}
+
+/** Lesson ids the PDFs she imported teach. */
+export function useBookLessons(): Set<string> {
+  return new Set(useLiveQuery(() => getBookGrammar(), [])?.lessonIds ?? []);
 }
 
 /** 0..1 mastery from the skills a lesson trains. */
@@ -82,6 +88,8 @@ function GrammarHome() {
   }, []);
 
   const done = useLessonsDone();
+  const book = useBookLessons();
+  const bookRef = useRef<HTMLButtonElement>(null);
   const total = LESSONS.length;
   const started = LESSONS.filter((l) => lessonMastery(l, skills) > 0 || done.has(l.id)).length;
 
@@ -97,6 +105,29 @@ function GrammarHome() {
           </p>
         </div>
       </header>
+
+      {book.size > 0 && (
+        <motion.button
+          ref={bookRef}
+          className="gr-book panel"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          whileTap={{ scale: 0.97 }}
+          onClick={async () => {
+            sfx.whoosh();
+            await wipeFrom(bookRef.current, 'var(--leaf)');
+            navigate('/play/grammaire?book=1');
+          }}
+        >
+          <Emoji e="📗" size={40} />
+          <span>
+            <strong>La grammaire de mon livre</strong>
+            <span>
+              Practise the {book.size} grammar topic{book.size === 1 ? '' : 's'} your PDFs teach
+            </span>
+          </span>
+        </motion.button>
+      )}
 
       <div className="gr-games">
         {games.map((m, i) => (
@@ -167,7 +198,10 @@ function GrammarHome() {
                     </ProgressRing>
                     <span className="gr-lesson-text">
                       <strong>{l.title}</strong>
-                      <span>{l.en}</span>
+                      <span>
+                        {book.has(l.id) && <span className="gr-in-book">📗 Dans ton livre · </span>}
+                        {l.en}
+                      </span>
                     </span>
                     <span className={'badge gr-level l' + l.level}>{['', 'A1', 'A2', 'B1'][l.level]}</span>
                   </motion.button>

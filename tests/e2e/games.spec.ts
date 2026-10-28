@@ -80,6 +80,20 @@ test.describe('grammar games', () => {
     await expect(page.locator('.gr-lesson.is-done')).toHaveCount(1);
   });
 
+  test('the grammar her book teaches has its own practice', async ({ page }) => {
+    await onboarded(page);
+    await page.evaluate(async () => {
+      const w = window as unknown as { __bonbon: { db: { meta: { put: (row: object) => Promise<unknown> } } } };
+      await w.__bonbon.db.meta.put({ key: 'bookGrammar', value: { lessonIds: ['pc-etre', 'negation-jamais-plus'], sources: ['Unité 5.pdf'] } });
+    });
+    await page.goto('/#/grammaire');
+    await expect(page.locator('.gr-in-book')).toHaveCount(2);
+    await page.getByRole('button', { name: /La grammaire de mon livre/ }).click();
+    await expect(page).toHaveURL(/book=1/);
+    await playRound(page);
+    await expect(page.locator('.results-title')).toBeVisible();
+  });
+
   test('daily practice mixes in grammar', async ({ page }) => {
     await onboarded(page, { introduceNew: false });
     await page.goto('/#/play/mix?daily=1&len=10');

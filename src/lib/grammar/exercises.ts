@@ -15,6 +15,7 @@ import {
   TENSE_BY_ID,
   TENSES,
   type Frame,
+  type Lesson,
   type Negation,
   type Person,
   type QAItem,
@@ -863,6 +864,23 @@ export function buildGrammarQuestions(cfg: GrammarConfig, rand: Rand = Math.rand
     out.push(q);
   }
   return out;
+}
+
+/** One practice covering several lessons (the grammar her book teaches). */
+export function mergePractice(list: Lesson['practice'][]): Lesson['practice'] | undefined {
+  if (!list.length) return undefined;
+  const union = <T,>(get: (p: Lesson['practice']) => T[] | undefined): T[] | undefined => {
+    const all = list.flatMap((p) => get(p) ?? []);
+    return all.length ? [...new Set(all)] : undefined;
+  };
+  return {
+    kinds: union((p) => p.kinds) ?? [],
+    tenses: union((p) => p.tenses),
+    verbs: union((p) => p.verbs),
+    negations: union((p) => p.negations),
+    qforms: union((p) => p.qforms),
+    qwords: union((p) => p.qwords),
+  };
 }
 
 /** Skills a lesson trains, for its mastery ring. */

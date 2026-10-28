@@ -71,6 +71,46 @@
   font-size: 1rem;
 }
 
+.gr-book {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0 0 16px;
+  padding: 14px 18px;
+  text-align: left;
+  border: 0;
+  cursor: pointer;
+  background: var(--leaf);
+  color: #fff;
+}
+
+.gr-book > span {
+  display: flex;
+  flex-direction: column;
+}
+
+.gr-book strong {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+.gr-book span span {
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.gr-in-book {
+  color: var(--leaf);
+  font-weight: 800;
+}
+
+.lesson-in-book {
+  background: var(--leaf);
+  color: #fff;
+}
+
 .lesson-done {
   background: var(--ok);
   color: #fff;

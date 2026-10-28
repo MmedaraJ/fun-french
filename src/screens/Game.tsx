@@ -208,10 +208,16 @@ export default function Game() {
 
   /** Grammar questions for this game (or a lesson's practice), generated on demand. */
   const grammarRound = useCallback(
-    async (length: number, kindsOverride?: GrammarType[]): Promise<Question[]> => {
-      const [{ buildGrammarQuestions }, skillRows] = await Promise.all([import('../lib/grammar/exercises'), db.skills.toArray()]);
+    async (length: number, kindsOverride?: GrammarType[], fromBook = search.get('book') === '1'): Promise<Question[]> => {
+      const [{ buildGrammarQuestions, mergePractice }, skillRows] = await Promise.all([import('../lib/grammar/exercises'), db.skills.toArray()]);
       const lessonId = search.get('lesson');
-      const practice = lessonId ? (await import('../data/grammar/lessons')).LESSONS.find((l) => l.id === lessonId)?.practice : undefined;
+      let practice = lessonId ? (await import('../data/grammar/lessons')).LESSONS.find((l) => l.id === lessonId)?.practice : undefined;
+      if (fromBook) {
+        // the grammar her imported PDFs teach, all its lessons together
+        const [{ LESSONS }, { getBookGrammar }] = await Promise.all([import('../data/grammar/lessons'), import('../lib/book')]);
+        const { lessonIds } = await getBookGrammar();
+        practice = mergePractice(LESSONS.filter((l) => lessonIds.includes(l.id)).map((l) => l.practice)) ?? practice;
+      }
       const list = (k: string) => search.get(k)?.split(',').filter(Boolean);
       return buildGrammarQuestions({
         kinds: kindsOverride ?? practice?.kinds ?? (info.types as GrammarType[]),
@@ -245,9 +251,16 @@ export default function Game() {
         const pool = await loadPool(cfg);
         poolRef.current = pool;
         qs = buildQuestions(cfg, pool);
-        // Daily practice also works on grammar: about a third of the questions.
+        // Daily practice also works on grammar: about a third of the questions, mostly from
+        // the grammar her book teaches once she has imported one.
         if (search.get('daily') === '1' && qs.length) {
-          const extra = await grammarRound(Math.max(2, Math.round(cfg.length * 0.3)), ['cloze', 'conj', 'qword', 'tense-id', 'glisten', 'negate', 'gtranslate']);
+          const n = Math.max(2, Math.round(cfg.length * 0.3));
+          const { getBookGrammar } = await import('../lib/book');
+          const fromBook = (await getBookGrammar()).lessonIds.length ? await grammarRound(Math.ceil(n * 0.6), undefined, true) : [];
+          const extra = [
+            ...fromBook,
+            ...(await grammarRound(n - fromBook.length, ['cloze', 'conj', 'qword', 'tense-id', 'glisten', 'negate', 'gtranslate'], false)),
+          ];
           const merged = [...qs.slice(0, Math.max(0, qs.length - extra.length))];
           extra.forEach((g, i) => merged.splice(Math.min(merged.length, 2 + i * 3), 0, g));
           qs = merged;
