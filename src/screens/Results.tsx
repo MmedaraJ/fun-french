@@ -55,7 +55,12 @@ export default function Results() {
     const byId = new Map(cards.filter(Boolean).map((c) => [c!.id, c!]));
     const result = new Map<string, { card: Card; ok: boolean }>();
     for (const e of evs) {
-      const card = byId.get(e.cardId);
+      // grammar answers have no word card: show the sentence that was practised
+      const card =
+        byId.get(e.cardId) ??
+        (e.label
+          ? ({ id: `${e.cardId}#${e.id}`, deckId: 'grammar', kind: 'sentence', fr: e.label, en: e.labelEn ?? '', source: 'starter', order: 0, createdAt: 0, updatedAt: 0 } as Card)
+          : undefined);
       if (!card) continue;
       const prev = result.get(card.id);
       result.set(card.id, { card, ok: (prev?.ok ?? true) && e.correct });
@@ -106,7 +111,8 @@ export default function Results() {
     return () => timers.forEach(clearTimeout);
   }, [session, fresh, starsCount, st, leveledUp]);
 
-  const missed = useMemo(() => (answers ?? []).filter((a) => !a.ok).map((a) => a.card.id), [answers]);
+  // only real words can be replayed; grammar sentences are generated fresh each time
+  const missed = useMemo(() => (answers ?? []).filter((a) => !a.ok && !a.card.id.startsWith('g:')).map((a) => a.card.id), [answers]);
 
   if (!session) return <Loader />;
   const info = MODE_BY_ID[session.mode];

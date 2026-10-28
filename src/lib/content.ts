@@ -193,6 +193,24 @@ export async function existingFrench(): Promise<string[]> {
   return (await db.cards.toArray()).filter((c) => !c.archived).map((c) => c.fr);
 }
 
+/** French + English of every live card, to correct OCR slips against. */
+export async function existingPairs(): Promise<{ fr: string; en: string }[]> {
+  return (await db.cards.toArray()).filter((c) => !c.archived).map((c) => ({ fr: c.fr, en: c.en }));
+}
+
+/** Normalised French text -> the card that already has it, and its theme (all decks). */
+export async function existingByFrench(): Promise<Map<string, { id: string; deck: string }>> {
+  const [cards, decks] = await Promise.all([db.cards.toArray(), db.decks.toArray()]);
+  const names = new Map(decks.map((d) => [d.id, d.name]));
+  const out = new Map<string, { id: string; deck: string }>();
+  for (const c of cards) {
+    if (c.archived) continue;
+    const key = normalizeAnswer(c.fr);
+    if (!out.has(key)) out.set(key, { id: c.id, deck: names.get(c.deckId) ?? 'Mes mots' });
+  }
+  return out;
+}
+
 /** Checks badges after content changes and throws a little party for new ones. */
 export async function celebrateUnlocks(): Promise<void> {
   try {

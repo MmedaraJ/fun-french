@@ -25,7 +25,7 @@ const LEVELS: { emoji: string; fr: string; en: string; perRound: number }[] = [
   { emoji: '🌳', fr: 'Je me débrouille', en: 'I can get by', perRound: 5 },
 ];
 
-const BEGINNER = ['animals', 'food', 'home', 'colors', 'numbers', 'phrases', 'love'];
+const BEGINNER = ['animals', 'food', 'home', 'colors', 'numbers', 'phrases', 'love', 'verbs-er'];
 
 const GOALS = [
   { xp: 30, fr: 'Tranquille', en: 'Relaxed', emoji: '🐢' },

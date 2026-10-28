@@ -192,6 +192,20 @@
   }
 }
 
+.mode-grid--grammar {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+@media (min-width: 640px) {
+  .mode-grid--grammar {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.mode-grid--grammar .mode-tile {
+  aspect-ratio: 1.35 / 1;
+}
+
 .mode-tile {
   position: relative;
   aspect-ratio: 1 / 1.08;

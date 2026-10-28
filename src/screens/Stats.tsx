@@ -11,6 +11,7 @@ import { heatBin, Heatmap } from '../components/charts/Heatmap';
 import { LineChart, type LinePoint } from '../components/charts/LineChart';
 import { Meter } from '../components/charts/Meter';
 import { StackedBar } from '../components/charts/StackedBar';
+import { GrammarProgress } from '../components/GrammarProgress';
 import { Emoji } from '../components/Emoji';
 import { Mascot } from '../components/Mascot';
 import { Page } from '../components/Page';
@@ -47,6 +48,7 @@ const NAV = [
   { id: 'st-week', label: 'Semaine' },
   { id: 'st-activity', label: 'Activité' },
   { id: 'st-words', label: 'Mots' },
+  { id: 'st-grammar', label: 'Grammaire' },
   { id: 'st-accuracy', label: 'Précision' },
   { id: 'st-bests', label: 'Records' },
   { id: 'st-tricky', label: 'Difficiles' },
@@ -446,6 +448,13 @@ export default function Stats() {
                   </button>
                 )}
               </ChartCard>
+            </section>
+
+            <section id="st-grammar" className="st-section">
+              <h2 className="section-title">
+                Grammaire <small>Tenses, negation, questions</small>
+              </h2>
+              <GrammarProgress />
             </section>
 
             <section id="st-accuracy" className="st-section st-flow">

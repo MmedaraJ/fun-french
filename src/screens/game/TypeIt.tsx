@@ -15,19 +15,23 @@ const NOTES = {
   article: 'N’oublie pas l’article ! (don’t forget le/la)',
 };
 
-/** Game 8: dictation. Hear it, type it; accent keys included. */
-export function TypeIt({ q, phase, result, onAnswer, autoplay }: QProps) {
+/**
+ * Games 8 and 9. "Écris": see the meaning, type the French from memory (the
+ * audio only comes after). "Dictée": the audio is the question, with no hints.
+ */
+export function TypeIt({ q, phase, result, onAnswer }: QProps) {
   const [text, setText] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
   const [scope, animate] = useAnimate<HTMLFormElement>();
+  const dictation = q.type === 'dictation';
 
   useEffect(() => {
     const t = setTimeout(() => {
-      if (autoplay) void speak(q.card.fr);
+      if (dictation) void speak(q.card.fr);
       inputRef.current?.focus({ preventScroll: true });
     }, 350);
     return () => clearTimeout(t);
-  }, [q.key, q.card.fr, autoplay]);
+  }, [q.key, q.card.fr, dictation]);
 
   const submit = (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -60,19 +64,30 @@ export function TypeIt({ q, phase, result, onAnswer, autoplay }: QProps) {
 
   return (
     <>
-      <div className="q-prompt">
-        <div className="q-label">Dictée · Type what you hear</div>
-        <div className="q-row">
-          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 260, damping: 14 }} data-target={q.card.id}>
-            <SpeakButton text={q.card.fr} size="lg" />
-          </motion.div>
-          <SpeakButton text={q.card.fr} size="md" slow />
+      {dictation ? (
+        <div className="q-prompt">
+          <div className="q-label">Dictée · Type what you hear</div>
+          <div className="q-row">
+            <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 260, damping: 14 }} data-target={q.card.id}>
+              <SpeakButton text={q.card.fr} size="lg" />
+            </motion.div>
+            <SpeakButton text={q.card.fr} size="md" slow />
+          </div>
         </div>
-        <div className="type-hint">
-          {hasPicture(q.card) && q.card.kind !== 'sentence' && <CardImage card={q.card} size={40} fallback="none" rounded={10} />}
-          <span>{q.card.en}</span>
+      ) : (
+        <div className="q-prompt">
+          <div className="q-label">Écris en français · Write it in French</div>
+          {hasPicture(q.card) && q.card.kind !== 'sentence' && (
+            <motion.div className="q-picture q-picture--sm" initial={{ scale: 0.5 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 300, damping: 15 }}>
+              <CardImage card={q.card} size={q.card.imageId ? '100%' : '72%'} rounded={0} />
+            </motion.div>
+          )}
+          <div className="q-en" data-target={q.card.id}>
+            “{q.card.en}”
+          </div>
+          {phase === 'feedback' && <SpeakButton text={q.card.fr} size="md" />}
         </div>
-      </div>
+      )}
 
       <form className={'type-form ' + state} onSubmit={submit} ref={scope}>
         <input

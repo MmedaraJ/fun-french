@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   compareAnswer,
+  decapitalize,
   definiteArticle,
   detectGender,
   detectKind,
@@ -62,6 +63,16 @@ describe('answers', () => {
     expect(compareAnswer('le chien', 'le chat')).toBe('wrong');
     expect(compareAnswer('', 'le chat')).toBe('wrong');
     expect(compareAnswer('ami', 'amie')).toBe('wrong');
+  });
+});
+
+describe('decapitalize', () => {
+  it('lowercases ordinary first words but keeps names', () => {
+    expect(decapitalize('Je')).toBe('je');
+    expect(decapitalize("J'habite")).toBe("j'habite");
+    expect(decapitalize('Où')).toBe('où');
+    expect(decapitalize('Marie')).toBe('Marie');
+    expect(decapitalize('Paris')).toBe('Paris');
   });
 });
 

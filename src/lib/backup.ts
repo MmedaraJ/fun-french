@@ -20,6 +20,8 @@ export interface BackupTables {
   decks: Deck[];
   cards: Card[];
   progress: Progress[];
+  /** Grammar skills (added in app version 2; older backups don't have it). */
+  skills?: Progress[];
   events: AnswerEvent[];
   sessions: Session[];
   daily: DailyStat[];
@@ -94,10 +96,11 @@ function portableSettings(): Partial<Settings> {
 }
 
 export async function buildBackup(): Promise<BackupFile> {
-  const [decks, cards, progress, events, sessions, daily, unlocked, meta, images] = await Promise.all([
+  const [decks, cards, progress, skills, events, sessions, daily, unlocked, meta, images] = await Promise.all([
     db.decks.toArray(),
     db.cards.toArray(),
     db.progress.toArray(),
+    db.skills.toArray(),
     db.events.toArray(),
     db.sessions.toArray(),
     db.daily.toArray(),
@@ -112,7 +115,7 @@ export async function buildBackup(): Promise<BackupFile> {
     version: BACKUP_VERSION,
     exportedAt: Date.now(),
     settings: portableSettings(),
-    tables: { decks, cards, progress, events, sessions, daily, unlocked, meta },
+    tables: { decks, cards, progress, skills, events, sessions, daily, unlocked, meta },
     images: imageRecords,
   };
 }
@@ -158,11 +161,12 @@ export async function restoreBackup(f: BackupFile, opts: { applySettings?: boole
   // Decode pictures first: async work that isn't Dexie can't run inside a transaction.
   const images = f.images.map((img) => ({ id: img.id, createdAt: img.createdAt, blob: dataUrlToBlob(img.data) }));
   const t = f.tables;
-  await db.transaction('rw', [db.decks, db.cards, db.progress, db.events, db.sessions, db.daily, db.unlocked, db.meta, db.images], async () => {
-    await Promise.all([db.decks.clear(), db.cards.clear(), db.progress.clear(), db.events.clear(), db.sessions.clear(), db.daily.clear(), db.unlocked.clear(), db.meta.clear(), db.images.clear()]);
+  await db.transaction('rw', [db.decks, db.cards, db.progress, db.skills, db.events, db.sessions, db.daily, db.unlocked, db.meta, db.images], async () => {
+    await Promise.all([db.decks.clear(), db.cards.clear(), db.progress.clear(), db.skills.clear(), db.events.clear(), db.sessions.clear(), db.daily.clear(), db.unlocked.clear(), db.meta.clear(), db.images.clear()]);
     await db.decks.bulkAdd(t.decks);
     await db.cards.bulkAdd(t.cards);
     await db.progress.bulkAdd(t.progress);
+    if (t.skills?.length) await db.skills.bulkAdd(t.skills);
     await db.events.bulkAdd(t.events);
     await db.sessions.bulkAdd(t.sessions);
     await db.daily.bulkAdd(t.daily);
@@ -263,8 +267,8 @@ export async function importDeckShare(f: DeckFile): Promise<{ decks: number; car
 
 /** Forget all learning history but keep every word. */
 export async function resetProgress(): Promise<void> {
-  await db.transaction('rw', [db.progress, db.events, db.sessions, db.daily, db.unlocked], async () => {
-    await Promise.all([db.progress.clear(), db.events.clear(), db.sessions.clear(), db.daily.clear(), db.unlocked.clear()]);
+  await db.transaction('rw', [db.progress, db.skills, db.events, db.sessions, db.daily, db.unlocked], async () => {
+    await Promise.all([db.progress.clear(), db.skills.clear(), db.events.clear(), db.sessions.clear(), db.daily.clear(), db.unlocked.clear()]);
   });
 }
 

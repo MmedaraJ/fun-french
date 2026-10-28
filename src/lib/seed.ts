@@ -22,8 +22,9 @@ export function starterCardId(deckId: string, fr: string) {
 export async function ensureSeeded(): Promise<void> {
   if ((await getMeta('starterHash', '')) === STARTER_HASH) return;
   const now = Date.now();
-  await db.transaction('rw', db.decks, db.cards, db.meta, async () => {
+  await db.transaction('rw', db.decks, db.cards, db.progress, db.meta, async () => {
     const existingDecks = new Map((await db.decks.toArray()).map((d) => [d.id, d]));
+    const starterIds = new Map<string, string>(); // id -> fr, for every built-in card in this version
     for (const [i, sd] of STARTER_DECKS.entries()) {
       const prev = existingDecks.get(sd.id);
       const deck: Deck = {
@@ -34,7 +35,7 @@ export async function ensureSeeded(): Promise<void> {
         color: sd.color,
         level: sd.level,
         builtin: true,
-        active: prev ? prev.active : false,
+        active: prev ? prev.active : !!sd.activeByDefault,
         order: i,
         createdAt: prev ? prev.createdAt : now,
       };
@@ -47,6 +48,7 @@ export async function ensureSeeded(): Promise<void> {
         let id = starterCardId(sd.id, sc.fr);
         while (seen.has(id)) id += '-x';
         seen.add(id);
+        starterIds.set(id, sc.fr);
         const old = existing.get(id);
         if (old && old.updatedAt !== old.createdAt) return; // learner edited it
         rows.push({
@@ -69,8 +71,29 @@ export async function ensureSeeded(): Promise<void> {
       });
       await db.cards.bulkPut(rows);
     }
+    await retireMovedCards(starterIds);
     await setMeta('starterHash', STARTER_HASH);
   });
+}
+
+/**
+ * A built-in card that moved to another deck in a newer version (e.g. "parler" into
+ * "Verbes en -er") is removed from its old deck, and its progress goes with it.
+ */
+async function retireMovedCards(starterIds: Map<string, string>) {
+  const byFr = new Map<string, string>();
+  for (const [id, fr] of starterIds) if (!byFr.has(fr.toLowerCase())) byFr.set(fr.toLowerCase(), id);
+  const stale = (await db.cards.where('source').equals('starter').toArray()).filter(
+    (c) => !starterIds.has(c.id) && c.updatedAt === c.createdAt,
+  );
+  for (const old of stale) {
+    const replacement = byFr.get(old.fr.toLowerCase());
+    if (!replacement) continue; // not moved, just gone: keep it and its history
+    const [oldProgress, newProgress] = await Promise.all([db.progress.get(old.id), db.progress.get(replacement)]);
+    if (oldProgress && !newProgress) await db.progress.put({ ...oldProgress, cardId: replacement });
+    if (oldProgress) await db.progress.delete(old.id);
+    await db.cards.delete(old.id);
+  }
 }
 
 /** Marks the chosen decks active (used by onboarding). */

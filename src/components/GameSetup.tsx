@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { ModeInfo } from '../lib/engine/modes';
+import { TENSES } from '../lib/grammar/types';
 import { useDecks } from '../lib/hooks';
 import { inkOn, paletteColor } from '../lib/palette';
 import { useSettings, type ModeOptions } from '../lib/settings';
@@ -31,6 +32,12 @@ export function GameSetup({ mode, onClose }: Props) {
   }, [mode?.id]);
   const color = mode ? paletteColor(mode.color) : undefined;
   const noSurvival = mode?.id === 'pairs' || mode?.id === 'flash';
+  const grammar = mode?.section === 'grammar';
+  const tenseChoices = TENSES.filter((t) => mode?.id !== 'questions' && (t.id !== 'passe_simple' || mode?.id === 'temps'));
+  const toggleTense = (id: string) => {
+    const cur = opts.tenses ?? [];
+    setOpts({ tenses: cur.includes(id) ? cur.filter((t) => t !== id) : [...cur, id] });
+  };
 
   const setOpts = (patch: Partial<ModeOptions>) => {
     if (!mode) return;
@@ -47,8 +54,13 @@ export function GameSetup({ mode, onClose }: Props) {
     if (!mode) return;
     sfx.whoosh();
     const params = new URLSearchParams();
-    if (opts.deckIds.length) params.set('decks', opts.deckIds.join(','));
-    if (opts.focus) params.set('focus', '1');
+    if (grammar) {
+      if (opts.tenses?.length) params.set('tenses', opts.tenses.join(','));
+      if (mode.id === 'conjugaison' && opts.verbSet && opts.verbSet !== 'all') params.set('verbset', opts.verbSet);
+    } else {
+      if (opts.deckIds.length) params.set('decks', opts.deckIds.join(','));
+      if (opts.focus) params.set('focus', '1');
+    }
     if (opts.survival && !noSurvival) params.set('survival', '1');
     else params.set('len', String(opts.length));
     await wipeFrom(startRef.current, color!);
@@ -82,6 +94,46 @@ export function GameSetup({ mode, onClose }: Props) {
             </div>
           </div>
 
+          {grammar ? (
+            <>
+              {mode.id !== 'questions' && (
+                <>
+                  <div className="field-label">Tenses</div>
+                  <div className="row row--wrap setup-decks">
+                    <button className="chip" aria-pressed={!opts.tenses?.length} onClick={() => setOpts({ tenses: [] })}>
+                      <Emoji e="🌈" size={18} /> All tenses
+                    </button>
+                    {tenseChoices.map((t) => (
+                      <button key={t.id} className="chip" aria-pressed={!!opts.tenses?.includes(t.id)} onClick={() => toggleTense(t.id)}>
+                        {t.fr}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+              {mode.id === 'conjugaison' && (
+                <>
+                  <div className="field-label" style={{ marginTop: 16 }}>
+                    Verbs
+                  </div>
+                  <div className="row row--wrap setup-decks">
+                    {(
+                      [
+                        ['all', '🍬', 'All verbs'],
+                        ['book', '📗', 'My book (-er)'],
+                        ['core', '💪', 'Irregular & co'],
+                      ] as const
+                    ).map(([k, e, label]) => (
+                      <button key={k} className="chip" aria-pressed={(opts.verbSet ?? 'all') === k} onClick={() => setOpts({ verbSet: k })}>
+                        <Emoji e={e} size={18} /> {label}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </>
+          ) : (
+          <>
           <div className="field-label">Words from</div>
           <div className="row row--wrap setup-decks">
             <button className="chip" aria-pressed={opts.deckIds.length === 0 && !opts.focus} onClick={() => setOpts({ deckIds: [], focus: false })}>
@@ -121,6 +173,8 @@ export function GameSetup({ mode, onClose }: Props) {
               </motion.div>
             )}
           </AnimatePresence>
+          </>
+          )}
 
           {!noSurvival && (
             <>

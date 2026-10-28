@@ -1,0 +1,31 @@
+import type { Frame } from '../../../lib/grammar/types';
+import { ACT, ACT_NO_IMP, FEELING, LASTING, LASTING_FEELING, NO_IMP, ONCE, SINGULAR, STATE, group } from './shared';
+
+export const LOVE: Frame[] = group('love', [
+  { id: 'rencontrer-gens-sympas', verb: 'rencontrer', fr: 'des gens sympas', frNeg: 'de gens sympas', en: 'nice people', enVerb: 'meet', object: 'person' },
+  { id: 'sortir-amis', verb: 'sortir', fr: 'avec des amis', en: 'with friends', enVerb: 'go out', tenses: ACT },
+  { id: 'aller-restaurant', verb: 'aller', fr: 'au restaurant', en: 'to a restaurant', tenses: ACT },
+  { id: 'avoir-rendez-vous', verb: 'avoir', fr: 'rendez-vous avec un inconnu', en: 'a date with a stranger', enVerb: 'have', stative: true, tenses: FEELING, level: 2 },
+  { id: 'tomber-amoureux', verb: 'tomber', fr: '{amoureux|amoureuse|amoureux|amoureuses}', en: 'in love', enVerb: 'fall', tenses: NO_IMP },
+  { id: 'etre-amoureux', verb: 'être', fr: '{amoureux|amoureuse|amoureux|amoureuses}', en: 'in love', stative: true, tenses: LASTING_FEELING },
+  { id: 'embrasser-amoureux', verb: 'embrasser', fr: '{mon} amoureux', en: '{my} sweetheart', enVerb: 'kiss', persons: SINGULAR },
+  { id: 'offrir-fleurs', verb: 'offrir', fr: 'des fleurs', frNeg: 'de fleurs', en: 'flowers', enVerb: 'give', object: 'thing' },
+  { id: 'ecrire-lettre-amour', verb: 'écrire', fr: "une lettre d'amour", frNeg: "de lettre d'amour", en: 'a love letter' },
+  { id: 'chuchoter-mots-doux', verb: 'chuchoter', fr: 'des mots doux', frNeg: 'de mots doux', en: 'sweet nothings', enVerb: 'whisper', level: 2 },
+  { id: 'rever-grand-amour', verb: 'rêver', fr: 'du grand amour', en: 'of true love', enVerb: 'dream', tenses: ACT },
+  { id: 'croire-grand-amour', verb: 'croire', fr: 'au grand amour', en: 'in true love', enVerb: 'believe', stative: true, tenses: LASTING },
+  { id: 'plaire-tout-le-monde', verb: 'plaire', fr: 'à tout le monde', en: 'by everyone', enVerb: 'be liked', stative: true, tenses: LASTING_FEELING, level: 2 },
+  { id: 'faire-confiance', verb: 'faire', fr: 'confiance aux gens', en: 'people', enVerb: 'trust', stative: true, tenses: STATE, level: 2 },
+  { id: 'dire-verite', verb: 'dire', fr: 'la vérité', en: 'the truth', enVerb: 'tell' },
+  { id: 'cacher-secret', verb: 'cacher', fr: 'un secret', frNeg: 'de secret', en: 'a secret', enVerb: 'hide', object: 'thing', tenses: NO_IMP },
+  { id: 'promettre-revenir', verb: 'promettre', fr: 'de revenir', en: 'to come back', enVerb: 'promise', tenses: NO_IMP },
+  { id: 'attendre-reponse', verb: 'attendre', fr: 'une réponse', frNeg: 'de réponse', en: 'an answer', enVerb: 'wait for', tenses: ACT },
+  { id: 'rougir', verb: 'rougir', fr: '', en: '', enVerb: 'blush', tenses: NO_IMP },
+  { id: 'pleurer-cinema', verb: 'pleurer', fr: 'au cinéma', en: 'at the cinema', enVerb: 'cry', tenses: ACT_NO_IMP },
+  { id: 'pardonner-erreur', verb: 'pardonner', fr: "l'erreur", en: 'the mistake', enVerb: 'forgive' },
+  { id: 'regretter-decision', verb: 'regretter', fr: 'la décision', en: 'the decision', enVerb: 'regret', stative: true, tenses: FEELING },
+  { id: 'dechirer-lettre', verb: 'déchirer', fr: 'la lettre', en: 'the letter', enVerb: 'tear up' },
+  { id: 'quitter-copain', verb: 'quitter', fr: '{mon} copain', en: '{my} boyfriend', enVerb: 'leave', persons: SINGULAR, tenses: ONCE, level: 2 },
+  { id: 'epouser-millionnaire', verb: 'épouser', fr: 'un millionnaire', frNeg: 'de millionnaire', en: 'a millionaire', enVerb: 'marry', tenses: ONCE, level: 2 },
+  { id: 'se-marier-eglise', verb: 'se marier', fr: "à l'église", en: 'in church', enVerb: 'get married', tenses: ONCE },
+]);

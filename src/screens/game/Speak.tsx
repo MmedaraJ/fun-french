@@ -5,7 +5,7 @@ import { SpeakButton } from '../../components/SpeakButton';
 import { burstFrom } from '../../lib/confetti';
 import { listenOnce, matchSpoken, RecognitionError } from '../../lib/listen';
 import { sfx } from '../../lib/sound';
-import { speak, stopSpeaking } from '../../lib/speech';
+import { stopSpeaking } from '../../lib/speech';
 import type { QProps } from './types';
 import './Speak.css';
 
@@ -18,22 +18,13 @@ const ERRORS: Record<string, string> = {
 };
 
 /** Game 11: say the word; the browser's speech recognition checks it. */
-export function Speak({ q, phase, onAnswer, autoplay }: QProps) {
+export function Speak({ q, phase, onAnswer }: QProps) {
   const [state, setState] = useState<'idle' | 'listening' | 'retry'>('idle');
   const [heard, setHeard] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [tries, setTries] = useState(0);
   const stopRef = useRef<() => void>(() => {});
   const micRef = useRef<HTMLButtonElement>(null);
-  // Stronger cards: recall from the picture/English instead of reading the French.
-  const [recall] = useState(() => !q.isNew && Math.random() < 0.4);
-
-  useEffect(() => {
-    if (!recall && autoplay) {
-      const t = setTimeout(() => void speak(q.card.fr), 350);
-      return () => clearTimeout(t);
-    }
-  }, [q.key, q.card.fr, recall, autoplay]);
 
   useEffect(() => () => stopRef.current(), []);
 
@@ -74,13 +65,13 @@ export function Speak({ q, phase, onAnswer, autoplay }: QProps) {
   return (
     <>
       <div className="q-prompt">
-        <div className="q-label">{recall ? 'Dis-le en français · Say it in French' : 'Répète · Say it out loud'}</div>
+        <div className="q-label">Dis-le en français · Say it in French</div>
         {hasPicture(q.card) && q.card.kind !== 'sentence' && (
           <motion.div className="q-picture q-picture--sm" initial={{ scale: 0.5 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 300, damping: 15 }}>
             <CardImage card={q.card} size={q.card.imageId ? '100%' : '72%'} rounded={0} />
           </motion.div>
         )}
-        {recall && phase === 'ask' ? (
+        {phase === 'ask' ? (
           <div className="q-en" data-target={q.card.id}>
             “{q.card.en}”
           </div>
@@ -89,7 +80,7 @@ export function Speak({ q, phase, onAnswer, autoplay }: QProps) {
             {q.card.fr}
           </div>
         )}
-        {(!recall || phase === 'feedback') && <SpeakButton text={q.card.fr} size="md" />}
+        {phase === 'feedback' && <SpeakButton text={q.card.fr} size="md" />}
       </div>
 
       <div className="speak-zone">

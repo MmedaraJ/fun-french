@@ -1,0 +1,171 @@
+import { useLiveQuery } from 'dexie-react-hooks';
+import { motion } from 'framer-motion';
+import { useMemo, useRef, useState } from 'react';
+import { Route, Routes, useNavigate } from 'react-router-dom';
+import { wipeFrom } from '../../components/ColorWipe';
+import { Emoji } from '../../components/Emoji';
+import { GameSetup } from '../../components/GameSetup';
+import { Mascot } from '../../components/Mascot';
+import { Page } from '../../components/Page';
+import { ProgressRing } from '../../components/ProgressRing';
+import { LESSONS } from '../../data/grammar/lessons';
+import { db } from '../../lib/db';
+import { MODES, type ModeInfo } from '../../lib/engine/modes';
+import { lessonSkillIds } from '../../lib/grammar/exercises';
+import type { Lesson } from '../../lib/grammar/types';
+import { inkOn, paletteColor } from '../../lib/palette';
+import { useSettings } from '../../lib/settings';
+import { sfx } from '../../lib/sound';
+import { MAX_BOX } from '../../lib/srs';
+import type { Progress } from '../../types';
+import { Conjugator } from './Conjugator';
+import { LessonView } from './LessonView';
+import './Grammar.css';
+
+export const UNIT_INFO: Record<Lesson['unit'], { fr: string; en: string; emoji: string; color: string }> = {
+  bases: { fr: 'Les bases', en: 'The basics', emoji: '🧱', color: 'var(--sky)' },
+  present: { fr: 'Le présent', en: 'Present tense', emoji: '☀️', color: 'var(--sunshine)' },
+  questions: { fr: 'Poser des questions', en: 'Asking questions', emoji: '❓', color: 'var(--tangerine)' },
+  negation: { fr: 'La négation', en: 'Negation', emoji: '🚫', color: 'var(--berry)' },
+  futur: { fr: 'Le futur', en: 'The future', emoji: '🔮', color: 'var(--grape)' },
+  passe: { fr: 'Le passé', en: 'The past', emoji: '🕰️', color: 'var(--plum)' },
+  conditionnel: { fr: 'Le conditionnel', en: 'The conditional', emoji: '💭', color: 'var(--lagoon)' },
+  imperatif: { fr: 'L’impératif', en: 'Commands', emoji: '📣', color: 'var(--leaf)' },
+  subjonctif: { fr: 'Le subjonctif', en: 'The subjunctive', emoji: '🎭', color: 'var(--berry)' },
+};
+
+/** 0..1 mastery from the skills a lesson trains. */
+export function lessonMastery(lesson: Lesson, skills: Map<string, Progress>): number {
+  const ids = lessonSkillIds(lesson.practice);
+  if (!ids.length) return 0;
+  const seen = ids.map((id) => skills.get(id)).filter(Boolean) as Progress[];
+  if (!seen.length) return 0;
+  return seen.reduce((a, p) => a + Math.min(1, p.box / MAX_BOX), 0) / ids.length;
+}
+
+export default function Grammar() {
+  return (
+    <Routes>
+      <Route index element={<GrammarHome />} />
+      <Route path="lecon/:lessonId" element={<LessonView />} />
+      <Route path="verbes" element={<Conjugator />} />
+    </Routes>
+  );
+}
+
+function GrammarHome() {
+  const navigate = useNavigate();
+  const mascotColor = useSettings((s) => s.mascotColor);
+  const [setupMode, setSetupMode] = useState<ModeInfo | null>(null);
+  const skills = useLiveQuery(async () => new Map((await db.skills.toArray()).map((p) => [p.cardId, p])), []) ?? new Map<string, Progress>();
+  const games = MODES.filter((m) => m.section === 'grammar' && m.id !== 'grammaire');
+  const conjRef = useRef<HTMLButtonElement>(null);
+
+  const units = useMemo(() => {
+    const out: { unit: Lesson['unit']; lessons: Lesson[] }[] = [];
+    for (const l of LESSONS) {
+      const last = out[out.length - 1];
+      if (last && last.unit === l.unit) last.lessons.push(l);
+      else out.push({ unit: l.unit, lessons: [l] });
+    }
+    return out;
+  }, []);
+
+  const total = LESSONS.length;
+  const started = LESSONS.filter((l) => lessonMastery(l, skills) > 0).length;
+
+  return (
+    <Page className="grammar">
+      <header className="gr-hero panel">
+        <Mascot mood="thinking" size={96} color={mascotColor} />
+        <div>
+          <h1 className="screen-title">Grammaire</h1>
+          <p className="muted">
+            Every tense, questions, negation: short lessons, then games. {started}/{total} lessons started.
+          </p>
+        </div>
+      </header>
+
+      <div className="gr-games">
+        {games.map((m, i) => (
+          <motion.button
+            key={m.id}
+            className="gr-game"
+            style={{ background: paletteColor(m.color), color: inkOn(m.color) }}
+            onClick={() => {
+              sfx.pop();
+              setSetupMode(m);
+            }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.05 + i * 0.05, type: 'spring', stiffness: 300, damping: 22 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <Emoji e={m.emoji} size={40} />
+            <strong>{m.name}</strong>
+            <span>{m.en}</span>
+          </motion.button>
+        ))}
+        <motion.button
+          ref={conjRef}
+          className="gr-game gr-game--light"
+          onClick={async () => {
+            sfx.whoosh();
+            await wipeFrom(conjRef.current, 'var(--sky)');
+            navigate('/grammaire/verbes');
+          }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25, type: 'spring', stiffness: 300, damping: 22 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <Emoji e="📒" size={40} />
+          <strong>Conjugueur</strong>
+          <span>Verb tables</span>
+        </motion.button>
+      </div>
+
+      {units.map(({ unit, lessons }) => {
+        const u = UNIT_INFO[unit];
+        return (
+          <section key={unit + lessons[0].id} className="gr-unit">
+            <h2 className="section-title">
+              <Emoji e={u.emoji} size={24} /> {u.fr} <small>{u.en}</small>
+            </h2>
+            <div className="gr-path">
+              {lessons.map((l, i) => {
+                const m = lessonMastery(l, skills);
+                return (
+                  <motion.button
+                    key={l.id}
+                    className="gr-lesson"
+                    onClick={() => {
+                      sfx.tap();
+                      navigate(`/grammaire/lecon/${l.id}`);
+                    }}
+                    initial={{ opacity: 0, x: -16 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.03 * i }}
+                    whileTap={{ scale: 0.97 }}
+                    style={{ '--unit': u.color } as React.CSSProperties}
+                  >
+                    <ProgressRing value={m} size={48} stroke={6} color={u.color}>
+                      {m >= 0.99 ? <Emoji e="⭐" size={20} /> : <span className="gr-num">{LESSONS.indexOf(l) + 1}</span>}
+                    </ProgressRing>
+                    <span className="gr-lesson-text">
+                      <strong>{l.title}</strong>
+                      <span>{l.en}</span>
+                    </span>
+                    <span className={'badge gr-level l' + l.level}>{['', 'A1', 'A2', 'B1'][l.level]}</span>
+                  </motion.button>
+                );
+              })}
+            </div>
+          </section>
+        );
+      })}
+
+      <GameSetup mode={setupMode} onClose={() => setSetupMode(null)} />
+    </Page>
+  );
+}

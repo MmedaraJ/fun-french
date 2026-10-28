@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { bestEmoji, useEmojiIndex } from '../../components/EmojiPicker';
 import { Emoji } from '../../components/Emoji';
@@ -7,9 +7,9 @@ import { Mascot } from '../../components/Mascot';
 import { Page } from '../../components/Page';
 import { toast } from '../../components/Toasts';
 import { aiAvailable, aiExtractFromText } from '../../lib/ai';
-import { addCards, existingFrench } from '../../lib/content';
+import { addCards, existingFrench, existingPairs } from '../../lib/content';
 import { wordCount } from '../../lib/french';
-import { detectFormat, makeCandidate, pairsToCandidates, segmentText, selectedPhrases, type Candidate } from '../../lib/parse';
+import { contentWordIndices, correctAgainstKnown, detectFormat, makeCandidate, pairsToCandidates, segmentText, selectedPhrases, type Candidate } from '../../lib/parse';
 import { useSettings } from '../../lib/settings';
 import { sfx } from '../../lib/sound';
 import { ReviewList, toRows, type ReviewRow } from './ReviewList';
@@ -28,7 +28,8 @@ const SAMPLE_TEXT = `Samedi matin, je vais au marché avec mon mari. Nous acheto
 /** /add/text — paste a vocabulary list or any French text and pick what to learn. */
 export default function AddText() {
   const location = useLocation();
-  const incoming = (location.state as { text?: string; from?: string } | null)?.text ?? '';
+  const state = (location.state as { text?: string; from?: string; auto?: boolean; pages?: number } | null) ?? {};
+  const incoming = state.text ?? '';
   const mascotColor = useSettings((s) => s.mascotColor);
   useSettings((s) => s.aiKey);
   const magic = aiAvailable();
@@ -42,10 +43,6 @@ export default function AddText() {
   const [fromAi, setFromAi] = useState(false);
   const [aiBusy, setAiBusy] = useState(false);
   const [done, setDone] = useState<{ ids: string[]; deckId: string } | null>(null);
-
-  useEffect(() => {
-    if (incoming) toast({ title: 'Texte scanné', body: 'Check it, then pick what to learn.', emoji: '🔎' });
-  }, [incoming]);
 
   const format = useMemo(() => detectFormat(text), [text]);
   const seg = useMemo(() => (format.type === 'text' ? segmentText(text) : null), [format.type, text]);
@@ -61,21 +58,46 @@ export default function AddText() {
       toast({ title: 'Rien à ajouter', body: 'Select a few words first.', emoji: '🙈' });
       return;
     }
-    setRows(toRows(withEmoji(cands), await existingFrench()));
+    // Scanned pages: fix misread letters / lost accents against words she already has.
+    const fixed = ai ? cands : correctAgainstKnown(cands, await existingPairs());
+    setRows(toRows(withEmoji(fixed), await existingFrench()));
     setFromAi(ai);
     setStage('review');
     sfx.whoosh();
   };
 
+  /** Free text: every content word starts selected, so nothing needs tapping one by one. */
+  const enterPick = (forText = text) => {
+    setSelected(contentWordIndices(segmentText(forText).segments));
+    setSentencePick(new Set());
+    setStage('pick');
+    sfx.whoosh();
+  };
+
   const next = () => {
     if (format.type === 'list') void goReview(pairsToCandidates(format.pairs, useSwap));
-    else if (format.type === 'text') {
-      setSelected(new Set());
-      setSentencePick(new Set());
-      setStage('pick');
-      sfx.whoosh();
-    }
+    else if (format.type === 'text') enterPick();
   };
+
+  // Scanned pages arrive ready: lists go straight to review, prose to word picking.
+  const autoRan = useRef(false);
+  useEffect(() => {
+    if (autoRan.current || !incoming) return;
+    autoRan.current = true;
+    const pages = state.pages ?? 1;
+    const f = detectFormat(incoming);
+    if (state.auto && f.type === 'list') {
+      toast({ title: pages > 1 ? `${pages} pages scannées` : 'Page scannée', body: `${f.pairs.length} words found, all ticked.`, emoji: '🔎' });
+      void goReview(pairsToCandidates(f.pairs, f.swap));
+    } else if (state.auto && f.type === 'text') {
+      toast({ title: pages > 1 ? `${pages} pages scannées` : 'Texte scanné', body: 'The French words are already selected.', emoji: '🔎' });
+      enterPick(incoming);
+    } else {
+      toast({ title: 'Texte scanné', body: 'Check it, then pick what to learn.', emoji: '🔎' });
+    }
+    // run once for the text that came in
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [incoming]);
 
   const extractWithAi = async () => {
     if (aiBusy || !text.trim()) return;
@@ -128,7 +150,7 @@ export default function AddText() {
       <AddHeader
         title="Du texte"
         emoji="📋"
-        sub={stage === 'pick' ? 'Tap the words you want to learn.' : stage === 'review' ? 'Check and tweak, then add.' : 'Paste a vocab list or any French text.'}
+        sub={stage === 'pick' ? 'The French words are pre-selected — tap any to drop it.' : stage === 'review' ? 'Check and tweak, then add.' : 'Paste a vocab list or any French text.'}
         back={stage === 'input' || stage === 'done' ? '/add' : undefined}
         right={
           stage === 'pick' || stage === 'review' ? (
@@ -245,6 +267,31 @@ export default function AddText() {
 
         {stage === 'pick' && seg && (
           <motion.div key="pick" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}>
+            <div className="pick-tools">
+              <span className="pick-count">
+                <strong>{selected.size}</strong> mot{selected.size > 1 ? 's' : ''} sélectionné{selected.size > 1 ? 's' : ''}
+              </span>
+              <button
+                className="btn btn--sm btn--ghost"
+                onClick={() => {
+                  sfx.softPop();
+                  setSelected(contentWordIndices(seg.segments));
+                }}
+                data-testid="select-all"
+              >
+                Tout sélectionner
+              </button>
+              <button
+                className="btn btn--sm btn--ghost"
+                onClick={() => {
+                  sfx.tap();
+                  setSelected(new Set());
+                }}
+                disabled={!selected.size}
+              >
+                Tout effacer
+              </button>
+            </div>
             <div className="panel tap-text" lang="fr">
               {seg.segments.map((s, k) =>
                 s.type === 'word' ? (
@@ -272,11 +319,24 @@ export default function AddText() {
                 </motion.div>
               )}
             </AnimatePresence>
-            <p className="muted tip">Tip: tap neighbouring words (like “le” + “marché”) to keep them together.</p>
+            <p className="muted tip">Neighbouring words stay together as one expression; nouns take the article in front of them.</p>
 
             {learnableSentences.length > 0 && (
               <>
-                <h3 className="section-title">Ajouter des phrases entières</h3>
+                <div className="pick-sentences-head">
+                  <h3 className="section-title">Ajouter des phrases entières</h3>
+                  <button
+                    className={'chip' + (sentencePick.size === learnableSentences.length ? ' chip--on' : '')}
+                    aria-pressed={sentencePick.size === learnableSentences.length}
+                    onClick={() => {
+                      sfx.softPop();
+                      setSentencePick(sentencePick.size === learnableSentences.length ? new Set() : new Set(learnableSentences.map(({ i }) => i)));
+                    }}
+                    data-testid="all-sentences"
+                  >
+                    {sentencePick.size === learnableSentences.length ? '✓ Toutes les phrases' : '+ Ajouter toutes les phrases'}
+                  </button>
+                </div>
                 <ul className="sentence-picks">
                   {learnableSentences.map(({ s, i }) => (
                     <li key={i}>

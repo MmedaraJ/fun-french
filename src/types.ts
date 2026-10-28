@@ -80,21 +80,38 @@ export interface Progress {
   masteredAt?: number;
 }
 
-export type GameMode =
+/** Vocabulary question types; each also has its own game on the home screen. */
+export type VocabType =
   | 'pick-image'
   | 'pick-word'
   | 'spell'
   | 'listen'
-  | 'mix'
   | 'gender'
   | 'build'
   | 'type'
+  | 'dictation'
   | 'pairs'
   | 'flash'
   | 'speak';
 
-/** A question type is what a single question actually asks ("mix" picks among these). */
-export type QuestionType = Exclude<GameMode, 'mix'>;
+/** Grammar question types (same values as ExerciseKind in lib/grammar/types). */
+export type GrammarType =
+  | 'conj'
+  | 'cloze'
+  | 'tense-id'
+  | 'transform'
+  | 'negate'
+  | 'qform'
+  | 'qword'
+  | 'qmatch'
+  | 'gtranslate'
+  | 'glisten';
+
+/** A question type is what a single question actually asks. */
+export type QuestionType = VocabType | GrammarType;
+
+/** A game: one vocabulary type, the vocabulary mix, or a grammar game. */
+export type GameMode = VocabType | 'mix' | 'conjugaison' | 'temps' | 'questions' | 'grammaire';
 
 /** One answered question, stored for statistics. */
 export interface AnswerEvent {
@@ -108,6 +125,9 @@ export interface AnswerEvent {
   ts: number;
   /** Local calendar day, "YYYY-MM-DD". */
   day: string;
+  /** Grammar answers: the sentence and its translation (there's no word card to look up). */
+  label?: string;
+  labelEn?: string;
 }
 
 export interface Session {
@@ -128,6 +148,8 @@ export interface Session {
   missed: string[];
   /** Card ids in the order they were asked. */
   cardIds: string[];
+  /** Grammar lesson this round practised, if any. */
+  lesson?: string;
 }
 
 export interface DailyStat {
@@ -173,5 +195,7 @@ export interface StarterDeck {
   level: number;
   /** Default kind for the cards in this deck. */
   kind: CardKind;
+  /** Switched on straight away when the deck first appears in an app that is already set up. */
+  activeByDefault?: boolean;
   cards: StarterCard[];
 }

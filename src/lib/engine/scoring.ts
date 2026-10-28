@@ -9,9 +9,20 @@ const SPEED: Record<QuestionType, [number, number]> = {
   spell: [4000, 16000],
   build: [5000, 22000],
   type: [5000, 22000],
+  dictation: [5000, 22000],
   speak: [2500, 10000],
   flash: [0, 0],
   pairs: [0, 0],
+  conj: [3000, 15000],
+  cloze: [4000, 18000],
+  'tense-id': [3000, 12000],
+  transform: [5000, 22000],
+  negate: [5000, 22000],
+  qform: [5000, 22000],
+  qword: [2500, 10000],
+  qmatch: [4000, 15000],
+  gtranslate: [6000, 25000],
+  glisten: [3000, 12000],
 };
 
 export const BASE_POINTS = 100;

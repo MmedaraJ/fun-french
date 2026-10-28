@@ -2,7 +2,8 @@
 // priority), which question type for each, and the answer options.
 import type { Card, GameMode, Progress, QuestionType } from '../../types';
 import { hasPicture } from '../../components/CardImage';
-import { hasArticle, isSpellable, sentenceTokens, spellSlots, splitArticle, wordCount } from '../french';
+import { decapitalize, hasArticle, isSpellable, sentenceTokens, spellSlots, splitArticle, wordCount } from '../french';
+import type { GrammarPayload } from '../grammar/exercises';
 import { overdueRatio } from '../srs';
 import { MODE_BY_ID } from './modes';
 
@@ -13,8 +14,8 @@ export interface Question {
   /** Multiple choice answers (target included), already shuffled. */
   options?: Card[];
   optionStyle?: 'image' | 'fr' | 'en';
-  /** What the learner sees as the cue. */
-  prompt?: 'image' | 'en';
+  /** What the learner sees (or hears) as the cue. */
+  prompt?: 'image' | 'en' | 'audio';
   /** Spell: the letter pool, scrambled. */
   letters?: string[];
   /** Spell: the word split into slots. */
@@ -26,6 +27,8 @@ export interface Question {
   answer?: string[];
   /** Pairs: the cards on the board. */
   pairs?: Card[];
+  /** Grammar questions carry their generated content here. */
+  g?: GrammarPayload;
   isNew: boolean;
   retry?: boolean;
 }
@@ -84,11 +87,15 @@ export function canAsk(type: QuestionType, card: Card): boolean {
       return card.kind !== 'word' && n >= 3 && n <= 12;
     }
     case 'type':
+    case 'dictation':
       return wordCount(card.fr) <= 7 && card.fr.length <= 48;
     case 'speak':
       return wordCount(card.fr) <= 8;
     case 'pairs':
       return card.fr.length <= 26;
+    default:
+      // grammar questions are generated from sentence frames, not word cards
+      return false;
   }
 }
 
@@ -127,21 +134,22 @@ export function chooseType(card: Card, allowed: QuestionType[], box: number, pic
   const usable = allowed.filter((t) => canAsk(t, card) && (t !== 'pick-image' || pictureOptions));
   if (!usable.length) return null;
   if (usable.length === 1) return usable[0];
-  const W: Record<QuestionType, [number, number, number]> = {
-    // weights for [new/learning, learned, strong]
-    'pick-image': [5, 2, 1],
+  const W: Partial<Record<QuestionType, [number, number, number]>> = {
+    // weights for [new/learning, learned, strong]; recall over recognition as words get stronger
+    'pick-image': [3, 1, 0.5],
     'pick-word': [4, 3, 1],
-    listen: [3, 3, 2],
-    gender: [1, 3, 2],
-    spell: [1, 4, 3],
+    listen: [3, 2, 1],
+    gender: [2, 3, 2],
+    spell: [2, 4, 3],
     build: [3, 5, 5],
-    type: [0.5, 2, 4],
+    type: [1, 3, 5],
+    dictation: [1, 2, 2],
     speak: [1, 2, 3],
     flash: [1, 1, 1],
     pairs: [1, 1, 1],
   };
   const tier = box <= 1 ? 0 : box <= 3 ? 1 : 2;
-  const weights = usable.map((t) => W[t][tier]);
+  const weights = usable.map((t) => W[t]?.[tier] ?? 1);
   let r = rand() * weights.reduce((a, b) => a + b, 0);
   for (let i = 0; i < usable.length; i++) {
     r -= weights[i];
@@ -211,6 +219,7 @@ export function makeQuestion(type: QuestionType, card: Card, pool: Pool, opts: {
     }
     case 'build': {
       const answer = sentenceTokens(card.fr);
+      if (answer.length) answer[0] = decapitalize(answer[0]);
       const own = new Set(answer.map((t) => t.toLowerCase()));
       // A capitalised decoy would stand out mid-sentence, so first words lose their capital.
       const lowerFirst = (t: string, i: number) => (i === 0 && /^\p{Lu}\p{Ll}/u.test(t) ? t[0].toLowerCase() + t.slice(1) : t);
@@ -229,10 +238,15 @@ export function makeQuestion(type: QuestionType, card: Card, pool: Pool, opts: {
     case 'flash':
       q.prompt = hasPicture(card) && card.kind !== 'sentence' ? 'image' : 'en';
       return q;
+    case 'dictation':
+      q.prompt = 'audio';
+      return q;
     case 'gender':
       return q;
     case 'pairs':
       return null; // built by makePairsBoard
+    default:
+      return null; // grammar questions come from lib/grammar/exercises
   }
 }
 

@@ -10,6 +10,11 @@
   padding: 14px 16px calc(16px + var(--safe-bottom));
   box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.22);
   overflow: hidden;
+  /* a long sentence and note scroll inside the sheet; the button stays on screen */
+  display: flex;
+  flex-direction: column;
+  max-height: 88vh;
+  max-height: 88dvh;
 }
 
 .feedback::before {
@@ -28,11 +33,13 @@
 }
 
 .feedback-inner {
+  width: 100%;
   max-width: 620px;
   margin: 0 auto;
   display: flex;
   gap: 10px;
   align-items: flex-start;
+  min-height: 0;
 }
 
 .feedback-mascot {
@@ -43,6 +50,8 @@
 .feedback-body {
   flex: 1;
   min-width: 0;
+  align-self: stretch;
+  overflow-y: auto;
 }
 
 .feedback-title {
@@ -142,6 +151,7 @@
   max-width: 620px;
   margin: 14px auto 0;
   display: flex;
+  flex-shrink: 0;
 }
 
 .feedback-timer {

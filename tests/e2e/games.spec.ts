@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { onboarded, playRound } from './helpers';
+import { answerCurrent, onboarded, playRound } from './helpers';
 
 const MODES = ['pick-image', 'pick-word', 'listen', 'spell', 'gender', 'build', 'type', 'flash', 'pairs', 'mix'];
 
@@ -23,4 +23,49 @@ test('survival ends after three mistakes', async ({ page }) => {
   await page.goto('/#/play/pick-word?survival=1');
   await playRound(page, { wrongEvery: 1 });
   await expect(page.getByText(/You survived/)).toBeVisible();
+});
+
+test.describe('grammar games', () => {
+  for (const mode of ['conjugaison', 'temps', 'questions', 'grammaire']) {
+    test(mode, async ({ page }) => {
+      const errors: string[] = [];
+      page.on('pageerror', (e) => errors.push(String(e)));
+      await onboarded(page);
+      await page.goto(`/#/play/${mode}?len=6`);
+      await playRound(page, { wrongEvery: 3 });
+      await expect(page.locator('.results-title')).toBeVisible();
+      expect(errors).toEqual([]);
+    });
+  }
+
+  test('a lesson practice round', async ({ page }) => {
+    await onboarded(page);
+    await page.goto('/#/grammaire');
+    await page.locator('.gr-lesson').first().click();
+    await page.getByRole('button', { name: /S’entraîner/ }).click();
+    await playRound(page);
+    await expect(page.locator('.results-title')).toBeVisible();
+  });
+
+  test('daily practice mixes in grammar', async ({ page }) => {
+    await onboarded(page, { introduceNew: false });
+    await page.goto('/#/play/mix?daily=1&len=10');
+    const kinds = new Set<string>();
+    for (let i = 0; i < 40; i++) {
+      // the results page takes a moment to work out the score: wait for it or the next question
+      await expect(
+        page.locator('[data-qtype][data-phase="ask"], .results, button:has-text("D’accord !"), button:has-text("Compris !")').first(),
+      ).toBeVisible({ timeout: 15_000 });
+      if (await page.locator('.results').isVisible().catch(() => false)) break;
+      const live = page.locator('[data-qtype][data-phase="ask"]').first();
+      if (await live.isVisible().catch(() => false)) kinds.add((await live.getAttribute('data-qtype'))!);
+      await answerCurrent(page);
+      await page.locator('.feedback').waitFor({ state: 'visible', timeout: 8000 });
+      const cont = page.getByRole('button', { name: /Continuer|Voir mon score/ });
+      if (await cont.isVisible().catch(() => false)) await cont.click();
+      await page.locator('.feedback').waitFor({ state: 'hidden', timeout: 8000 });
+    }
+    const grammar = ['conj', 'cloze', 'tense-id', 'transform', 'negate', 'qform', 'qword', 'qmatch', 'gtranslate', 'glisten'];
+    expect([...kinds].some((k) => grammar.includes(k))).toBe(true);
+  });
 });

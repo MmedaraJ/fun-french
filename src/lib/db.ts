@@ -10,6 +10,8 @@ export class BonbonDB extends Dexie {
   decks!: Table<Deck, string>;
   cards!: Table<Card, string>;
   progress!: Table<Progress, string>;
+  /** Grammar skills ("g:tense:imparfait"…), same shape as word progress. */
+  skills!: Table<Progress, string>;
   events!: Table<AnswerEvent, number>;
   sessions!: Table<Session, string>;
   daily!: Table<DailyStat, string>;
@@ -30,6 +32,7 @@ export class BonbonDB extends Dexie {
       unlocked: 'id',
       meta: 'key',
     });
+    this.version(2).stores({ skills: 'cardId, due, box' });
   }
 }
 

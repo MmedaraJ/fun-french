@@ -12,6 +12,8 @@ export interface AchCtx {
   daily: DailyStat[];
   progress: Progress[];
   cards: Card[];
+  /** Grammar skills. */
+  skills: Progress[];
 }
 
 export interface AchievementDef {
@@ -30,6 +32,10 @@ const own = (c: AchCtx) => c.cards.filter((x) => x.source !== 'starter').length;
 const streakBest = (c: AchCtx) => computeStreak(c.daily).best;
 const perfect = (s?: Session, min = 5) => !!s && !s.survival && s.total >= min && s.correct === s.total;
 const hourOf = (s?: Session) => (s ? new Date(s.endedAt).getHours() : -1);
+const GRAMMAR_MODES = ['conjugaison', 'temps', 'questions', 'grammaire'];
+const rightIn = (c: AchCtx, mode: string) => c.sessions.filter((s) => s.mode === mode).reduce((a, s) => a + s.correct, 0);
+const tenseDone = (c: AchCtx, t: string) => c.skills.some((p) => p.correct > 0 && (p.cardId === `g:conj:${t}` || p.cardId === `g:tense:${t}` || p.cardId === `g:id:${t}` || p.cardId === `g:listen:${t}`));
+const ALL_TENSES = ['present', 'passe_compose', 'imparfait', 'plus_que_parfait', 'passe_simple', 'futur_simple', 'futur_anterieur', 'futur_proche', 'passe_recent', 'conditionnel_present', 'conditionnel_passe', 'subjonctif_present', 'subjonctif_passe', 'imperatif'];
 
 export const ACHIEVEMENTS: AchievementDef[] = [
   { id: 'first-round', emoji: '👣', title: () => 'Premier pas', desc: 'Finish your first round.', test: (c) => c.sessions.length >= 1 },
@@ -56,6 +62,11 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   { id: 'spell-perfect', emoji: '✏️', title: () => 'Orthographe parfaite', desc: 'A perfect spelling round.', test: (c) => c.session?.mode === 'spell' && perfect(c.session) },
   { id: 'listen-perfect', emoji: '👂', title: () => 'Oreille d’or', desc: 'A perfect listening round.', test: (c) => c.session?.mode === 'listen' && perfect(c.session) },
   { id: 'speak-10', emoji: '🗣️', title: () => g('Bavard', 'Bavarde'), desc: 'Say 10 words right in “Parle !”.', test: (c) => c.sessions.filter((s) => s.mode === 'speak').reduce((a, s) => a + s.correct, 0) >= 10 },
+  { id: 'grammar-first', emoji: '📘', title: () => 'Première leçon', desc: 'Finish your first grammar round.', test: (c) => c.sessions.some((s) => GRAMMAR_MODES.includes(s.mode)) },
+  { id: 'conj-50', emoji: '🔁', title: () => g('Conjugueur', 'Conjugueuse'), desc: 'Get 50 right in “Conjugaison”.', test: (c) => rightIn(c, 'conjugaison') >= 50 },
+  { id: 'questions-30', emoji: '❓', title: () => g('Curieux', 'Curieuse'), desc: 'Get 30 right in “Questions”.', test: (c) => rightIn(c, 'questions') >= 30 },
+  { id: 'lessons-5', emoji: '🎓', title: () => g('Bon élève', 'Bonne élève'), desc: 'Practise 5 different grammar lessons.', test: (c) => new Set(c.sessions.map((s) => s.lesson).filter(Boolean)).size >= 5 },
+  { id: 'all-tenses', emoji: '⏳', title: () => g('Maître du temps', 'Maîtresse du temps'), desc: 'Get every one of the 14 tenses right at least once.', test: (c) => ALL_TENSES.every((t) => tenseDone(c, t)) },
   { id: 'marathon', emoji: '🏃', title: () => 'Marathon', desc: 'Finish 5 rounds in one day.', test: (c) => c.daily.some((d) => d.sessions >= 5) },
   { id: 'xp-1000', emoji: '💎', title: () => 'Mille XP', desc: 'Earn 1,000 XP in total.', test: (c) => sumXp(c.daily) >= 1000 },
   { id: 'xp-10000', emoji: '👸', title: () => g('Grand maître', 'Grande maîtresse'), desc: 'Earn 10,000 XP in total.', test: (c) => sumXp(c.daily) >= 10000 },
@@ -82,8 +93,8 @@ export const ACHIEVEMENTS: AchievementDef[] = [
 export const ACHIEVEMENT_BY_ID = Object.fromEntries(ACHIEVEMENTS.map((a) => [a.id, a]));
 
 async function loadCtx(session?: Session): Promise<AchCtx> {
-  const [sessions, daily, progress, cards] = await Promise.all([db.sessions.toArray(), db.daily.toArray(), db.progress.toArray(), db.cards.toArray()]);
-  return { session, sessions: sessions.filter((s) => s.total > 0), daily, progress, cards };
+  const [sessions, daily, progress, cards, skills] = await Promise.all([db.sessions.toArray(), db.daily.toArray(), db.progress.toArray(), db.cards.toArray(), db.skills.toArray()]);
+  return { session, sessions: sessions.filter((s) => s.total > 0), daily, progress, cards, skills };
 }
 
 /** Tests every locked achievement; stores and returns the newly unlocked ones. */

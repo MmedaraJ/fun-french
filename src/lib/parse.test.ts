@@ -150,3 +150,195 @@ describe('withArticle', () => {
     expect(withArticle('les fraises', 'f')).toBe('les fraises');
   });
 });
+
+import { contentWordIndices, isContentWord, isInfinitive, normalizeGloss, normalizeHead, parseBilingual } from './parse';
+
+describe('lists without separators (textbook pages)', () => {
+  const rows = (text: string) => (parseList(text) ?? []).map((p) => [p.left, p.right]);
+
+  it('splits where the capitalised "To" gloss begins and lowercases the infinitive', () => {
+    expect(rows('Abaisser To lower\nCoûter To cost\nChercher To look for – To search')).toEqual([
+      ['abaisser', 'to lower'],
+      ['coûter', 'to cost'],
+      ['chercher', 'to look for, to search'],
+    ]);
+  });
+
+  it('separates two columns that OCR merged into one line', () => {
+    expect(rows('Abaisser To lower Coller To stick\nAccorder To admit – To grant Dépenser To spend')).toEqual([
+      ['abaisser', 'to lower'],
+      ['coller', 'to stick'],
+      ['accorder', 'to admit, to grant'],
+      ['dépenser', 'to spend'],
+    ]);
+    expect(rows('Abaisser To lower        Coller To stick\nDanser To dance      Garder To keep')).toEqual([
+      ['abaisser', 'to lower'],
+      ['coller', 'to stick'],
+      ['danser', 'to dance'],
+      ['garder', 'to keep'],
+    ]);
+  });
+
+  it('handles columns read one after the other', () => {
+    expect(rows('Abaisser To lower\nAccorder To admit – To grant\nColler To stick\nDanser To dance')).toHaveLength(4);
+  });
+
+  it('joins several glosses', () => {
+    expect(normalizeGloss('To admit – To grant')).toBe('to admit, to grant');
+    expect(normalizeGloss('To pull up – out')).toBe('to pull up, to pull out');
+    expect(normalizeGloss('To look for – search')).toBe('to look for, to search');
+    expect(normalizeGloss('To lower.')).toBe('to lower');
+    expect(rows('Arracher To pull up – out\nDépenser To spend')).toEqual([
+      ['arracher', 'to pull up, to pull out'],
+      ['dépenser', 'to spend'],
+    ]);
+  });
+
+  it('drops headers, footers and page numbers', () => {
+    const page = [
+      'REGULAR -ER VERBS',
+      'Abaisser To lower Coller To stick',
+      'Accorder To admit – To grant Dépenser To spend',
+      'Arracher To pull up – out Garder To keep',
+      'Remember to download the audio files to practise your pronunciation.',
+      'Remember To Download The Audio Files',
+      '12',
+      'Page 3',
+    ].join('\n');
+    expect(rows(page).map((r) => r[0])).toEqual(['abaisser', 'coller', 'accorder', 'dépenser', 'arracher', 'garder']);
+  });
+
+  it('copes with reflexive verbs', () => {
+    expect(normalizeHead('Lever (se)')).toBe('se lever');
+    expect(normalizeHead('Amuser (se)')).toBe("s'amuser");
+    expect(rows("Lever (se) To get up\nS'amuser To have fun")).toEqual([
+      ['se lever', 'to get up'],
+      ["s'amuser", 'to have fun'],
+    ]);
+  });
+
+  it('turns infinitives into plain words without gender', () => {
+    const cands = pairsToCandidates(parseList('Abaisser To lower\nSe lever To get up')!);
+    expect(cands[0]).toEqual({ fr: 'abaisser', en: 'to lower', kind: 'word', gender: undefined, plural: undefined });
+    expect(cands[1].kind).toBe('word');
+    expect(isInfinitive('finir')).toBe(true);
+    expect(isInfinitive("s'asseoir")).toBe(true);
+    expect(isInfinitive('le chat')).toBe(false);
+  });
+
+  it('reports the format as a list with French on the left', () => {
+    const f = detectFormat('Abaisser To lower\nCoûter To cost');
+    expect(f.type).toBe('list');
+    expect(f.type === 'list' && f.swap).toBe(false);
+  });
+
+  it('falls back to French-vs-English scoring without "To" anchors', () => {
+    expect(parseBilingual('chercher to look for\nparler to speak\nla pomme apple', 'scored')?.map((p) => [p.left, p.right])).toEqual([
+      ['chercher', 'to look for'],
+      ['parler', 'to speak'],
+      ['la pomme', 'apple'],
+    ]);
+    expect(parseBilingual("Il fait beau aujourd'hui.\nJe vais au marché avec mon mari.", 'scored')).toBeNull();
+  });
+
+  it('still reads dash-separated lists the usual way', () => {
+    const cands = pairsToCandidates(parseList('parler – To speak\nChanter – To sing')!);
+    expect(cands.map((c) => [c.fr, c.en])).toEqual([
+      ['parler', 'to speak'],
+      ['chanter', 'to sing'],
+    ]);
+  });
+});
+
+describe('pre-selecting words in free text', () => {
+  it('keeps content words and skips the small ones', () => {
+    expect(['marché', 'fraises', 'achetons', 'semaine'].every(isContentWord)).toBe(true);
+    expect(['le', 'des', 'avec', 'nous', 'et', 'trois', "c'est", "qu'il", 'est'].some(isContentWord)).toBe(false);
+  });
+
+  it('gives nouns their article from the determiner in front of them', () => {
+    const { segments } = segmentText('Nous achetons des fraises, du fromage et une baguette au marché avec mon amie.');
+    const sel = contentWordIndices(segments);
+    expect(selectedPhrases(segments, sel)).toEqual(['achetons', 'les fraises', 'le fromage', 'la baguette', 'le marché', "l'amie"]);
+  });
+});
+
+describe('OCR slips on textbook pages', () => {
+  const rows = (text: string) => (parseList(text) ?? []).map((p) => [p.left, p.right]);
+  it('keeps a gloss together when OCR drops the dash between meanings', () => {
+    expect(rows('Accorder To admit To grant Coller To stick\nDanser To dance')).toEqual([
+      ['accorder', 'to admit, to grant'],
+      ['coller', 'to stick'],
+      ['danser', 'to dance'],
+    ]);
+  });
+  it('accepts a lost capital on "to" after a French headword, but not footers', () => {
+    expect(rows('Abaisser to lower\nColler To stick\nRemember to download the audio files to practise.')).toEqual([
+      ['abaisser', 'to lower'],
+      ['coller', 'to stick'],
+    ]);
+  });
+});
+
+describe('wide gaps from OCR', () => {
+  const rows = (text: string) => (parseList(text) ?? []).map((p) => [p.left, p.right]);
+  it('reads lines where every column gap is wide (as Tesseract keeps them)', () => {
+    const ocr = [
+      'REGULAR -ER VERBS',
+      'Abaisser   To lower   Deviner   To guess',
+      'Accorder   To admit - To grant   Donner   To give',
+      'Passer   To pass — To spend (time)   Payer   To pay',
+      'Remember to download the audio files to practise your pronunciation.   12',
+    ].join('\n');
+    expect(rows(ocr)).toEqual([
+      ['abaisser', 'to lower'],
+      ['deviner', 'to guess'],
+      ['accorder', 'to admit, to grant'],
+      ['donner', 'to give'],
+      ['passer', 'to pass, to spend (time)'],
+      ['payer', 'to pay'],
+    ]);
+  });
+  it('pairs alternating French / English segments without "To"', () => {
+    expect(parseBilingual('pomme   apple   chien   dog\nmaison   house   voiture   car', 'scored')?.map((p) => [p.left, p.right])).toEqual([
+      ['pomme', 'apple'],
+      ['chien', 'dog'],
+      ['maison', 'house'],
+      ['voiture', 'car'],
+    ]);
+  });
+});
+
+import { correctAgainstKnown } from './parse';
+
+describe('more OCR slips', () => {
+  const rows = (text: string) => (parseList(text) ?? []).map((p) => [p.left, p.right]);
+  it('splits a "To" glued to the next word', () => {
+    expect(rows('Danser   To dance   Parler   Tospeak-Totalk\nDépenser   To spend   Pleurer   Tocry —')).toEqual([
+      ['danser', 'to dance'],
+      ['parler', 'to speak, to talk'],
+      ['dépenser', 'to spend'],
+      ['pleurer', 'to cry'],
+    ]);
+    // but real English words survive
+    expect(rows('Aujourd’hui   Today\nDemain   Tomorrow')).not.toContainEqual(['aujourd’hui', 'to day']);
+  });
+
+  it('corrects misread letters and lost accents against known words with the same meaning', () => {
+    const known = [
+      { fr: 'parler', en: 'to speak, to talk' },
+      { fr: 'écouter', en: 'to listen to' },
+      { fr: 'parier', en: 'to bet' },
+    ];
+    const fixed = correctAgainstKnown(
+      [
+        { fr: 'parier', en: 'to speak, to talk' }, // known word, left alone
+        { fr: 'ecouter', en: 'to listen to' },
+        { fr: 'pafler', en: 'to speak' },
+        { fr: 'danser', en: 'to dance' },
+      ],
+      known,
+    );
+    expect(fixed.map((f) => f.fr)).toEqual(['parier', 'écouter', 'parler', 'danser']);
+  });
+});

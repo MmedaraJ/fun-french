@@ -297,6 +297,13 @@
   }
 }
 
+/* with the key badge showing, long text options keep clear of it */
+@media (hover: hover) {
+  .opt--text {
+    padding-inline: 38px;
+  }
+}
+
 .opt.is-correct {
   background: var(--ok);
   color: #fff;

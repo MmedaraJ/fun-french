@@ -7,6 +7,26 @@
 // - Cards are ordered from most to least useful: the game teaches them in this order.
 import type { StarterDeck } from '../types';
 
+import { BOOK_ER_VERBS } from "./grammar/book-er-verbs";
+
+/** Pictures for the textbook verbs, only where the emoji is unambiguous. */
+const ER_EMOJI: Record<string, string> = {
+  accrocher: "🪝", aider: "🆘", aimer: "😍", ajouter: "➕", arrêter: "🛑", arriver: "🛬", attaquer: "⚔️",
+  augmenter: "📈", baisser: "📉", bavarder: "💬", blesser: "🤕", brosser: "🪥", brûler: "🔥", cacher: "🙈",
+  célébrer: "🎉", chanter: "🎤", chasser: "🏹", chercher: "🔍", chuchoter: "🤫", compter: "🔢", couper: "✂️",
+  coûter: "🏷️", crier: "📢", cuisiner: "🧑‍🍳", danser: "💃", déjeuner: "🥪", dépenser: "💸", dessiner: "🖍️",
+  détester: "😠", dîner: "🍽️", donner: "🎁", écouter: "🎧", embrasser: "😘", enregistrer: "💾",
+  enseigner: "🧑‍🏫", entrer: "🚪", épouser: "💍", étudier: "📚", explorer: "🧭", fermer: "🔒", féliciter: "🥳",
+  fumer: "🚬", gagner: "🏆", gaspiller: "🗑️", goûter: "😋", grimper: "🧗", habiter: "🏠", inventer: "💡",
+  inviter: "💌", jouer: "🎲", klaxonner: "📯", laver: "🧼", louer: "🔑", marcher: "🚶", mesurer: "📏",
+  montrer: "👉", noter: "📝", parler: "🗣️", pêcher: "🎣", penser: "🤔", planter: "🌱", pleurer: "😢",
+  prier: "🙏", puer: "🤢", raconter: "📖", regarder: "📺", rencontrer: "🤝", réparer: "🔧", réveiller: "⏰",
+  rêver: "💭", rouler: "🚗", sauter: "🦘", sauver: "🛟", signer: "✍️", skier: "⛷️", sonner: "🔔",
+  souffler: "🌬️", souhaiter: "🌠", taper: "⌨️", téléphoner: "📞", tourner: "🔄", tousser: "🤧",
+  travailler: "💼", traverser: "🚸", vérifier: "✅", verser: "🫗", viser: "🎯", visiter: "🗺️", voler: "✈️",
+  voter: "🗳️",
+};
+
 export const STARTER_DECKS: StarterDeck[] = [
   {
     id: "animals",
@@ -710,36 +730,33 @@ export const STARTER_DECKS: StarterDeck[] = [
       { fr: "manger", en: "to eat", e: "😋" },
       { fr: "boire", en: "to drink", e: "🥤" },
       { fr: "dormir", en: "to sleep", e: "😴" },
-      { fr: "parler", en: "to speak, to talk", e: "🗣️" },
-      { fr: "aimer", en: "to love, to like", e: "😍" },
       { fr: "voir", en: "to see", e: "👀" },
       { fr: "venir", en: "to come" },
       { fr: "prendre", en: "to take" },
       { fr: "dire", en: "to say, to tell" },
       { fr: "savoir", en: "to know (a fact)", note: "a person or place: connaître" },
-      { fr: "donner", en: "to give", e: "🎁" },
-      { fr: "regarder", en: "to look at, to watch", e: "📺" },
-      { fr: "écouter", en: "to listen (to)", e: "🎧" },
       { fr: "lire", en: "to read", e: "📖" },
       { fr: "écrire", en: "to write", e: "✍️" },
-      { fr: "penser", en: "to think", e: "🤔" },
-      { fr: "travailler", en: "to work", e: "💼" },
       { fr: "comprendre", en: "to understand" },
       { fr: "apprendre", en: "to learn", e: "🎓" },
-      { fr: "habiter", en: "to live (somewhere)", e: "🏠" },
       { fr: "acheter", en: "to buy", e: "🛍️" },
-      { fr: "chercher", en: "to look for", e: "🔍" },
-      { fr: "trouver", en: "to find" },
       { fr: "attendre", en: "to wait (for)", e: "⏳" },
       { fr: "ouvrir", en: "to open" },
-      { fr: "fermer", en: "to close" },
-      { fr: "marcher", en: "to walk", e: "🚶" },
       { fr: "courir", en: "to run", e: "🏃" },
-      { fr: "jouer", en: "to play", e: "🎲" },
-      { fr: "chanter", en: "to sing", e: "🎤" },
       { fr: "nager", en: "to swim", e: "🏊" },
       { fr: "appeler", en: "to call", e: "📞" },
     ],
+  },
+  {
+    id: "verbs-er",
+    name: "Verbes en -er",
+    nameEn: "Regular -er verbs (my book)",
+    emoji: "📗",
+    color: "tangerine",
+    level: 1,
+    kind: "word",
+    activeByDefault: true,
+    cards: BOOK_ER_VERBS.map(([fr, en]) => (ER_EMOJI[fr] ? { fr, en, e: ER_EMOJI[fr] } : { fr, en })),
   },
   {
     id: "adjectives",

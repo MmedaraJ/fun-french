@@ -156,3 +156,15 @@ describe('findDuplicates', () => {
     expect(await findDuplicates('le chat', 's1')).toHaveLength(0);
   });
 });
+
+import { existingByFrench } from './content';
+
+describe('existingByFrench', () => {
+  it('maps every live card to the theme it is in', async () => {
+    await db.cards.put(starter('s1', 'Abaisser'));
+    await db.cards.put({ ...starter('s2', 'le chien'), archived: true });
+    const map = await existingByFrench();
+    expect(map.get('abaisser')).toEqual({ id: 's1', deck: 'Les animaux' });
+    expect(map.has('le chien')).toBe(false);
+  });
+});

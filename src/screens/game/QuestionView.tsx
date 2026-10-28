@@ -1,6 +1,7 @@
 import { Build } from './Build';
 import { Flash } from './Flash';
 import { Gender } from './Gender';
+import { GrammarQuestion } from './GrammarQuestion';
 import { Listen } from './Listen';
 import { Pairs } from './Pairs';
 import { PickImage } from './PickImage';
@@ -11,6 +12,7 @@ import { TypeIt } from './TypeIt';
 import type { QProps } from './types';
 
 export function QuestionView(props: QProps) {
+  if (props.q.g) return props.q.g.mode === 'tiles' ? <Build {...props} /> : <GrammarQuestion {...props} />;
   switch (props.q.type) {
     case 'pick-image':
       return <PickImage {...props} />;
@@ -25,6 +27,7 @@ export function QuestionView(props: QProps) {
     case 'build':
       return <Build {...props} />;
     case 'type':
+    case 'dictation':
       return <TypeIt {...props} />;
     case 'flash':
       return <Flash {...props} />;

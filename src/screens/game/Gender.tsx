@@ -4,13 +4,12 @@ import { CardImage, hasPicture } from '../../components/CardImage';
 import { SpeakButton } from '../../components/SpeakButton';
 import { burstFrom } from '../../lib/confetti';
 import { splitArticle } from '../../lib/french';
-import { speak } from '../../lib/speech';
 import type { Gender as G } from '../../types';
 import type { QProps } from './types';
 import './Gender.css';
 
 /** Game 6: swipe or tap the noun to "le" (masculine) or "la" (feminine). */
-export function Gender({ q, phase, result, onAnswer, autoplay }: QProps) {
+export function Gender({ q, phase, result, onAnswer }: QProps) {
   const { noun, article } = splitArticle(q.card.fr);
   const [choice, setChoice] = useState<G | null>(null);
   const x = useMotionValue(0);
@@ -29,10 +28,9 @@ export function Gender({ q, phase, result, onAnswer, autoplay }: QProps) {
       } else {
         void animate(x, [0, g === 'm' ? -60 : 60, 0], { duration: 0.4 });
       }
-      if (autoplay) setTimeout(() => void speak(q.card.fr), 250);
       onAnswer(correct, { given: correct ? undefined : `${g === 'm' ? 'le' : 'la'} ${noun}` });
     },
-    [phase, choice, q.card.gender, q.card.fr, noun, x, autoplay, onAnswer],
+    [phase, choice, q.card.gender, noun, x, onAnswer],
   );
 
   useEffect(() => {

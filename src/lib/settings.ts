@@ -11,6 +11,10 @@ export interface ModeOptions {
   length: number;
   /** Only starred words. */
   focus?: boolean;
+  /** Grammar games: tenses to practise (empty = all). */
+  tenses?: string[];
+  /** Conjugation drills: which verbs. */
+  verbSet?: 'book' | 'core' | 'all';
 }
 
 export interface Settings {
@@ -51,7 +55,8 @@ export const DEFAULT_SETTINGS: Settings = {
   autoplay: true,
   roundLength: 10,
   newPerRound: 3,
-  introduceNew: true,
+  // Showing a new word right before asking it gives the answer away; she learns from feedback instead.
+  introduceNew: false,
   theme: 'auto',
   mascotColor: 'pink',
   aiKey: '',
@@ -73,7 +78,15 @@ export const useSettings = create<SettingsStore>()(
       update: (patch) => set(patch),
       reset: () => set({ ...DEFAULT_SETTINGS }),
     }),
-    { name: 'bonbon-settings', version: 1 },
+    {
+      name: 'bonbon-settings',
+      version: 2,
+      migrate: (persisted, version) => {
+        const st = (persisted ?? {}) as Partial<Settings>;
+        if (version < 2) st.introduceNew = false;
+        return st as SettingsStore;
+      },
+    },
   ),
 );
 

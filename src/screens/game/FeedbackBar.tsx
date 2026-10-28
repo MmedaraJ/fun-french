@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { CardImage, hasPicture } from '../../components/CardImage';
 import { Mascot } from '../../components/Mascot';
 import { SpeakButton } from '../../components/SpeakButton';
-import { splitArticle } from '../../lib/french';
+import { frenchSpaces, splitArticle } from '../../lib/french';
 import type { Question } from '../../lib/engine/round';
 import { g, useSettings } from '../../lib/settings';
 import type { QResult } from '../Game';
@@ -84,7 +84,7 @@ export function FeedbackBar({ q, result, combo, mascotKey, onNext, lastHeart }: 
               )}
               <span className="feedback-words">
                 {!ok && <span className="feedback-label">La bonne réponse :</span>}
-                <strong>{card.fr}</strong>
+                <strong>{frenchSpaces(card.fr)}</strong>
                 <span>
                   {card.en}
                   {genderHint && <em> · {genderHint}</em>}

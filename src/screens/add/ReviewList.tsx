@@ -1,10 +1,12 @@
 import { AnimatePresence, motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { DeckEditor } from '../../components/DeckEditor';
 import { Emoji } from '../../components/Emoji';
 import { bestEmoji, EmojiPickerSheet, useEmojiIndex } from '../../components/EmojiPicker';
 import { toast } from '../../components/Toasts';
-import { existingFrench, MY_WORDS_DECK } from '../../lib/content';
+import { existingByFrench, MY_WORDS_DECK } from '../../lib/content';
+import { normalizeAnswer } from '../../lib/french';
 import { useDecks } from '../../lib/hooks';
 import { markDuplicates, withArticle, type Candidate } from '../../lib/parse';
 import { sfx } from '../../lib/sound';
@@ -49,11 +51,15 @@ const KIND_LABEL: Record<CardKind, string> = { word: 'mot', phrase: 'expression'
 
 export function ReviewList({ rows, onChange, onSubmit, photoUrl, attachKey, onAttach, top, emptyAction }: Props) {
   const decks = useDecks();
-  const [existing, setExisting] = useState<string[]>([]);
+  const navigate = useNavigate();
+  const [existing, setExisting] = useState<Map<string, { id: string; deck: string }>>(new Map());
   useEffect(() => {
-    void existingFrench().then(setExisting);
+    void existingByFrench().then(setExisting);
   }, []);
-  const dupes = useMemo(() => new Map(markDuplicates(rows, existing).map(({ item, duplicate }) => [item.key, duplicate])), [rows, existing]);
+  // Duplicates are recomputed live: against every theme, and inside the list itself.
+  const dupes = useMemo(() => new Map(markDuplicates(rows, existing.keys()).map(({ item, duplicate }) => [item.key, duplicate])), [rows, existing]);
+  const known = useMemo(() => rows.map((r) => existing.get(normalizeAnswer(r.fr))).filter((x): x is { id: string; deck: string } => !!x), [rows, existing]);
+  const big = rows.length > 40;
   const index = useEmojiIndex();
   const [deckId, setDeckId] = useState(lastDeckId());
   const [deckEditor, setDeckEditor] = useState(false);
@@ -133,6 +139,18 @@ export function ReviewList({ rows, onChange, onSubmit, photoUrl, attachKey, onAt
         </div>
       </div>
 
+      {known.length > 0 && (
+        <div className="review-known">
+          <span>
+            <Emoji e="✅" size={20} /> {known.length === rows.length ? 'Tu as déjà tous ces mots !' : `${known.length} déjà dans tes thèmes`}
+            <small>{rows.length - known.length > 0 ? `${rows.length - known.length} new, ticked below.` : 'Nothing new to add.'}</small>
+          </span>
+          <button className="btn btn--sm btn--grape" onClick={() => navigate(`/play/mix?cards=${[...new Set(known.map((k) => k.id))].slice(0, 30).join(',')}`)}>
+            🎮 Réviser
+          </button>
+        </div>
+      )}
+
       {missing.length > 0 && (
         <motion.div className="review-translate" initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}>
           <span>
@@ -155,8 +173,8 @@ export function ReviewList({ rows, onChange, onSubmit, photoUrl, attachKey, onAt
             <motion.li
               key={r.key}
               className={'review-row' + (r.include ? '' : ' is-off') + (r.include && !r.en.trim() ? ' is-missing' : '')}
-              layout
-              initial={{ opacity: 0, y: 14 }}
+              layout={!big}
+              initial={big && i > 12 ? false : { opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ delay: Math.min(i, 12) * 0.025 }}
@@ -198,7 +216,9 @@ export function ReviewList({ rows, onChange, onSubmit, photoUrl, attachKey, onAt
                       {r.gender === 'm' ? 'le' : r.gender === 'f' ? 'la' : 'le/la ?'}
                     </button>
                   )}
-                  {dupes.get(r.key) && <span className="badge review-dupe">{dupes.get(r.key) === 'existing' ? 'déjà dans tes mots' : 'en double'}</span>}
+                  {dupes.get(r.key) && (
+                    <span className="badge review-dupe">{dupes.get(r.key) === 'existing' ? `déjà dans « ${existing.get(normalizeAnswer(r.fr))?.deck ?? 'tes mots'} »` : 'en double'}</span>
+                  )}
                   {photoUrl && onAttach && (
                     <button className={'review-attach' + (attachKey === r.key ? ' is-on' : '')} onClick={() => onAttach(attachKey === r.key ? null : r.key)}>
                       <Emoji e="📷" size={16} /> {attachKey === r.key ? 'photo ✓' : 'photo'}

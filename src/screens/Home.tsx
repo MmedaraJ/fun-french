@@ -44,7 +44,8 @@ export default function Home() {
   const hello = greeting();
   const pep = useMemo(() => PEP_TALKS[Math.floor(Math.random() * PEP_TALKS.length)](), []);
   const canSpeakIt = recognitionSupported();
-  const modes = MODES.filter((m) => m.needs !== 'recognition' || canSpeakIt);
+  const modes = MODES.filter((m) => m.section === 'vocab' && (m.needs !== 'recognition' || canSpeakIt));
+  const grammarModes = MODES.filter((m) => m.section === 'grammar');
 
   const todayXp = overview?.today.xp ?? 0;
   const goalDone = todayXp >= dailyGoal;
@@ -180,6 +181,36 @@ export default function Home() {
             >
               <Emoji e={m.emoji} size={52} />
             </motion.span>
+            <span className="mode-name">{m.name}</span>
+            <span className="mode-en">{m.en}</span>
+          </motion.button>
+        ))}
+      </div>
+
+      <h2 className="section-title">
+        Grammaire <small>Every tense, questions & more</small>
+      </h2>
+      <div className="mode-grid mode-grid--grammar">
+        {grammarModes.map((m, i) => (
+          <motion.button
+            key={m.id}
+            className="mode-tile"
+            style={{ background: paletteColor(m.color), color: inkOn(m.color) }}
+            onClick={() => {
+              sfx.pop();
+              if (m.id === 'grammaire') navigate('/grammaire');
+              else setSetupMode(m);
+            }}
+            initial={{ opacity: 0, y: 24, scale: 0.85 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.1 + i * 0.05 }}
+            whileHover={{ y: -4, rotate: i % 2 ? 1.5 : -1.5 }}
+            whileTap={{ scale: 0.93 }}
+          >
+            <span className="mode-num">G{m.num}</span>
+            <span className="mode-art">
+              <Emoji e={m.emoji} size={52} />
+            </span>
             <span className="mode-name">{m.name}</span>
             <span className="mode-en">{m.en}</span>
           </motion.button>

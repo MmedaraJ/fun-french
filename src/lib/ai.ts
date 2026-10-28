@@ -90,7 +90,7 @@ async function schemas() {
 
 const RULES = `Rules for every item:
 - "fr": correct French with accents. Nouns take their definite article (le, la, l', les): "la pomme", "l'arbre". Verbs in the infinitive. Adjectives in the masculine singular.
-- "en": a short natural English meaning; no article for nouns ("apple").
+- "en": a short natural English meaning; no article for nouns ("apple"). When the source prints an English meaning, use it as printed.
 - "kind": "word" for a single word (a noun with its article counts as a word), "phrase" for an expression of a few words, "sentence" for a full sentence.
 - "gender": "m" or "f" for nouns, otherwise "none". "plural": true only for plural-only nouns such as "les lunettes".
 - "emoji": exactly one emoji that clearly shows the meaning, or "" when none fits (abstract words, most sentences).
@@ -191,21 +191,25 @@ export async function aiExtractFromText(text: string): Promise<AiItem[]> {
   }
 }
 
-/** Names what's in a photo (and any French text in it) as flashcard items. */
+/**
+ * Names what's in a photo, or transcribes a printed vocabulary list (keeping the
+ * English meanings printed on the page), as flashcard items.
+ */
 export async function aiExtractFromImage(blob: Blob): Promise<AiItem[]> {
   try {
     const img = await fileToImage(blob);
-    const jpeg = await renderImage(img, undefined, 1568, 0.85);
+    const jpeg = await renderImage(img, undefined, 1568, 0.88);
     const data = (await blobToDataUrl(jpeg)).replace(/^data:[^,]+,/, '');
     const c = await client();
     const s = await schemas();
-    const res = await c.beta.messages.parse({
+    // A full textbook page can hold 90+ entries: stream so a long answer doesn't time out.
+    const stream = c.beta.messages.stream({
       model: model(),
-      max_tokens: 16000,
+      max_tokens: 32000,
       betas: [FALLBACK_BETA],
       fallbacks: 'default',
       output_config: { effort: 'medium', format: s.photo },
-      system: 'You help an English-speaking learner (beginner to intermediate) build French flashcards from photos of their everyday life.',
+      system: 'You help an English-speaking learner (beginner to intermediate) build French flashcards from photos: things around them, and pages of their French books.',
       messages: [
         {
           role: 'user',
@@ -213,12 +217,17 @@ export async function aiExtractFromImage(blob: Blob): Promise<AiItem[]> {
             { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data } },
             {
               type: 'text',
-              text: `List the clearly visible things in this photo as French vocabulary (most prominent first, at most 15), plus any French text you can read in it as phrase or sentence items (menus, signs, labels). Mark exactly one item with "main": true for the photo's main subject; all others false.\n\n${RULES}`,
+              text: `If this photo shows a printed vocabulary list (French words with their English meanings, for example a textbook page of verbs), transcribe EVERY entry in reading order, column by column. Keep the English meaning exactly as printed on the page (several meanings joined with ", ", e.g. "to admit, to grant"); only fix obvious print or OCR slips. Verbs stay in the infinitive with gender "none". Skip page numbers, titles and footers. There is no limit on the number of entries; set "main" to false for all of them.
+
+Otherwise, list the clearly visible things in the photo as French vocabulary (most prominent first, at most 15), plus any French text you can read in it as phrase or sentence items (menus, signs, labels). Mark exactly one item with "main": true for the photo's main subject; all others false.
+
+${RULES}`,
             },
           ],
         },
       ],
     });
+    const res = await stream.finalMessage();
     assertUsable(res);
     if (!res.parsed_output) throw new AiError('Claude’s answer couldn’t be read. Try again.');
     return sanitize(res.parsed_output.items);

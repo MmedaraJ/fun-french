@@ -4,12 +4,11 @@ import { CardImage } from '../../components/CardImage';
 import { SpeakButton } from '../../components/SpeakButton';
 import { burstFrom } from '../../lib/confetti';
 import { sfx } from '../../lib/sound';
-import { speak } from '../../lib/speech';
 import type { QProps } from './types';
 import './Spell.css';
 
 /** Game 3: tap scrambled letter tiles into the slots. Tiles fly between pool and slots. */
-export function Spell({ q, phase, result, onAnswer, autoplay }: QProps) {
+export function Spell({ q, phase, result, onAnswer }: QProps) {
   const slots = useMemo(() => q.slots ?? [], [q.slots]);
   const letters = useMemo(() => q.letters ?? [], [q.letters]);
   const openSlots = useMemo(() => slots.map((s, i) => (s.fixed ? -1 : i)).filter((i) => i >= 0), [slots]);
@@ -17,12 +16,6 @@ export function Spell({ q, phase, result, onAnswer, autoplay }: QProps) {
   const [filled, setFilled] = useState<number[]>(() => openSlots.map(() => -1));
   const [scope, animate] = useAnimate<HTMLDivElement>();
   const used = new Set(filled.filter((x) => x >= 0));
-
-  useEffect(() => {
-    if (!autoplay) return;
-    const t = setTimeout(() => void speak(q.card.fr), 300);
-    return () => clearTimeout(t);
-  }, [q.key, q.card.fr, autoplay]);
 
   const check = useCallback(
     (next: number[]) => {
@@ -99,7 +92,7 @@ export function Spell({ q, phase, result, onAnswer, autoplay }: QProps) {
             “{q.card.en}”
           </div>
         )}
-        <SpeakButton text={q.card.fr} size="md" />
+        {phase === 'feedback' && <SpeakButton text={q.card.fr} size="md" />}
       </div>
 
       <LayoutGroup id={q.key}>

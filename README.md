@@ -9,36 +9,56 @@ with backup/export built in. It installs as an app on phones (PWA) and works off
 
 ## What's inside
 
-**11 games**, all fed by the same spaced-repetition engine:
+**12 vocabulary games**, all fed by the same spaced-repetition engine:
 
 | # | Game | What you do |
 |---|------|-------------|
 | 1 | Images | Hear a French word, tap its picture |
 | 2 | Mots | See a picture, pick the French word |
-| 3 | Épeler | Rebuild the word from flying letter tiles |
+| 3 | Épeler | See the meaning, rebuild the French word from letter tiles |
 | 4 | Écoute | Audio only, tap what you heard |
 | 5 | Mélange | A mix of everything, harder as words get stronger |
 | 6 | Le ou la ? | Swipe each noun to *le* or *la* |
-| 7 | Phrases | Put shuffled word tiles in order |
-| 8 | Dictée | Listen and type (accent keys included) |
-| 9 | Paires | Race the clock matching words and pictures |
-| 10 | Cartes | Flashcards with an honest self-check |
-| 11 | Parle ! | Say it out loud (speech recognition, Chrome/Safari) |
+| 7 | Phrases | Read the English, put the French word tiles in order |
+| 8 | Écris | See the meaning, type the French from memory |
+| 9 | Dictée | Listen and type exactly what you hear |
+| 10 | Paires | Race the clock matching words and pictures |
+| 11 | Cartes | Flashcards with an honest self-check |
+| 12 | Parle ! | See the meaning, say it out loud (speech recognition, Chrome/Safari) |
 
-Plus **Révision du jour**, a daily smart mix of due reviews and a few new words; **Survie** mode with three
-hearts; combos, score multipliers, stars, levels, streaks and badges; and a mistakes review after each round.
+**Grammar, in depth** (Grammaire): all 14 tenses (présent, passé composé, imparfait, plus-que-parfait,
+passé simple for recognition, futur simple and antérieur, futur proche, passé récent, conditionnel
+présent and passé, subjonctif présent and passé, impératif), negation (pas, jamais, plus, rien,
+personne) and questions (intonation, est-ce que, inversion, 15 question words). Ten exercise types
+are generated from a conjugation engine (365 verbs, including all 228 from her textbook), 500 sentence
+frames and a bank of 194 questions with answers, so rounds rarely repeat: conjugate, fill in the verb,
+spot the tense, change the tense, make it negative, ask the question, pick the question word, match
+question and answer, translate with word tiles, and listen for the tense. Multiple choice while a
+tense is new, typing once it's known. 40 short lessons with tables, examples you can hear and tips
+form a learning path (each with its own practice round), and the Conjugueur shows every verb in
+every tense.
+
+**No answers given away**: nothing plays or shows the answer before she responds. The French audio
+comes after answering, except in the listening games where the sound is the question.
+
+Plus **Révision du jour**, a daily smart mix of due reviews, a few new words and some grammar; **Survie**
+mode with three hearts; combos, score multipliers, stars, levels, streaks and badges; and a mistakes
+review after each round.
 
 **Adding your own content**: one word at a time (with emoji search or your own photo), paste a text or a
-vocabulary list, snap a photo to make a picture card or scan French text (on-device OCR), and optionally
-let AI turn a photo or a text into ready-made cards. AI is off until an Anthropic API key is pasted in
-**Réglages**; the key stays on that device and is never included in backups. Without a key, missing
-translations come from the free MyMemory service.
+vocabulary list, snap photos of book pages (several at once; French–English lists like "Abaisser To
+lower" are read straight into cards, with every word already ticked and words she already has
+flagged) or scan French text with on-device OCR (all the useful words pre-selected), and optionally
+let AI turn a photo or a text into ready-made cards. AI is off until an Anthropic API key is pasted in **Réglages**; the key stays on that
+device and is never included in backups. Without a key, missing translations come from the free
+MyMemory service.
 
 **Stats**: XP by day, an activity calendar, streaks, words new/learning/learned/mastered per theme,
-accuracy by game, trickiest words, past rounds and badges.
+mastery of every tense, accuracy by game, trickiest words, past rounds and badges.
 
-**Built-in content**: ~700 words, phrases and sentences across 23 themes (animals, food, home, café,
-sweet words, numbers, verbs…), each with an emoji picture where one fits, and the right gender.
+**Built-in content**: about 900 words, phrases and sentences across 24 themes (animals, food, home,
+café, sweet words, numbers, verbs, the 228 regular -er verbs from her textbook…), each with an emoji
+picture where one fits, and the right gender.
 
 ## Run it
 
@@ -89,6 +109,8 @@ phone and send them over.
 src/
   data/starter.ts        built-in decks and words
   lib/engine/            round builder, scoring, recording answers
+  lib/grammar/           conjugation engine, sentence renderer, grammar exercise generators
+  data/grammar/          sentence frames, question bank, lessons, the textbook verb list
   lib/srs.ts             spaced repetition (Leitner boxes)
   lib/sound.ts           all sound effects, synthesised with Web Audio
   lib/speech.ts          French text-to-speech (browser voices)
@@ -97,6 +119,7 @@ src/
   screens/game/*         the individual games
   screens/add/*          adding words from text, lists and photos
   screens/Stats.tsx      progress and history
+  screens/grammar/*      lessons path, lesson pages, the Conjugueur
   components/Mascot.tsx  Coco
 ```
 
@@ -106,3 +129,5 @@ src/
 - OCR: [Tesseract.js](https://github.com/naptha/tesseract.js), Apache-2.0.
 - Fonts: Fredoka and Nunito, SIL Open Font License.
 - Emoji names and keywords: unicode-emoji-json and emojilib (MIT).
+- French conjugation tables: the Lefff lexicon (LGPL-LR), via [french-verbs-lefff](https://www.npmjs.com/package/french-verbs-lefff); our verbs are extracted into `src/data/grammar/verbs-fr.json`.
+- Grammar engine test references: french-verbs, english-verbs-helper and english-verbs-irregular from [RosaeNLG](https://github.com/RosaeNLG/rosaenlg) (Apache-2.0), used in tests only.

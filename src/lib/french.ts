@@ -110,6 +110,23 @@ export function sentenceTokens(s: string): string[] {
     .filter((t) => t.length > 0 && !/^[-–—]$/.test(t));
 }
 
+// Names and places that keep their capital letter at the start of a sentence.
+const PROPER_NOUNS = new Set([
+  'Marie', 'Paul', 'Léa', 'Lucas', 'Sophie', 'Thomas', 'Julie', 'Pierre', 'Anne', 'Louis', 'Emma', 'Hugo', 'Chloé', 'Nicolas',
+  'Paris', 'Lyon', 'Marseille', 'Nice', 'Bordeaux', 'France', 'Londres', 'Montréal', 'Québec', 'Bruxelles', 'Genève', 'Noël',
+]);
+
+/** First word tile without its capital, so the opening word isn't given away (names keep theirs). */
+export function decapitalize(token: string): string {
+  if (!token || PROPER_NOUNS.has(token) || (token.length > 1 && token === token.toUpperCase())) return token;
+  return token[0].toLowerCase() + token.slice(1);
+}
+
+/** Non-breaking spaces where French typography puts a space ("Tu viens ?"), so "?" never wraps alone. */
+export function frenchSpaces(s: string): string {
+  return s.replace(/ ([?!:;»])/g, '\u00a0$1').replace(/« /g, '«\u00a0');
+}
+
 /** Final punctuation of a sentence ("?", "!", "."), for display after the tiles. */
 export function finalPunctuation(s: string): string {
   const m = s.trim().match(/([.!?…]+)$/);

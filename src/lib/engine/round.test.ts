@@ -101,7 +101,7 @@ describe('makeQuestion', () => {
   });
   it('builds sentence tiles that contain the answer plus decoys', () => {
     const q = makeQuestion('build', sentences[1], pool(), { isNew: false }, seeded())!;
-    expect(q.answer).toEqual(["J'aime", 'le', 'chocolat']);
+    expect(q.answer).toEqual(["j'aime", 'le', 'chocolat']);
     for (const t of q.answer!) expect(q.tiles).toContain(t);
     expect(q.tiles!.length).toBeGreaterThanOrEqual(q.answer!.length);
   });

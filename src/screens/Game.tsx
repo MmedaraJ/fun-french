@@ -18,7 +18,7 @@ import { inkOn, paletteColor, PALETTE_KEYS } from '../lib/palette';
 import { settings as getSettings, useSettings } from '../lib/settings';
 import { haptic, sfx } from '../lib/sound';
 import { speak, stopSpeaking } from '../lib/speech';
-import type { Card, GameMode, PaletteKey, Session } from '../types';
+import type { Card, GameMode, GrammarType, PaletteKey, Session } from '../types';
 import { FeedbackBar } from './game/FeedbackBar';
 import { GameHeader } from './game/GameHeader';
 import { IntroCard } from './game/IntroCard';
@@ -196,17 +196,56 @@ export default function Game() {
   const todayBefore = useRef({ xp: 0, practiced: false });
   const finished = useRef(false);
 
+  const isGrammar = info.section === 'grammar';
+
+  /** Grammar questions for this game (or a lesson's practice), generated on demand. */
+  const grammarRound = useCallback(
+    async (length: number, kindsOverride?: GrammarType[]): Promise<Question[]> => {
+      const [{ buildGrammarQuestions }, skillRows] = await Promise.all([import('../lib/grammar/exercises'), db.skills.toArray()]);
+      const lessonId = search.get('lesson');
+      const practice = lessonId ? (await import('../data/grammar/lessons')).LESSONS.find((l) => l.id === lessonId)?.practice : undefined;
+      const list = (k: string) => search.get(k)?.split(',').filter(Boolean);
+      return buildGrammarQuestions({
+        kinds: kindsOverride ?? practice?.kinds ?? (info.types as GrammarType[]),
+        length,
+        tenses: (practice?.tenses ?? list('tenses')) as never,
+        verbs: practice?.verbs ?? list('verbs'),
+        verbSet: (search.get('verbset') as 'book' | 'core' | 'all' | null) ?? undefined,
+        negations: practice?.negations,
+        qforms: practice?.qforms,
+        qwords: practice?.qwords,
+        skills: new Map(skillRows.map((p) => [p.cardId, p])),
+        level: newPerRound >= 5 ? 3 : newPerRound >= 4 ? 2 : 1,
+      });
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
+
   // Build the round.
   useEffect(() => {
     let alive = true;
     (async () => {
-      const [pool, daily] = await Promise.all([loadPool(cfg), db.daily.toArray()]);
+      const daily = await db.daily.toArray();
       xpBefore.current = daily.reduce((a, d) => a + d.xp, 0);
       const today = daily.find((d) => d.day === dayKey());
       todayBefore.current = { xp: today?.xp ?? 0, practiced: (today?.answers ?? 0) > 0 };
+      let qs: Question[];
+      if (isGrammar) {
+        qs = await grammarRound(cfg.length);
+      } else {
+        const pool = await loadPool(cfg);
+        poolRef.current = pool;
+        qs = buildQuestions(cfg, pool);
+        // Daily practice also works on grammar: about a third of the questions.
+        if (search.get('daily') === '1' && qs.length) {
+          const extra = await grammarRound(Math.max(2, Math.round(cfg.length * 0.3)), ['cloze', 'conj', 'qword', 'tense-id', 'glisten', 'negate', 'gtranslate']);
+          const merged = [...qs.slice(0, Math.max(0, qs.length - extra.length))];
+          extra.forEach((g, i) => merged.splice(Math.min(merged.length, 2 + i * 3), 0, g));
+          qs = merged;
+        }
+      }
       if (!alive) return;
-      poolRef.current = pool;
-      const qs = buildQuestions(cfg, pool);
       if (!qs.length) dispatch({ type: 'empty' });
       else {
         startedAt.current = Date.now();
@@ -239,7 +278,15 @@ export default function Game() {
     lastActivity.current = now;
     xpEarned.current += correct ? XP.correct : XP.wrong;
     saving.current = saving.current.then(() =>
-      recordAnswer({ sessionId: sessionId.current, cardId: card.id, type, correct, ms, activeMs }).then((o) => {
+      recordAnswer({
+        sessionId: sessionId.current,
+        cardId: card.id,
+        type,
+        correct,
+        ms,
+        activeMs,
+        ...(card.id.startsWith('g:') ? { label: card.fr, labelEn: card.en } : {}),
+      }).then((o) => {
         if (o.wasNew) newCards.current.add(card.id);
       }),
     );
@@ -308,6 +355,7 @@ export default function Game() {
         deckIds: cfg.deckIds ?? [],
         missed: [...new Set(results.filter((r) => !r.correct).map((r) => r.cardId))],
         cardIds: [...new Set(askedIds.current)],
+        ...(search.get('lesson') ? { lesson: search.get('lesson')! } : {}),
       };
       if (!completed && total === 0) {
         navigate('/');
@@ -356,6 +404,13 @@ export default function Game() {
       return;
     }
     if (s.index + 1 >= s.questions.length) {
+      if (survival && isGrammar) {
+        void grammarRound(10).then((more) => {
+          if (more.length) dispatch({ type: 'next', introduce: false, more });
+          else void finish(true);
+        });
+        return;
+      }
       if (survival && poolRef.current) {
         const recent = new Set(askedIds.current.slice(-6));
         const pool = poolRef.current;
@@ -371,7 +426,7 @@ export default function Game() {
     }
     sfx.swish();
     dispatch({ type: 'next', introduce: introduceNew });
-  }, [s.phase, s.hearts, s.index, s.questions.length, survival, cfg, introduceNew, finish]);
+  }, [s.phase, s.hearts, s.index, s.questions.length, survival, cfg, introduceNew, finish, isGrammar, grammarRound]);
 
   // Auto-advance after a correct answer.
   useEffect(() => {
@@ -381,12 +436,14 @@ export default function Game() {
     return () => clearTimeout(t);
   }, [s.phase, s.last, next]);
 
-  // Speak the answer when revealing a mistake.
+  // After answering, let her hear the French (never before: that would give the answer away).
+  // Games where the French was the question itself only repeat it after a mistake.
   useEffect(() => {
-    if (s.phase === 'feedback' && s.last && !s.last.correct && q && getSettings().autoplay && q.type !== 'pairs') {
-      const t = setTimeout(() => void speak(q.card.fr), 350);
-      return () => clearTimeout(t);
-    }
+    if (s.phase !== 'feedback' || !s.last || !q || q.type === 'pairs' || !getSettings().autoplay) return;
+    const heardAlready = ['listen', 'pick-image', 'dictation', 'flash', 'glisten'].includes(q.type);
+    if (heardAlready && s.last.correct) return;
+    const t = setTimeout(() => void speak(q.card.fr), 350);
+    return () => clearTimeout(t);
   }, [s.phase, s.last, q]);
 
   useEffect(() => {

@@ -28,13 +28,17 @@ export async function recordAnswer(params: {
   /** Wall-clock time to credit as practice (capped by the caller). */
   activeMs: number;
   now?: number;
+  label?: string;
+  labelEn?: string;
 }): Promise<AnswerOutcome> {
   const now = params.now ?? Date.now();
   const day = dayKey(now);
-  return db.transaction('rw', db.progress, db.events, db.daily, async () => {
-    const prev = await db.progress.get(params.cardId);
+  // grammar skills have their own table so they never count as "words learned"
+  const table = params.cardId.startsWith('g:') ? db.skills : db.progress;
+  return db.transaction('rw', db.progress, db.skills, db.events, db.daily, async () => {
+    const prev = await table.get(params.cardId);
     const next = applyAnswer(prev, params.cardId, params.correct, now);
-    await db.progress.put(next);
+    await table.put(next);
     const ev: AnswerEvent = {
       sessionId: params.sessionId,
       cardId: params.cardId,
@@ -43,6 +47,7 @@ export async function recordAnswer(params: {
       ms: Math.round(params.ms),
       ts: now,
       day,
+      ...(params.label ? { label: params.label, labelEn: params.labelEn } : {}),
     };
     await db.events.add(ev);
     const d = (await db.daily.get(day)) ?? emptyDay(day);
@@ -51,7 +56,7 @@ export async function recordAnswer(params: {
     d.ms += Math.round(params.activeMs);
     d.xp += params.correct ? XP.correct : XP.wrong;
     const wasNew = !prev || prev.seen === 0;
-    if (wasNew) d.newCards += 1;
+    if (wasNew && table === db.progress) d.newCards += 1;
     await db.daily.put(d);
     return {
       progress: next,

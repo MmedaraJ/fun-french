@@ -2,16 +2,16 @@ import { LayoutGroup, motion, useAnimate } from 'framer-motion';
 import { useCallback, useEffect, useState } from 'react';
 import { SpeakButton } from '../../components/SpeakButton';
 import { burstFrom } from '../../lib/confetti';
-import { finalPunctuation } from '../../lib/french';
+import { finalPunctuation, frenchSpaces } from '../../lib/french';
 import { sfx } from '../../lib/sound';
-import { speak } from '../../lib/speech';
 import type { QProps } from './types';
 import './Build.css';
+import './GrammarQuestion.css';
 
 const norm = (s: string) => s.toLowerCase().replace(/[’]/g, "'");
 
 /** Game 7: rebuild the French sentence from shuffled word tiles. */
-export function Build({ q, phase, result, onAnswer, autoplay }: QProps) {
+export function Build({ q, phase, result, onAnswer }: QProps) {
   const tiles = q.tiles ?? [];
   const answer = q.answer ?? [];
   const [placed, setPlaced] = useState<number[]>([]);
@@ -24,9 +24,8 @@ export function Build({ q, phase, result, onAnswer, autoplay }: QProps) {
     const correct = built.length === answer.length && built.every((t, i) => norm(t) === norm(answer[i]));
     if (correct) burstFrom(scope.current, { count: 34 });
     else if (scope.current) void animate(scope.current, { x: [0, -12, 12, -8, 8, 0] }, { duration: 0.45 });
-    if (autoplay) setTimeout(() => void speak(q.card.fr), 300);
     onAnswer(correct, { given: correct ? undefined : built.join(' ') });
-  }, [phase, placed, tiles, answer, onAnswer, autoplay, q.card.fr, scope, animate]);
+  }, [phase, placed, tiles, answer, onAnswer, scope, animate]);
 
   const add = (i: number) => {
     if (phase !== 'ask' || used.has(i)) return;
@@ -56,10 +55,27 @@ export function Build({ q, phase, result, onAnswer, autoplay }: QProps) {
   return (
     <>
       <div className="q-prompt">
-        <div className="q-label">Traduis · Build it in French</div>
-        <div className="q-en build-en" data-target={q.card.id}>
-          “{q.card.en}”
+        <div className="q-label" {...(import.meta.env.DEV && q.g ? { 'data-g-tiles': JSON.stringify(answer) } : {})}>
+          {q.g ? q.g.title : 'Traduis · Build it in French'}
         </div>
+        {q.g?.chips?.length ? (
+          <div className="g-chips">
+            {q.g.chips.map((c, i) => (
+              <span key={i} className="g-chip">
+                {c}
+              </span>
+            ))}
+          </div>
+        ) : null}
+        {q.g && q.g.kind !== 'gtranslate' ? (
+          <div className="g-sentence" data-target={q.card.id}>
+            {frenchSpaces(q.g.prompt ?? '')}
+          </div>
+        ) : (
+          <div className="q-en build-en" data-target={q.card.id}>
+            “{q.g?.prompt ?? q.card.en}”
+          </div>
+        )}
         {phase === 'feedback' && <SpeakButton text={q.card.fr} size="md" />}
       </div>
 

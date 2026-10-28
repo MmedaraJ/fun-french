@@ -1,19 +1,12 @@
 import { motion } from 'framer-motion';
 import { CardImage } from '../../components/CardImage';
-import { speak } from '../../lib/speech';
 import { OptionTile, useChoice } from './Choice';
 import type { QProps } from './types';
 
 /** Game 2: see a picture (or the English), pick the French word. */
 export function PickWord(props: QProps) {
-  const { q, phase, autoplay, onAnswer } = props;
-  const { options, pick, stateFor, refs } = useChoice({
-    ...props,
-    onAnswer: (correct, info) => {
-      onAnswer(correct, info);
-      if (autoplay) setTimeout(() => void speak(q.card.fr), 250);
-    },
-  });
+  const { q, phase } = props;
+  const { options, pick, stateFor, refs } = useChoice(props);
   const long = options.some((o) => o.fr.length > 16);
 
   return (
