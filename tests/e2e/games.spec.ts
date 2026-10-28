@@ -38,6 +38,8 @@ test('a "new word" card is never followed straight away by its own question', as
       intros++;
       const shown = await intro.getAttribute('data-intro');
       await page.getByRole('button', { name: 'Compris !' }).dispatchEvent('click');
+      // wait for that card to leave before looking at what comes next
+      await expect(page.locator(`[data-intro="${shown}"]`)).toHaveCount(0);
       await expect(intro.or(live).first()).toBeVisible();
       // whatever comes next (another new word, or a question) is not this word's question
       if (await live.isVisible().catch(() => false)) {

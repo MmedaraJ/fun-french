@@ -58,7 +58,7 @@ interface State {
 type Action =
   | { type: 'loaded'; questions: Question[]; introduce: boolean; first: PaletteKey }
   | { type: 'empty' }
-  | { type: 'begin'; introduce: boolean }
+  | { type: 'begin'; introduce: boolean; key: string }
   | { type: 'answer'; result: QResult & AnswerInfo; retry: Question | null; survival: boolean }
   | { type: 'partial'; correct: boolean }
   | { type: 'next'; introduce: boolean; more?: Question[] }
@@ -97,6 +97,8 @@ function reducer(s: State, a: Action): State {
     case 'empty':
       return { ...s, status: 'empty' };
     case 'begin': {
+      // only the card on screen: a second tap on one that's fading out must not move another question
+      if (s.phase !== 'intro' || s.questions[s.index]?.key !== a.key) return s;
       // the word was just shown: ask something else first, and this word a little later
       const questions = deferIntroduced(s.questions, s.index);
       return { ...s, questions, phase: wantsIntro(a.introduce, questions, s.index) ? 'intro' : 'ask' };
@@ -535,7 +537,7 @@ export default function Game() {
               autoplay={autoplay}
               onDone={() => {
                 sfx.pop();
-                dispatch({ type: 'begin', introduce: introduceNew });
+                dispatch({ type: 'begin', introduce: introduceNew, key: q.key });
               }}
             />
           ) : q ? (

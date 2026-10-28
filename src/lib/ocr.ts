@@ -109,17 +109,35 @@ export async function prepareForOcr(image: Blob): Promise<Blob> {
   return new Promise((resolve) => canvas.toBlob((b) => resolve(b ?? image), 'image/png'));
 }
 
-/** Reads French text from several photos, one after the other, with one recogniser. */
-export async function recognizePages(images: Blob[], onProgress?: (p: OcrProgress) => void): Promise<string[]> {
-  const pages = images.length;
+/** Pages to read: images in memory, or made one at a time when needed (PDF pages drawn on demand). */
+export type OcrPages = Blob[] | { count: number; page: (index: number) => Promise<Blob> };
+
+export interface OcrOptions {
+  /** Stops at once; the promise rejects with an AbortError. */
+  signal?: AbortSignal;
+  /** Each page's text as soon as it is read (to keep what's done if the scan is stopped). */
+  onPage?: (index: number, text: string) => void;
+}
+
+/** Reads French text from several pages, one after the other, with one recogniser. */
+export async function recognizePages(images: OcrPages, onProgress?: (p: OcrProgress) => void, opts: OcrOptions = {}): Promise<string[]> {
+  const pages = Array.isArray(images) ? images.length : images.count;
+  const pageAt = Array.isArray(images) ? (i: number) => Promise.resolve(images[i]) : images.page;
   if (!pages) return [];
-  const { createWorker, OEM } = await import('tesseract.js');
+  const { signal, onPage } = opts;
+  const cancelled = () => new DOMException('The scan was stopped.', 'AbortError');
+  if (signal?.aborted) throw cancelled();
+  // Terminating tesseract doesn't settle a running job, so race every step against the signal.
+  const stop = new Promise<never>((_, reject) => signal?.addEventListener('abort', () => reject(cancelled()), { once: true }));
+  stop.catch(() => {});
+  const race = <T,>(p: Promise<T>): Promise<T> => (signal ? Promise.race([p, stop]) : p);
+  const { createWorker, OEM } = await race(import('tesseract.js'));
   let page = 0;
   let loaded = false;
   const report = (pageProgress: number, status: string) =>
     onProgress?.({ progress: Math.min(1, (page + pageProgress) / pages), status, page: page + 1, pages });
   report(0.02, 'Réveil du scanner…');
-  const worker = await createWorker('fra', OEM.LSTM_ONLY, {
+  const starting = createWorker('fra', OEM.LSTM_ONLY, {
     workerPath: vendorUrl('worker.min.js'),
     corePath: vendorUrl('core'),
     langPath: vendorUrl('lang'),
@@ -133,16 +151,25 @@ export async function recognizePages(images: Blob[], onProgress?: (p: OcrProgres
       report(p, label);
     },
   });
+  let worker: Awaited<typeof starting>;
+  try {
+    worker = await race(starting);
+  } catch (e) {
+    void starting.then((w) => w.terminate()).catch(() => {});
+    throw e;
+  }
   try {
     // Keep wide gaps between words: they show where one printed column ends.
-    await worker.setParameters({ preserve_interword_spaces: '1' });
+    await race(worker.setParameters({ preserve_interword_spaces: '1' }));
     const out: string[] = [];
     for (page = 0; page < pages; page++) {
       report(loaded ? 0.02 : 0.5, loaded ? 'Préparation de la page…' : 'Lecture du texte…');
-      const prepared = await prepareForOcr(images[page]);
-      const { data } = await worker.recognize(prepared);
+      const prepared = await race(pageAt(page).then(prepareForOcr));
+      const { data } = await race(worker.recognize(prepared));
       loaded = true;
-      out.push(cleanOcrText(data.text ?? ''));
+      const text = cleanOcrText(data.text ?? '');
+      out.push(text);
+      onPage?.(page, text);
     }
     page = pages - 1;
     report(1, 'Terminé !');

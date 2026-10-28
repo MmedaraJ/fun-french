@@ -7,6 +7,7 @@ import { Mascot } from '../../components/Mascot';
 import { Page } from '../../components/Page';
 import { aiAvailable } from '../../lib/ai';
 import { db } from '../../lib/db';
+import { pdfDraftSummary } from '../../lib/pdf-inbox';
 import { inkOn, paletteColor } from '../../lib/palette';
 import { useSettings } from '../../lib/settings';
 import { sfx } from '../../lib/sound';
@@ -16,6 +17,7 @@ const TILES: { to: string; emoji: string; title: string; en: string; sub: string
   { to: '/add/word', emoji: '✍️', title: 'Un mot', en: 'One word', sub: 'A word, an expression or a sentence', color: 'berry' },
   { to: '/add/text', emoji: '📋', title: 'Du texte', en: 'Paste text', sub: 'A vocab list, a message, an article…', color: 'sky' },
   { to: '/add/photo', emoji: '📸', title: 'Une photo', en: 'From a photo', sub: 'Snap things, or scan a menu or a page', color: 'tangerine' },
+  { to: '/add/pdf', emoji: '📚', title: 'Un PDF', en: 'From a PDF', sub: 'Textbook chapters, workbooks, handouts', color: 'leaf' },
 ];
 
 export default function AddHub() {
@@ -29,6 +31,7 @@ export default function AddHub() {
   }, []);
   const decks = useLiveQuery(() => db.decks.toArray(), []);
   const deckOf = (id: string) => decks?.find((d) => d.id === id);
+  const pdfDraft = pdfDraftSummary();
 
   return (
     <Page narrow className="add-hub">
@@ -46,13 +49,28 @@ export default function AddHub() {
             <Emoji e="✨" size={26} />
           </motion.span>
           <span>
-            <strong>Magie activée</strong> · Claude can pull words out of any text or photo for you.
+            <strong>Magie activée</strong> · Claude can pull words out of any text, photo or PDF for you.
           </span>
         </motion.div>
       ) : (
         <button className="magic-hint" onClick={() => navigate('/settings')}>
-          <Emoji e="🪄" size={20} /> Tip: add a Claude API key in Settings to unlock magic extraction from photos and texts.
+          <Emoji e="🪄" size={20} /> Tip: add a Claude API key in Settings to unlock magic extraction from photos, texts and PDFs.
         </button>
+      )}
+
+      {pdfDraft && (
+        <motion.button className="hub-resume" onClick={() => navigate('/add/pdf')} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} whileTap={{ scale: 0.97 }}>
+          <Emoji e="📚" size={30} />
+          <span>
+            <strong>Ton PDF t’attend</strong>
+            <small>
+              {pdfDraft.topics} thème{pdfDraft.topics > 1 ? 's' : ''} · {pdfDraft.items} élément{pdfDraft.items > 1 ? 's' : ''} to review — pick up where you left off.
+            </small>
+          </span>
+          <span className="hub-go" aria-hidden>
+            →
+          </span>
+        </motion.button>
       )}
 
       <div className="hub-tiles">

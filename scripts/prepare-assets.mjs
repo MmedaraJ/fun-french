@@ -42,7 +42,23 @@ copyFile(
 );
 console.log('[assets] tesseract: worker, cores, fra data');
 
-// 3. Emoji search index: [emoji, name, groupIndex, keywords] for every emoji Twemoji can draw
+// 3. PDF.js (Apache-2.0): the worker (legacy build, like the library the app imports), and what it
+//    needs offline: character maps, standard fonts, image decoders (JPEG 2000 and JBIG2 scans) and
+//    colour profiles. Scripting (quickjs) and source maps are left out.
+const pdfjsDest = out('public', 'vendor', 'pdfjs');
+copyFile(nm('pdfjs-dist', 'legacy', 'build', 'pdf.worker.min.mjs'), path.join(pdfjsDest, 'pdf.worker.min.mjs'));
+copyFile(nm('pdfjs-dist', 'LICENSE'), path.join(pdfjsDest, 'LICENSE'));
+let pdfjsFiles = 0;
+for (const dir of ['cmaps', 'standard_fonts', 'wasm', 'iccs']) {
+  for (const f of fs.readdirSync(nm('pdfjs-dist', dir))) {
+    if (f.startsWith('quickjs') || f.endsWith('.map')) continue;
+    copyFile(nm('pdfjs-dist', dir, f), path.join(pdfjsDest, dir, f));
+    pdfjsFiles++;
+  }
+}
+console.log(`[assets] pdfjs: worker + ${pdfjsFiles} data files`);
+
+// 4. Emoji search index: [emoji, name, groupIndex, keywords] for every emoji Twemoji can draw
 const available = new Set(svgs.map((f) => f.replace(/\.svg$/, '')));
 const byEmoji = JSON.parse(fs.readFileSync(nm('unicode-emoji-json', 'data-by-emoji.json'), 'utf8'));
 const keywords = JSON.parse(fs.readFileSync(nm('emojilib', 'dist', 'emoji-en-US.json'), 'utf8'));

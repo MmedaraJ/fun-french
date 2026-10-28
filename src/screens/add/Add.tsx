@@ -8,8 +8,9 @@ import './Add.css';
 const AddWord = lazy(() => import('./AddWord'));
 const AddText = lazy(() => import('./AddText'));
 const AddPhoto = lazy(() => import('./AddPhoto'));
+const AddPdf = lazy(() => import('./AddPdf'));
 
-/** /add and its sub-flows: /add/word, /add/text, /add/photo. */
+/** /add and its sub-flows: /add/word, /add/text, /add/photo, /add/pdf. */
 export default function Add() {
   const location = useLocation();
   return (
@@ -20,6 +21,7 @@ export default function Add() {
           <Route path="word" element={<AddWord />} />
           <Route path="text" element={<AddText />} />
           <Route path="photo" element={<AddPhoto />} />
+          <Route path="pdf" element={<AddPdf />} />
           <Route path="*" element={<AddHub />} />
         </Routes>
       </AnimatePresence>

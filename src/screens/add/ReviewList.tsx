@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { memo, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { DeckEditor } from '../../components/DeckEditor';
 import { Emoji } from '../../components/Emoji';
 import { bestEmoji, EmojiPickerSheet, useEmojiIndex } from '../../components/EmojiPicker';
@@ -48,6 +48,79 @@ interface Props {
 
 const KIND_LABEL: Record<CardKind, string> = { word: 'mot', phrase: 'expression', sentence: 'phrase' };
 
+interface ItemProps {
+  row: ReviewRow;
+  index: number;
+  /** Long lists skip the layout animation. */
+  big: boolean;
+  duplicate: 'existing' | 'list' | null | undefined;
+  /** Theme that already has this text. */
+  duplicateDeck?: string;
+  onPatch: (key: string, patch: Partial<ReviewRow>) => void;
+  onPickEmoji: (key: string) => void;
+  /** Photo flow: this row can take the photo. */
+  photo?: { on: boolean; toggle: () => void };
+}
+
+/** One editable candidate: tick, picture, French, English, kind, gender. */
+export const ReviewItem = memo(function ReviewItem({ row: r, index: i, big, duplicate, duplicateDeck, onPatch, onPickEmoji, photo }: ItemProps) {
+  return (
+    <motion.li
+      className={'review-row' + (r.include ? '' : ' is-off') + (r.include && !r.en.trim() ? ' is-missing' : '')}
+      layout={!big}
+      initial={big && i > 12 ? false : { opacity: 0, y: 14 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, height: 0 }}
+      transition={{ delay: Math.min(i, 12) * 0.025 }}
+    >
+      <button
+        className={'review-check' + (r.include ? ' is-on' : '')}
+        onClick={() => {
+          sfx.tap();
+          onPatch(r.key, { include: !r.include });
+        }}
+        aria-label={r.include ? 'Exclude' : 'Include'}
+        aria-pressed={r.include}
+      >
+        {r.include ? '✓' : ''}
+      </button>
+      <button className="review-emoji" onClick={() => onPickEmoji(r.key)} aria-label="Choose picture">
+        {r.emoji ? <Emoji e={r.emoji} size={32} /> : <span className="review-noemoji">＋</span>}
+      </button>
+      <div className="review-fields">
+        <input className="review-input review-fr" value={r.fr} onChange={(e) => onPatch(r.key, { fr: e.target.value })} lang="fr" aria-label="French" spellCheck={false} />
+        <input className="review-input review-en" value={r.en} onChange={(e) => onPatch(r.key, { en: e.target.value })} placeholder="English…" aria-label="English" />
+        <div className="review-tags">
+          <select className="review-kind" value={r.kind} onChange={(e) => onPatch(r.key, { kind: e.target.value as CardKind })} aria-label="Type">
+            {(['word', 'phrase', 'sentence'] as CardKind[]).map((k) => (
+              <option key={k} value={k}>
+                {KIND_LABEL[k]}
+              </option>
+            ))}
+          </select>
+          {r.kind === 'word' && (
+            <button
+              className={'review-g' + (r.gender ? ' g-' + r.gender : '')}
+              onClick={() => {
+                const next: Gender | undefined = r.gender === undefined ? 'm' : r.gender === 'm' ? 'f' : undefined;
+                onPatch(r.key, { gender: next, fr: withArticle(r.fr, next) });
+              }}
+              title="Gender"
+            >
+              {r.gender === 'm' ? 'le' : r.gender === 'f' ? 'la' : 'le/la ?'}
+            </button>
+          )}
+          {duplicate && <span className="badge review-dupe">{duplicate === 'existing' ? `déjà dans « ${duplicateDeck ?? 'tes mots'} »` : 'en double'}</span>}
+          {photo && (
+            <button className={'review-attach' + (photo.on ? ' is-on' : '')} onClick={photo.toggle}>
+              <Emoji e="📷" size={16} /> {photo.on ? 'photo ✓' : 'photo'}
+            </button>
+          )}
+        </div>
+      </div>
+    </motion.li>
+  );
+});
 
 export function ReviewList({ rows, onChange, onSubmit, photoUrl, attachKey, onAttach, top, emptyAction }: Props) {
   const decks = useDecks();
@@ -170,63 +243,17 @@ export function ReviewList({ rows, onChange, onSubmit, photoUrl, attachKey, onAt
       <ul className="review-list">
         <AnimatePresence initial={false}>
           {rows.map((r, i) => (
-            <motion.li
+            <ReviewItem
               key={r.key}
-              className={'review-row' + (r.include ? '' : ' is-off') + (r.include && !r.en.trim() ? ' is-missing' : '')}
-              layout={!big}
-              initial={big && i > 12 ? false : { opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ delay: Math.min(i, 12) * 0.025 }}
-            >
-              <button
-                className={'review-check' + (r.include ? ' is-on' : '')}
-                onClick={() => {
-                  sfx.tap();
-                  patch(r.key, { include: !r.include });
-                }}
-                aria-label={r.include ? 'Exclude' : 'Include'}
-                aria-pressed={r.include}
-              >
-                {r.include ? '✓' : ''}
-              </button>
-              <button className="review-emoji" onClick={() => setPickerFor(r.key)} aria-label="Choose picture">
-                {r.emoji ? <Emoji e={r.emoji} size={32} /> : <span className="review-noemoji">＋</span>}
-              </button>
-              <div className="review-fields">
-                <input className="review-input review-fr" value={r.fr} onChange={(e) => patch(r.key, { fr: e.target.value })} lang="fr" aria-label="French" spellCheck={false} />
-                <input className="review-input review-en" value={r.en} onChange={(e) => patch(r.key, { en: e.target.value })} placeholder="English…" aria-label="English" />
-                <div className="review-tags">
-                  <select className="review-kind" value={r.kind} onChange={(e) => patch(r.key, { kind: e.target.value as CardKind })} aria-label="Type">
-                    {(['word', 'phrase', 'sentence'] as CardKind[]).map((k) => (
-                      <option key={k} value={k}>
-                        {KIND_LABEL[k]}
-                      </option>
-                    ))}
-                  </select>
-                  {r.kind === 'word' && (
-                    <button
-                      className={'review-g' + (r.gender ? ' g-' + r.gender : '')}
-                      onClick={() => {
-                        const next: Gender | undefined = r.gender === undefined ? 'm' : r.gender === 'm' ? 'f' : undefined;
-                        patch(r.key, { gender: next, fr: withArticle(r.fr, next) });
-                      }}
-                      title="Gender"
-                    >
-                      {r.gender === 'm' ? 'le' : r.gender === 'f' ? 'la' : 'le/la ?'}
-                    </button>
-                  )}
-                  {dupes.get(r.key) && (
-                    <span className="badge review-dupe">{dupes.get(r.key) === 'existing' ? `déjà dans « ${existing.get(normalizeAnswer(r.fr))?.deck ?? 'tes mots'} »` : 'en double'}</span>
-                  )}
-                  {photoUrl && onAttach && (
-                    <button className={'review-attach' + (attachKey === r.key ? ' is-on' : '')} onClick={() => onAttach(attachKey === r.key ? null : r.key)}>
-                      <Emoji e="📷" size={16} /> {attachKey === r.key ? 'photo ✓' : 'photo'}
-                    </button>
-                  )}
-                </div>
-              </div>
-            </motion.li>
+              row={r}
+              index={i}
+              big={big}
+              duplicate={dupes.get(r.key)}
+              duplicateDeck={existing.get(normalizeAnswer(r.fr))?.deck}
+              onPatch={patch}
+              onPickEmoji={setPickerFor}
+              photo={photoUrl && onAttach ? { on: attachKey === r.key, toggle: () => onAttach(attachKey === r.key ? null : r.key) } : undefined}
+            />
           ))}
         </AnimatePresence>
       </ul>

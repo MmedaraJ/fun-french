@@ -365,6 +365,18 @@ function tokenScore(t: string): { fr: number; en: number } {
   return { fr, en };
 }
 
+/** How French and how English a phrase looks: the per-word scores used by the list parser, summed. */
+export function languageScore(text: string): { fr: number; en: number } {
+  let fr = 0;
+  let en = 0;
+  for (const t of text.split(/\s+/)) {
+    const s = tokenScore(t);
+    fr += s.fr;
+    en += s.en;
+  }
+  return { fr, en };
+}
+
 /** Is this token a plausible piece of a French headword? */
 const HEAD_TOKEN = /^\(?[\p{L}][\p{L}'’-]*\)?$/u;
 

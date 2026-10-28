@@ -58,6 +58,7 @@ flagged) or scan French text with on-device OCR (all the useful words pre-select
 let AI turn a photo or a text into ready-made cards. AI is off until an Anthropic API key is pasted in **Réglages**; the key stays on that
 device and is never included in backups. Without a key, missing translations come from the free
 MyMemory service.
+**PDFs** (Ajouter → Un PDF, or drop them anywhere in the app): textbook chapters, workbooks and handouts, with a text layer or scanned (read on the device), become one theme per unit or lesson with its vocabulary lists, example sentences, dialogue lines and key words, all ticked. The grammar they teach is marked 📗 in Grammaire, and with an API key Claude can read them instead.
 
 **Stats**: XP by day, an activity calendar, streaks, words new/learning/learned/mastered per theme,
 mastery of every tense, accuracy by game, trickiest words, past rounds and badges.
@@ -77,7 +78,7 @@ npm run build      # production build in dist/
 ```
 
 `npm run dev` / `npm run build` first run `scripts/prepare-assets.mjs`, which copies the Twemoji
-pictures and the French OCR model out of `node_modules` into `public/vendor` (not committed).
+pictures, the French OCR model and the PDF.js worker out of `node_modules` into `public/vendor` (not committed).
 
 ## Deploy (GitHub Pages)
 
@@ -123,7 +124,7 @@ src/
   lib/listen.ts          speech recognition for "Parle !"
   screens/Game.tsx       game shell (score, combo, hearts, feedback)
   screens/game/*         the individual games
-  screens/add/*          adding words from text, lists and photos
+  screens/add/*          adding words from text, lists, photos and PDFs
   screens/Stats.tsx      progress and history
   screens/grammar/*      lessons path, lesson pages, the Conjugueur
   components/Mascot.tsx  Coco
@@ -133,6 +134,7 @@ src/
 
 - Emoji graphics: [Twemoji](https://github.com/jdecked/twemoji) by Twitter/X and contributors, CC-BY 4.0.
 - OCR: [Tesseract.js](https://github.com/naptha/tesseract.js), Apache-2.0.
+- PDF reading: [PDF.js](https://github.com/mozilla/pdf.js) (`pdfjs-dist`) by Mozilla, Apache-2.0. The helpers it loads from `public/vendor/pdfjs` keep their own licences, copied next to them: the PDFium JBIG2 decoder (BSD-3-Clause), OpenJPEG (BSD-2-Clause), qcms (MIT), the Foxit (BSD) and Liberation (GPL-2.0 with font exception) standard fonts, and a CC0 colour profile.
 - Fonts: Fredoka and Nunito, SIL Open Font License.
 - Emoji names and keywords: unicode-emoji-json and emojilib (MIT).
 - French conjugation tables: the Lefff lexicon (LGPL-LR), via [french-verbs-lefff](https://www.npmjs.com/package/french-verbs-lefff); our verbs are extracted into `src/data/grammar/verbs-fr.json`.

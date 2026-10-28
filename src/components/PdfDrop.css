@@ -1,0 +1,36 @@
+/* Shown while a PDF is dragged over the app; never blocks the drop zones underneath. */
+.pdf-catch {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  pointer-events: none;
+  background: color-mix(in srgb, var(--leaf) 22%, var(--overlay));
+  backdrop-filter: blur(3px);
+}
+
+.pdf-catch-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 28px 32px;
+  border-radius: var(--radius-xl);
+  border: 4px dashed var(--leaf);
+  background: var(--surface);
+  box-shadow: var(--soft);
+  text-align: center;
+}
+
+.pdf-catch-card strong {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.6rem;
+}
+
+.pdf-catch-card span:last-child {
+  color: var(--text-soft);
+  font-weight: 700;
+}

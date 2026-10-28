@@ -1,4 +1,4 @@
-// Optional Claude helpers (translation, vocabulary extraction from text and photos).
+// Optional Claude helpers (translation, vocabulary extraction from text, photos and PDFs).
 // The learner pastes their own API key in Settings; it stays in this browser and
 // requests go straight from the device to the Claude API.
 import type Anthropic from '@anthropic-ai/sdk';
@@ -81,10 +81,12 @@ async function schemas() {
     note: z.string(),
   });
   const photoItem = item.extend({ main: z.boolean() });
+  const pdfTopic = z.object({ title: z.string(), titleEn: z.string(), emoji: z.string(), items: z.array(item) });
   return {
     translation: betaZodOutputFormat(z.object({ items: z.array(z.object({ index: z.number(), fr: z.string(), en: z.string() })) })),
     extraction: betaZodOutputFormat(z.object({ items: z.array(item) })),
     photo: betaZodOutputFormat(z.object({ items: z.array(photoItem) })),
+    pdf: (lessonIds: [string, ...string[]]) => betaZodOutputFormat(z.object({ topics: z.array(pdfTopic), grammar: z.array(z.enum(lessonIds)) })),
   };
 }
 
@@ -232,6 +234,178 @@ ${RULES}`,
     if (!res.parsed_output) throw new AiError('Claude’s answer couldn’t be read. Try again.');
     return sanitize(res.parsed_output.items);
   } catch (e) {
+    throw new AiError(await friendlyAiError(e));
+  }
+}
+
+// ---------------------------------------------------------------- PDFs
+
+/** A PDF this small and short is sent whole (base64 adds a third; a request can carry 32 MB). */
+const PDF_WHOLE_BYTES = 20 * 1024 * 1024;
+const PDF_WHOLE_PAGES = 30;
+/** Otherwise, page ranges: the text of pages that have one... */
+const TEXT_PART_CHARS = 40_000;
+const TEXT_PART_PAGES = 30;
+/** ...and images of scanned pages. */
+const SCAN_PART_PAGES = 8;
+
+export interface AiPdfInput {
+  name: string;
+  file: Blob;
+  pageCount: number;
+  /** 1-based page range to read. */
+  from: number;
+  to: number;
+  /** Text of each page that has a text layer (headings marked "#"); pages missing here are scans. */
+  texts: Map<number, string>;
+  /** Draws a scanned page as a JPEG. */
+  renderPage: (page: number) => Promise<Blob>;
+}
+
+export interface AiPdfTopic {
+  title: string;
+  titleEn: string;
+  emoji?: string;
+  items: AiItem[];
+}
+
+export interface AiPdfResult {
+  topics: AiPdfTopic[];
+  /** Lesson ids from src/data/grammar/lessons.ts. */
+  grammar: string[];
+}
+
+export type PdfPart =
+  | { kind: 'pdf'; from: number; to: number }
+  | { kind: 'text'; from: number; to: number; text: string }
+  | { kind: 'scan'; from: number; to: number; pages: number[] };
+
+/**
+ * How a PDF goes to Claude: whole when it's small, otherwise in page ranges, as the extracted
+ * text for pages that have one and as page images for scans.
+ */
+export function planPdfParts(input: Pick<AiPdfInput, 'file' | 'pageCount' | 'from' | 'to' | 'texts'>, whole = true): PdfPart[] {
+  if (whole && input.from === 1 && input.to === input.pageCount && input.pageCount <= PDF_WHOLE_PAGES && input.file.size <= PDF_WHOLE_BYTES) {
+    return [{ kind: 'pdf', from: 1, to: input.pageCount }];
+  }
+  const parts: PdfPart[] = [];
+  for (let p = input.from; p <= input.to; p++) {
+    const last = parts[parts.length - 1];
+    const text = input.texts.get(p);
+    if (text !== undefined) {
+      const block = `<page number="${p}">\n${text}\n</page>\n`;
+      if (last?.kind === 'text' && last.text.length + block.length <= TEXT_PART_CHARS && p - last.from < TEXT_PART_PAGES) {
+        last.text += block;
+        last.to = p;
+      } else parts.push({ kind: 'text', from: p, to: p, text: block });
+    } else if (last?.kind === 'scan' && last.pages.length < SCAN_PART_PAGES) {
+      last.pages.push(p);
+      last.to = p;
+    } else parts.push({ kind: 'scan', from: p, to: p, pages: [p] });
+  }
+  return parts;
+}
+
+async function base64(blob: Blob): Promise<string> {
+  return (await blobToDataUrl(blob)).replace(/^data:[^,]+,/, '');
+}
+
+async function partContent(part: PdfPart, input: AiPdfInput): Promise<Anthropic.Beta.BetaContentBlockParam[]> {
+  if (part.kind === 'pdf') return [{ type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: await base64(input.file) }, title: input.name }];
+  if (part.kind === 'text') return [{ type: 'text', text: `<pages>\n${part.text}</pages>` }];
+  const blocks: Anthropic.Beta.BetaContentBlockParam[] = [];
+  for (const p of part.pages) {
+    blocks.push({ type: 'text', text: `Page ${p}:` });
+    blocks.push({ type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: await base64(await input.renderPage(p)) } });
+  }
+  return blocks;
+}
+
+function pdfPrompt(input: AiPdfInput, part: PdfPart, previous: string, lessons: string): string {
+  const what = part.kind === 'pdf' ? `This is "${input.name}"` : `These are pages ${part.from}–${part.to} of "${input.name}"`;
+  const before = previous ? ` The pages before ended in the topic "${previous}": if these pages continue it, use exactly that title.` : '';
+  return `${what}, from a French textbook, workbook or handout that the learner is studying.${before}
+
+Organise everything the pages teach by topic. A topic is a unit, lesson or chapter as printed, titled like the book (for example "Unité 3 · Au restaurant"); pages without a heading continue the current topic. For each topic, in page order, list:
+- every vocabulary entry, with its English meaning exactly as printed (several meanings joined with ", ");
+- the useful expressions it teaches;
+- the French example sentences and dialogue lines worth learning, as complete sentences, with an English translation.
+Skip exercise instructions and numbering, blanks such as ____ or (1), page numbers, headers and footers, and English that only explains. Fix obvious print or OCR slips, but add nothing that isn't on the pages.
+
+"titleEn": the topic title in English. "emoji": one emoji for the topic, or "".
+"grammar": the ids of the grammar points these pages explain or practise, from this list (empty if none):
+${lessons}
+
+${RULES}`;
+}
+
+const titleKey = (t: string) =>
+  t
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+
+/**
+ * Lets Claude read a PDF (or a page range of it): topics as printed, each with its vocabulary,
+ * expressions and sentences, plus the grammar lessons the pages teach. Big PDFs go in parts, one
+ * request each; topics that continue from one part to the next are merged.
+ */
+export async function aiExtractFromPdf(
+  input: AiPdfInput,
+  opts: { signal?: AbortSignal; onProgress?: (done: number, total: number, part: PdfPart) => void } = {},
+): Promise<AiPdfResult> {
+  const { signal, onProgress } = opts;
+  try {
+    const { LESSONS } = await import('../data/grammar/lessons');
+    const lessons = LESSONS.map((l) => `${l.id}: ${l.title} (${l.en})`).join('\n');
+    const c = await client();
+    const format = (await schemas()).pdf(LESSONS.map((l) => l.id) as [string, ...string[]]);
+    const topics = new Map<string, AiPdfTopic>();
+    const grammar = new Set<string>();
+    let previous = '';
+    let parts = planPdfParts(input);
+    for (let i = 0; i < parts.length; i++) {
+      const part = parts[i];
+      onProgress?.(i, parts.length, part);
+      // a long answer for a whole book chapter: stream it so the request doesn't time out
+      const stream = c.beta.messages.stream(
+        {
+          model: model(),
+          max_tokens: 64000,
+          betas: [FALLBACK_BETA],
+          fallbacks: 'default',
+          output_config: { effort: 'medium', format },
+          system: 'You help an English-speaking A2 learner turn the French textbook pages they are studying into flashcards, organised by the topics the pages teach.',
+          messages: [{ role: 'user', content: [...(await partContent(part, input)), { type: 'text', text: pdfPrompt(input, part, previous, lessons) }] }],
+        },
+        { signal },
+      );
+      const res = await stream.finalMessage();
+      if (res.stop_reason === 'max_tokens' && part.kind === 'pdf') {
+        // too much for one answer: start again, page range by page range
+        parts = planPdfParts(input, false);
+        i = -1;
+        continue;
+      }
+      assertUsable(res);
+      if (!res.parsed_output) throw new AiError('Claude’s answer couldn’t be read. Try again.');
+      for (const t of res.parsed_output.topics) {
+        const title = t.title.replace(/\s+/g, ' ').trim() || input.name;
+        const items = sanitize(t.items);
+        const had = topics.get(titleKey(title));
+        if (had) {
+          const known = new Set(had.items.map((x) => x.fr.toLowerCase()));
+          had.items.push(...items.filter((x) => !known.has(x.fr.toLowerCase())));
+        } else topics.set(titleKey(title), { title, titleEn: t.titleEn.trim(), emoji: isSingleEmoji(t.emoji) ? t.emoji.trim() : undefined, items });
+        previous = title;
+      }
+      for (const g of res.parsed_output.grammar) grammar.add(g);
+    }
+    return { topics: [...topics.values()].filter((t) => t.items.length), grammar: [...grammar] };
+  } catch (e) {
+    if (signal?.aborted) throw new DOMException('Stopped.', 'AbortError');
     throw new AiError(await friendlyAiError(e));
   }
 }

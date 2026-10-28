@@ -984,3 +984,451 @@
     transform: translateY(-4px);
   }
 }
+
+/* ---------- PDF ---------- */
+
+.hub-resume {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  margin-bottom: 14px;
+  border-radius: 22px;
+  text-align: left;
+  background: color-mix(in srgb, var(--leaf) 16%, var(--surface));
+  box-shadow:
+    var(--chunk-sm),
+    inset 0 0 0 2px color-mix(in srgb, var(--leaf) 45%, transparent);
+}
+
+.hub-resume > span:nth-child(2) {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.hub-resume strong {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.15rem;
+}
+
+.hub-resume small {
+  color: var(--text-soft);
+  font-weight: 600;
+}
+
+.pdf-drop {
+  padding-block: 34px 26px;
+}
+
+.pdf-drop.is-drag {
+  border-color: var(--leaf);
+  background: color-mix(in srgb, var(--leaf) 12%, var(--surface));
+}
+
+.pdf-drop-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.pdf-drop-text strong {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.5rem;
+}
+
+.pdf-drop-text span {
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-soft);
+}
+
+.pdf-pick {
+  --btn-bg: var(--leaf);
+  width: 100%;
+  max-width: 360px;
+}
+
+.pdf-files {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pdf-file {
+  padding: 12px 12px 12px 14px;
+  overflow: hidden;
+}
+
+.pdf-file-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pdf-file-icon {
+  display: grid;
+  flex-shrink: 0;
+}
+
+.pdf-file-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.pdf-file-text strong {
+  font-family: var(--font-display);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pdf-file-text small {
+  color: var(--text-soft);
+  font-weight: 700;
+}
+
+.pdf-file-remove {
+  width: 36px;
+  height: 36px;
+  font-size: 0.95rem;
+  font-weight: 900;
+  background: var(--surface-2);
+  box-shadow: inset 0 0 0 2px var(--line);
+}
+
+.pdf-range {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pdf-range-inputs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 800;
+}
+
+.pdf-range-inputs .input {
+  width: 92px;
+  padding: 8px 10px;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  text-align: center;
+}
+
+/* scrolls edge to edge inside the card (whose padding is 12px, 14px on the left) */
+.pdf-range-chips {
+  gap: 8px;
+  margin: 0 -12px 0 -14px;
+  padding: 4px 12px 8px 14px;
+  scroll-padding-inline: 14px 12px;
+}
+
+.pdf-range-chips .chip small {
+  font-weight: 700;
+  opacity: 0.7;
+}
+
+.pdf-range-note {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.photo-action:disabled {
+  opacity: 0.5;
+}
+
+.pdf-busy-file {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  font-weight: 800;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pdf-busy .progress-track span {
+  background: linear-gradient(90deg, var(--leaf), var(--lagoon));
+}
+
+.pdf-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--sky) 10%, var(--surface));
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+}
+
+.pdf-grammar {
+  margin-bottom: 14px;
+  padding: 14px 14px 12px;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--leaf) 14%, var(--surface)), var(--surface) 70%);
+}
+
+.pdf-grammar h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+}
+
+.pdf-grammar h3 small {
+  margin-left: auto;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-soft);
+}
+
+.pdf-grammar > small {
+  display: block;
+  margin-top: 10px;
+  font-weight: 600;
+}
+
+.pdf-grammar-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pdf-lesson {
+  display: inline-flex;
+  align-items: stretch;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--surface);
+  box-shadow: inset 0 0 0 2px var(--line);
+  transition:
+    background 0.2s,
+    box-shadow 0.2s;
+}
+
+.pdf-lesson.is-on {
+  background: var(--leaf);
+  color: #fff;
+  box-shadow: none;
+}
+
+.pdf-lesson-toggle {
+  padding: 7px 10px 7px 14px;
+  font-weight: 800;
+  font-size: 0.9rem;
+  text-align: left;
+}
+
+.pdf-lesson-go {
+  padding: 0 12px;
+  font-weight: 900;
+  border-left: 2px solid color-mix(in srgb, currentColor 25%, transparent);
+}
+
+.pdf-topics {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.pdf-topic {
+  padding: 12px;
+  border-left: 7px solid var(--topic);
+  transition: opacity 0.2s;
+}
+
+.pdf-topic.is-off {
+  opacity: 0.6;
+}
+
+.pdf-topic-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pdf-topic-emoji {
+  width: 50px;
+  height: 50px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.16);
+}
+
+.pdf-topic-emoji:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.16);
+}
+
+.pdf-topic-title {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pdf-topic-name {
+  width: 100%;
+  min-width: 0;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  padding: 4px 8px;
+  margin-left: -8px;
+  background: transparent;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.2rem;
+  outline: none;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
+}
+
+.pdf-topic-name:hover {
+  background: var(--surface-2);
+}
+
+.pdf-topic-name:focus {
+  border-color: var(--topic);
+  background: var(--surface);
+}
+
+.pdf-topic-title small {
+  color: var(--text-soft);
+  font-weight: 700;
+  font-size: 0.82rem;
+}
+
+.pdf-topic-toggle {
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  flex-shrink: 0;
+  font-size: 1.1rem;
+  font-weight: 900;
+  background: var(--surface-2);
+  box-shadow: inset 0 0 0 2px var(--line);
+  transition: transform 0.25s cubic-bezier(0.5, 1.6, 0.4, 1);
+}
+
+.pdf-topic-toggle.is-open {
+  transform: rotate(180deg);
+}
+
+.pdf-topic-tools {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.pdf-topic-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--topic) 14%, var(--surface));
+  font-weight: 800;
+  font-size: 0.8rem;
+}
+
+.pdf-topic-body {
+  overflow: hidden;
+}
+
+.pdf-topic-body .review-list {
+  margin-top: 12px;
+}
+
+.pdf-more {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.pdf-done-decks {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin: 4px 0 2px;
+}
+
+.pdf-done-deck {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px 6px 8px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 0.9rem;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.15);
+}
+
+.pdf-done-lesson {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+  padding: 10px 14px;
+  border-radius: 18px;
+  text-align: left;
+  background: color-mix(in srgb, var(--leaf) 13%, var(--surface));
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--leaf) 40%, transparent);
+  font-weight: 800;
+}
+
+.pdf-done-lesson > span:nth-child(2) {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.pdf-done-lesson small {
+  color: var(--text-soft);
+  font-size: 0.78rem;
+}
+
+.pdf-done-lesson strong {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+
+.pdf-review-bar {
+  flex-wrap: wrap;
+}
+
+.pdf-topic-actions {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+}

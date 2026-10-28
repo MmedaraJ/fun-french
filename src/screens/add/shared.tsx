@@ -49,10 +49,16 @@ interface DoneProps {
   deckId?: string;
   onMore: () => void;
   moreLabel?: string;
+  /** Where "Jouer maintenant" goes; by default a round with the new cards. */
+  playUrl?: string;
+  /** Replaces the default "N cartes ajoutées !" line. */
+  title?: ReactNode;
+  /** Extra content under the message (themes made, a lesson to try…). */
+  children?: ReactNode;
 }
 
 /** Celebration after saving cards, with a shortcut straight into practice. */
-export function AddDone({ count, cardIds, deckId, onMore, moreLabel = 'Ajouter encore' }: DoneProps) {
+export function AddDone({ count, cardIds, deckId, onMore, moreLabel = 'Ajouter encore', playUrl, title, children }: DoneProps) {
   const navigate = useNavigate();
   const mascotColor = useSettings((s) => s.mascotColor);
   useEffect(() => {
@@ -64,13 +70,18 @@ export function AddDone({ count, cardIds, deckId, onMore, moreLabel = 'Ajouter e
     <motion.div className="add-done panel" initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring', stiffness: 260, damping: 18 }}>
       <Mascot mood="excited" size={120} color={mascotColor} reactKey={count} />
       <h2>
-        {count} carte{count > 1 ? 's' : ''} ajoutée{count > 1 ? 's' : ''} !
+        {title ?? (
+          <>
+            {count} carte{count > 1 ? 's' : ''} ajoutée{count > 1 ? 's' : ''} !
+          </>
+        )}
       </h2>
       <p className="muted">
         {count > 1 ? 'They’re' : 'It’s'} in your practice now. New words you add come first in “Révision du jour”.
       </p>
+      {children}
       <div className="add-done-actions">
-        <button className="btn btn--lg btn--block" onClick={() => navigate(`/play/mix?cards=${cardIds.slice(0, 20).join(',')}`)} disabled={!cardIds.length}>
+        <button className="btn btn--lg btn--block" onClick={() => navigate(playUrl ?? `/play/mix?cards=${cardIds.slice(0, 20).join(',')}`)} disabled={!cardIds.length} data-testid="done-play">
           <Emoji e="🎮" size={24} /> Jouer maintenant
         </button>
         <div className="row" style={{ gap: 10 }}>

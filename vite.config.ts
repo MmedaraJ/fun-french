@@ -49,6 +49,11 @@ export default defineConfig({
             handler: 'CacheFirst',
             options: { cacheName: 'tesseract', expiration: { maxEntries: 20 } },
           },
+          {
+            urlPattern: ({ url }) => url.pathname.includes('/vendor/pdfjs/'),
+            handler: 'CacheFirst',
+            options: { cacheName: 'pdfjs', expiration: { maxEntries: 250 } },
+          },
         ],
       },
     }),

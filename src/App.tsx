@@ -4,6 +4,7 @@ import { HashRouter, Navigate, Route, Routes, useLocation } from 'react-router-d
 import { BottomNav } from './components/BottomNav';
 import { ColorWipe } from './components/ColorWipe';
 import { Loader } from './components/Loader';
+import { PdfDropCatcher } from './components/PdfDropCatcher';
 import { Toasts } from './components/Toasts';
 import { requestPersistence } from './lib/db';
 import './lib/install';
@@ -106,6 +107,7 @@ export function App() {
         </Boot>
         <Toasts />
         <ColorWipe />
+        <PdfDropCatcher />
       </HashRouter>
     </MotionConfig>
   );
