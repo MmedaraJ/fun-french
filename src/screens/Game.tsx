@@ -17,7 +17,7 @@ import { computeStreak } from '../lib/stats';
 import { inkOn, paletteColor, PALETTE_KEYS } from '../lib/palette';
 import { settings as getSettings, useSettings } from '../lib/settings';
 import { haptic, sfx } from '../lib/sound';
-import { speak, stopSpeaking } from '../lib/speech';
+import { dropQueuedSpeech, speak } from '../lib/speech';
 import type { Card, GameMode, GrammarType, PaletteKey, Session } from '../types';
 import { FeedbackBar } from './game/FeedbackBar';
 import { GameHeader } from './game/GameHeader';
@@ -167,7 +167,7 @@ export default function Game() {
   const info = MODE_BY_ID[mode];
   const [search] = useSearchParams();
   const navigate = useNavigate();
-  const { introduceNew, autoplay, newPerRound, roundLength } = useSettings();
+  const { introduceNew, autoplay, newPerRound, roundLength, difficulty } = useSettings();
 
   const survival = search.get('survival') === '1' && mode !== 'pairs' && mode !== 'flash';
   const cfg = useMemo<RoundConfig>(
@@ -179,6 +179,7 @@ export default function Game() {
       cardIds: search.get('cards')?.split(',').filter(Boolean),
       focusOnly: search.get('focus') === '1',
       newPerRound,
+      difficulty,
     }),
     // read once per mount; settings changes mid-round shouldn't rebuild the round
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -196,6 +197,7 @@ export default function Game() {
   const lastActivity = useRef(Date.now());
   const saving = useRef<Promise<unknown>>(Promise.resolve());
   const newCards = useRef(new Set<string>());
+  const learnedCards = useRef(new Set<string>());
   const askedIds = useRef<string[]>([]);
   const xpBefore = useRef(0);
   const xpEarned = useRef(0);
@@ -221,7 +223,7 @@ export default function Game() {
         qforms: practice?.qforms,
         qwords: practice?.qwords,
         skills: new Map(skillRows.map((p) => [p.cardId, p])),
-        level: newPerRound >= 5 ? 3 : newPerRound >= 4 ? 2 : 1,
+        level: cfg.difficulty ?? 2,
       });
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -261,7 +263,8 @@ export default function Game() {
     })();
     return () => {
       alive = false;
-      stopSpeaking();
+      // leaving the round (or reaching the results): the last word still finishes being said
+      dropQueuedSpeech();
     };
   }, [cfg, introduceNew]);
 
@@ -294,6 +297,7 @@ export default function Game() {
         ...(card.id.startsWith('g:') ? { label: card.fr, labelEn: card.en } : {}),
       }).then((o) => {
         if (o.wasNew) newCards.current.add(card.id);
+        if (o.learnedNow && !card.id.startsWith('g:')) learnedCards.current.add(card.id);
       }),
     );
   }, []);
@@ -315,7 +319,7 @@ export default function Game() {
         if (survival) setTimeout(() => sfx.heartLost(), 250);
       }
       setMascotKey((k) => k + 1);
-      const retry = !correct && !survival && !q.retry && s.retries < MAX_RETRIES && poolRef.current ? retryQuestion(q, poolRef.current) : null;
+      const retry = !correct && !survival && !q.retry && s.retries < MAX_RETRIES && poolRef.current ? retryQuestion(q, poolRef.current, Math.random, cfg.difficulty) : null;
       dispatch({
         type: 'answer',
         survival,
@@ -358,6 +362,7 @@ export default function Game() {
         maxCombo: s.maxCombo,
         xp,
         newCards: newCards.current.size,
+        learned: learnedCards.current.size,
         deckIds: cfg.deckIds ?? [],
         missed: [...new Set(results.filter((r) => !r.correct).map((r) => r.cardId))],
         cardIds: [...new Set(askedIds.current)],
@@ -404,7 +409,7 @@ export default function Game() {
 
   const next = useCallback(() => {
     if (s.phase !== 'feedback') return;
-    stopSpeaking();
+    // no stopSpeaking() here: the pronunciation she's hearing finishes even as the next question comes up
     if (survival && s.hearts <= 0) {
       void finish(true);
       return;
@@ -448,7 +453,7 @@ export default function Game() {
     if (s.phase !== 'feedback' || !s.last || !q || q.type === 'pairs' || !getSettings().autoplay) return;
     const heardAlready = ['listen', 'pick-image', 'dictation', 'flash', 'glisten'].includes(q.type);
     if (heardAlready && s.last.correct) return;
-    const t = setTimeout(() => void speak(q.card.fr), 350);
+    const t = setTimeout(() => void speak(q.card.fr, { queue: true }), 350);
     return () => clearTimeout(t);
   }, [s.phase, s.last, q]);
 

@@ -12,7 +12,7 @@ function seeded(seed: number) {
   };
 }
 
-const spaced = (s: string) => ` ${normalizeAnswer(s).replace(/[']/g, "' ")} `;
+const spaced = (s: string) => ` ${normalizeAnswer(s).replace(/[']/g, "' ").replace(/\s+/g, ' ').trim()} `;
 
 /** Whole-word containment, so "est" isn't found inside "c'est". */
 function containsPhrase(text: string, phrase: string): boolean {

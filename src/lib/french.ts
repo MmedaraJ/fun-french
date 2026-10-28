@@ -100,6 +100,17 @@ export function compareAnswer(input: string, target: string): AnswerMatch {
   return 'wrong';
 }
 
+/**
+ * Whether a typed answer counts, by difficulty: Facile forgives accents, a missing le/la and
+ * a small typo; Normal only a small typo; Difficile wants it exact.
+ */
+export function typedAnswerCounts(match: AnswerMatch, difficulty: 1 | 2 | 3): boolean {
+  if (match === 'exact') return true;
+  if (match === 'typo') return difficulty <= 2;
+  if (match === 'accents' || match === 'article') return difficulty <= 1;
+  return false;
+}
+
 /** Word tiles for the sentence builder: punctuation stripped, elisions kept together. */
 export function sentenceTokens(s: string): string[] {
   return s

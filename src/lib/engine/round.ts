@@ -2,8 +2,9 @@
 // priority), which question type for each, and the answer options.
 import type { Card, GameMode, Progress, QuestionType } from '../../types';
 import { hasPicture } from '../../components/CardImage';
-import { decapitalize, hasArticle, isSpellable, sentenceTokens, spellSlots, splitArticle, wordCount } from '../french';
+import { decapitalize, hasArticle, isSpellable, levenshtein, normalizeAnswer, sentenceTokens, spellSlots, splitArticle, stripAccents, wordCount } from '../french';
 import type { GrammarPayload } from '../grammar/exercises';
+import type { Difficulty } from '../settings';
 import { overdueRatio } from '../srs';
 import { MODE_BY_ID } from './modes';
 
@@ -61,6 +62,8 @@ export interface RoundConfig {
   /** Only starred cards. */
   focusOnly?: boolean;
   newPerRound: number;
+  /** 1 Facile, 2 Normal (default), 3 Difficile. */
+  difficulty?: Difficulty;
 }
 
 export interface Pool {
@@ -116,8 +119,8 @@ export function canAsk(type: QuestionType, card: Card): boolean {
   }
 }
 
-/** Wrong answers for a multiple choice question. */
-export function pickDistractors(target: Card, all: Card[], count: number, style: 'image' | 'fr' | 'en', rand = Math.random): Card[] {
+/** Wrong answers for a multiple choice question (look-alike French words at Difficile). */
+export function pickDistractors(target: Card, all: Card[], count: number, style: 'image' | 'fr' | 'en', rand = Math.random, difficulty: Difficulty = 2): Card[] {
   const ok = (c: Card) => {
     if (c.id === target.id) return false;
     if (sameText(c.fr, target.fr) || sameText(c.en, target.en)) return false;
@@ -134,6 +137,15 @@ export function pickDistractors(target: Card, all: Card[], count: number, style:
     if (c.kind === target.kind) s += 3;
     if (target.kind !== 'word') s -= Math.abs(wordCount(c.fr) - wordCount(target.fr)) * 0.6;
     if (target.gender && c.gender === target.gender) s += 0.5;
+    if (difficulty >= 3 && style !== 'en') {
+      // chat / château / chapeau: words that look and sound alike are the hard ones to tell apart
+      const a = stripAccents(normalizeAnswer(splitArticle(target.fr).noun));
+      const b = stripAccents(normalizeAnswer(splitArticle(c.fr).noun));
+      const dist = levenshtein(a, b);
+      if (dist <= 3) s += 4 - dist;
+      if (a.slice(0, 2) === b.slice(0, 2)) s += 1.5;
+      if (target.gender && c.gender === target.gender) s += 1;
+    }
     return s;
   };
   const ranked = candidates.map((c) => ({ c, s: score(c) })).sort((a, b) => b.s - a.s);
@@ -146,8 +158,11 @@ export function pickDistractors(target: Card, all: Card[], count: number, style:
   return chosen;
 }
 
-/** Choose a question type for a card; harder types as the card gets stronger. */
-export function chooseType(card: Card, allowed: QuestionType[], box: number, pictureOptions: boolean, rand = Math.random): QuestionType | null {
+const PRODUCTION: QuestionType[] = ['spell', 'build', 'type', 'dictation', 'speak'];
+const RECOGNITION: QuestionType[] = ['pick-image', 'pick-word', 'listen'];
+
+/** Choose a question type for a card; harder types as the card gets stronger (and sooner at higher difficulty). */
+export function chooseType(card: Card, allowed: QuestionType[], box: number, pictureOptions: boolean, rand = Math.random, difficulty: Difficulty = 2): QuestionType | null {
   const usable = allowed.filter((t) => canAsk(t, card) && (t !== 'pick-image' || pictureOptions));
   if (!usable.length) return null;
   if (usable.length === 1) return usable[0];
@@ -165,8 +180,11 @@ export function chooseType(card: Card, allowed: QuestionType[], box: number, pic
     flash: [1, 1, 1],
     pairs: [1, 1, 1],
   };
-  const tier = box <= 1 ? 0 : box <= 3 ? 1 : 2;
-  const weights = usable.map((t) => W[t]?.[tier] ?? 1);
+  const tier = difficulty >= 3 ? (box <= 0 ? 0 : box <= 2 ? 1 : 2) : box <= 1 ? 0 : box <= 3 ? 1 : 2;
+  // recall (typing, spelling, building) over recognition (picking) as the difficulty goes up
+  const produce = [1, 1.5, 2.2][difficulty - 1];
+  const recognise = [1, 0.75, 0.5][difficulty - 1];
+  const weights = usable.map((t) => (W[t]?.[tier] ?? 1) * (PRODUCTION.includes(t) ? produce : RECOGNITION.includes(t) ? recognise : 1));
   let r = rand() * weights.reduce((a, b) => a + b, 0);
   for (let i = 0; i < usable.length; i++) {
     r -= weights[i];
@@ -176,6 +194,58 @@ export function chooseType(card: Card, allowed: QuestionType[], box: number, pic
 }
 
 const DECOY_LETTERS = 'eaisnrtulodcmpévbfgqhjxyz';
+/** Accented letters and the ones they're confused with. */
+const ACCENT_TWINS: Record<string, string> = { é: 'è', è: 'é', ê: 'é', à: 'a', â: 'a', ç: 'c', ô: 'o', î: 'i', û: 'u', ù: 'u', ë: 'e', ï: 'i' };
+
+/** Small words a learner swaps for one another: le/la/les, est/es/et, il/elle... */
+const WORD_TWINS: Record<string, string[]> = {
+  le: ['la', 'les'], la: ['le', 'les'], les: ['le', 'la', 'des'], "l'": ['le', 'la'],
+  un: ['une', 'des'], une: ['un', 'des'], des: ['les', 'de'], du: ['de', 'des'], au: ['aux', 'à'], aux: ['au', 'des'],
+  ce: ['cette', 'ces', 'cet'], cet: ['ce', 'cette'], cette: ['ce', 'ces'], ces: ['ce', 'cette'],
+  mon: ['ma', 'mes'], ma: ['mon', 'mes'], mes: ['mon', 'ma'], ton: ['ta', 'tes'], ta: ['ton', 'tes'], tes: ['ton', 'ta'],
+  son: ['sa', 'ses', 'sont'], sa: ['son', 'ses'], ses: ['son', 'sa', 'ces'], notre: ['nos'], nos: ['notre'], votre: ['vos'], vos: ['votre'],
+  leur: ['leurs'], leurs: ['leur'], il: ['elle', 'ils'], elle: ['il', 'elles'], ils: ['elles', 'il'], elles: ['ils', 'elle'],
+  est: ['es', 'et', 'ai'], es: ['est', 'et'], et: ['est'], a: ['as', 'à'], 'à': ['a'], as: ['a'],
+  suis: ['es', 'est'], sont: ['son'], ont: ['on'], on: ['ont'], de: ['du', 'des'],
+};
+
+/**
+ * Wrong forms of a sentence's own words: other endings, other genders ("mange" → "manges",
+ * "mangez"). Changed endings only count when `known` has them, so no made-up words like
+ * "françait"; the small words (le/la, est/es...) are always real.
+ */
+export function nearMisses(token: string, known?: Set<string>): string[] {
+  const t = token.toLowerCase();
+  if (WORD_TWINS[t]) return WORD_TWINS[t];
+  if (t.length < 4 || t.includes("'")) return [];
+  const out: string[] = [];
+  const swap = (end: string, ...alts: string[]) => {
+    if (t.endsWith(end)) for (const a of alts) out.push(t.slice(0, t.length - end.length) + a);
+  };
+  swap('aient', 'ait', 'ais');
+  swap('ait', 'ais', 'aient', 'é');
+  swap('ais', 'ait', 'é');
+  swap('ent', 'e', 'ez');
+  swap('ons', 'ez', 'ent');
+  swap('ez', 'er', 'é');
+  swap('er', 'ez', 'é');
+  swap('ée', 'é', 'és');
+  swap('és', 'é', 'ées');
+  if (/[^éeis]$/.test(t)) out.push(t + 'e');
+  if (/[^aeé]e$/.test(t)) out.push(t.slice(0, -1), t + 's');
+  return [...new Set(out)].filter((x) => x !== t && x.length > 1 && (!known || known.has(x)));
+}
+
+/** Every French word in the collection, lowercase (built once per pool). */
+const knownWordsCache = new WeakMap<Card[], Set<string>>();
+function knownWords(all: Card[]): Set<string> {
+  let set = knownWordsCache.get(all);
+  if (!set) {
+    set = new Set(all.flatMap((c) => sentenceTokens(c.fr).map((t) => t.toLowerCase())));
+    knownWordsCache.set(all, set);
+  }
+  return set;
+}
 
 function scrambleDifferent<T>(items: T[], same: (a: T[], b: T[]) => boolean, rand = Math.random): T[] {
   if (items.length < 2) return [...items];
@@ -187,19 +257,28 @@ function scrambleDifferent<T>(items: T[], same: (a: T[], b: T[]) => boolean, ran
 }
 
 /** Assemble the full question object. Returns null if the card can't support the type. */
-export function makeQuestion(type: QuestionType, card: Card, pool: Pool, opts: { isNew: boolean; retry?: boolean; box?: number }, rand = Math.random): Question | null {
+export function makeQuestion(
+  type: QuestionType,
+  card: Card,
+  pool: Pool,
+  opts: { isNew: boolean; retry?: boolean; box?: number; difficulty?: Difficulty },
+  rand = Math.random,
+): Question | null {
   const q: Question = { key: nextKey(), type, card, isNew: opts.isNew, retry: opts.retry };
   const box = opts.box ?? 0;
+  const difficulty = opts.difficulty ?? 2;
+  // four choices at Facile, six from Normal on
+  const wrong = difficulty >= 2 ? 5 : 3;
   switch (type) {
     case 'pick-image': {
-      const d = pickDistractors(card, pool.all, 3, 'image', rand);
+      const d = pickDistractors(card, pool.all, wrong, 'image', rand, difficulty);
       if (d.length < 1) return null;
       q.options = shuffle([card, ...d], rand);
       q.optionStyle = 'image';
       return q;
     }
     case 'pick-word': {
-      const d = pickDistractors(card, pool.all, 3, 'fr', rand);
+      const d = pickDistractors(card, pool.all, wrong, 'fr', rand, difficulty);
       if (d.length < 1) return null;
       q.options = shuffle([card, ...d], rand);
       q.optionStyle = 'fr';
@@ -208,10 +287,10 @@ export function makeQuestion(type: QuestionType, card: Card, pool: Pool, opts: {
     }
     case 'listen': {
       const asImages = hasPicture(card) && card.kind !== 'sentence';
-      let d = asImages ? pickDistractors(card, pool.all, 3, 'image', rand) : [];
+      let d = asImages ? pickDistractors(card, pool.all, wrong, 'image', rand, difficulty) : [];
       let style: 'image' | 'en' = 'image';
       if (d.length < 3) {
-        d = pickDistractors(card, pool.all, 3, 'en', rand);
+        d = pickDistractors(card, pool.all, wrong, 'en', rand, difficulty);
         style = 'en';
       }
       if (d.length < 1) return null;
@@ -225,7 +304,14 @@ export function makeQuestion(type: QuestionType, card: Card, pool: Pool, opts: {
       q.slots = spellSlots(noun);
       const letters = q.slots.filter((s) => !s.fixed).map((s) => s.char);
       const decoys: string[] = [];
-      const decoyCount = box >= 3 ? 3 : box >= 2 ? 2 : letters.length >= 6 ? 1 : 0;
+      // from Normal on, the accent's look-alike is in the pool too (é next to è)
+      if (difficulty >= 2) {
+        for (const ch of letters) {
+          const twin = ACCENT_TWINS[ch];
+          if (twin && !letters.includes(twin) && !decoys.includes(twin)) decoys.push(twin);
+        }
+      }
+      const decoyCount = decoys.length + (box >= 3 ? 3 : box >= 2 ? 2 : letters.length >= 6 ? 1 : 0) + (difficulty - 1) * 2;
       while (decoys.length < decoyCount) {
         const ch = DECOY_LETTERS[Math.floor(rand() * DECOY_LETTERS.length)];
         if (!letters.includes(ch) && !decoys.includes(ch)) decoys.push(ch);
@@ -244,8 +330,20 @@ export function makeQuestion(type: QuestionType, card: Card, pool: Pool, opts: {
         pool.all.filter((c) => c.id !== card.id && c.kind !== 'word').flatMap((c) => sentenceTokens(c.fr).map(lowerFirst)),
         rand,
       ).filter((t) => !own.has(t.toLowerCase()) && t.length > 1);
-      const decoyCount = answer.length >= 9 ? 1 : 2;
-      const decoys = [...new Set(decoyPool)].slice(0, decoyCount);
+      // Facile: a couple of words from other sentences. Normal and Difficile add wrong forms of
+      // the sentence's own words (la/le, mange/manges), so word order alone isn't enough.
+      const others = [...new Set(decoyPool)].slice(0, difficulty === 1 ? (answer.length >= 9 ? 1 : 2) : 2);
+      const twins =
+        difficulty === 1
+          ? []
+          : shuffle(
+              answer.map((t) => nearMisses(t, knownWords(pool.all)).filter((x) => !own.has(x))),
+              rand,
+            )
+              .filter((list) => list.length)
+              .map((list) => list[Math.floor(rand() * list.length)])
+              .slice(0, difficulty >= 3 ? 3 : 1);
+      const decoys = [...new Set([...twins, ...others])];
       q.answer = answer;
       q.tiles = scrambleDifferent([...answer, ...decoys], (a, b) => a.join(' ') === b.join(' '), rand);
       return q;
@@ -384,12 +482,13 @@ export function buildQuestions(cfg: RoundConfig, pool: Pool, rand = Math.random,
     const box = p?.box ?? 0;
     const first = !seenIds.has(card.id);
     seenIds.add(card.id);
-    let type = chooseType(card, types, first ? box : box + 2, pictureOptions, rand);
-    let q = type ? makeQuestion(type, card, pool, { isNew: isNew && first, box }, rand) : null;
+    const difficulty = cfg.difficulty ?? 2;
+    let type = chooseType(card, types, first ? box : box + 2, pictureOptions, rand, difficulty);
+    let q = type ? makeQuestion(type, card, pool, { isNew: isNew && first, box, difficulty }, rand) : null;
     if (!q && types.length > 1) {
       for (const t of shuffle(types, rand)) {
         if (!canAsk(t, card)) continue;
-        q = makeQuestion(t, card, pool, { isNew: isNew && first, box }, rand);
+        q = makeQuestion(t, card, pool, { isNew: isNew && first, box, difficulty }, rand);
         if (q) break;
       }
     }
@@ -409,13 +508,13 @@ export function buildQuestions(cfg: RoundConfig, pool: Pool, rand = Math.random,
 }
 
 /** A follow-up question for a card that was just missed. */
-export function retryQuestion(prev: Question, pool: Pool, rand = Math.random): Question | null {
+export function retryQuestion(prev: Question, pool: Pool, rand = Math.random, difficulty: Difficulty = 2): Question | null {
   if (prev.type === 'pairs') return null;
   const mode = prev.type;
   const easier: QuestionType[] = mode === 'spell' || mode === 'type' ? [mode, 'pick-word'] : [mode];
   for (const t of easier) {
     if (!canAsk(t, prev.card)) continue;
-    const q = makeQuestion(t, prev.card, pool, { isNew: false, retry: true, box: 0 }, rand);
+    const q = makeQuestion(t, prev.card, pool, { isNew: false, retry: true, box: 0, difficulty }, rand);
     if (q) return q;
   }
   return null;

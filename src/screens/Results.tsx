@@ -191,6 +191,11 @@ export default function Results() {
           <div className="results-time">
             {session.correct}/{session.total} right · {formatDuration(session.endedAt - session.startedAt)}
           </div>
+          {!!session.learned && (
+            <motion.div className="results-learned" initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: fresh ? 1.6 : 0, type: 'spring', stiffness: 400, damping: 14 }}>
+              <Emoji e="🌳" size={22} /> {session.learned} mot{session.learned > 1 ? 's' : ''} appris · {session.learned} word{session.learned > 1 ? 's' : ''} learned!
+            </motion.div>
+          )}
         </div>
 
         <AnimatePresence>

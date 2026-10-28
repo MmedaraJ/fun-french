@@ -17,7 +17,7 @@ export function Flash({ q, phase, onAnswer, autoplay }: QProps) {
 
   useEffect(() => {
     if (!reverse && autoplay) {
-      const t = setTimeout(() => void speak(card.fr), 350);
+      const t = setTimeout(() => void speak(card.fr, { queue: true }), 350);
       return () => clearTimeout(t);
     }
   }, [q.key, card.fr, reverse, autoplay]);
@@ -25,7 +25,7 @@ export function Flash({ q, phase, onAnswer, autoplay }: QProps) {
   const flip = useCallback(() => {
     if (phase !== 'ask') return;
     setFlipped((f) => {
-      if (!f && reverse && autoplay) setTimeout(() => void speak(card.fr), 250);
+      if (!f && reverse && autoplay) setTimeout(() => void speak(card.fr, { queue: true }), 250);
       return !f;
     });
     sfx.flip();

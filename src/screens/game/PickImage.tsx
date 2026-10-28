@@ -11,7 +11,7 @@ export function PickImage(props: QProps) {
 
   useEffect(() => {
     if (!autoplay) return;
-    const t = setTimeout(() => void speak(q.card.fr), 300);
+    const t = setTimeout(() => void speak(q.card.fr, { queue: true }), 300);
     return () => clearTimeout(t);
   }, [q.key, q.card.fr, autoplay]);
 
@@ -29,7 +29,7 @@ export function PickImage(props: QProps) {
           <SpeakButton text={q.card.fr} size="md" slow />
         </div>
       </div>
-      <div className="option-grid">
+      <div className={'option-grid' + (options.length > 4 ? ' option-grid--3' : '')}>
         {options.map((c, i) => (
           <OptionTile
             key={c.id}

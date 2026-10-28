@@ -135,14 +135,26 @@ function pickTense(cfg: GrammarConfig, kind: GrammarType, skillPrefix: string, r
   return pickWeighted(pool, (t) => TENSE_WEIGHT[TENSE_BY_ID[t].level] * skillWeight(cfg.skills, `${skillPrefix}:${t}`), rand);
 }
 
-/** Multiple choice while a skill is new; typing once it's known (sooner for stronger learners). */
+/**
+ * Multiple choice while a skill is new; typing once it's known. Difficile types from the
+ * second time on, Normal once it's learned, Facile only when it's solid.
+ */
 function answerMode(cfg: GrammarConfig, skill: string, rand: Rand, canTiles = false): 'choice' | 'type' | 'tiles' {
   const box = cfg.skills.get(skill)?.box ?? 0;
-  const typeFrom = cfg.level >= 3 ? 2 : cfg.level === 2 ? 3 : 4;
-  if (box >= typeFrom && rand() < 0.7) return 'type';
-  if (canTiles && box >= 1 && rand() < 0.5) return 'tiles';
+  const typeFrom = cfg.level >= 3 ? 1 : cfg.level === 2 ? 2 : 3;
+  if (box >= typeFrom && rand() < (cfg.level >= 3 ? 0.8 : 0.7)) return 'type';
+  if (canTiles && box >= (cfg.level >= 2 ? 0 : 1) && rand() < 0.5) return 'tiles';
   return 'choice';
 }
+
+/** Wrong options: 3 at Facile, 4 at Normal, 5 at Difficile (4 when the options are whole sentences). */
+function wrongCount(cfg: GrammarConfig, sentences = false): number {
+  const n = cfg.level >= 3 ? 5 : cfg.level === 2 ? 4 : 3;
+  return sentences ? Math.min(n, 4) : n;
+}
+
+/** Wrong word tiles: more of them as the difficulty goes up. */
+const tileDecoys = (cfg: GrammarConfig) => (cfg.level >= 3 ? 4 : cfg.level === 2 ? 3 : 2);
 
 /* ---------------------------------------------------------------- subjects */
 
@@ -366,7 +378,7 @@ const genConj: Gen = (cfg, rand) => {
     title: 'Conjugue · Conjugate',
     chips: [subjectLabel, verb.inf, info.fr],
     mode,
-    options: mode === 'choice' ? optionsFrom(form, candidates, rand, 3, otherGender ? [otherGender] : []) : undefined,
+    options: mode === 'choice' ? optionsFrom(form, candidates, rand, wrongCount(cfg), otherGender ? [otherGender] : []) : undefined,
     answer: form,
     accept: uniq([form, plain, bare, ambiguous ? otherGender : null, ambiguous && otherGender ? otherGender.replace(/^(que |qu')?\S+\s/, '') : null]),
     reveal: { fr: ambiguous ? `${form} / ${otherGender}` : form, en },
@@ -415,7 +427,7 @@ const genCloze: Gen = (cfg, rand, used) => {
             // the classic mistakes first (confusable tenses, wrong person), then other tenses to make four
             [...alternatives.slice(0, firstChoice), subject.fr ? null : sameCase(personMistake(frame.verb, tense, subject.person, subject.gender, rand), r.verbFr)],
             rand,
-            3,
+            wrongCount(cfg),
             [],
             alternatives.slice(firstChoice),
           )
@@ -444,7 +456,7 @@ const genTenseId: Gen = (cfg, rand, used) => {
   };
   const candidates = uniq([...(CONFUSABLE[tense] ?? []), ...shuffle(TENSES.map((t) => t.id), rand)]).filter((t) => t !== tense && t !== 'imperatif') as Tense[];
   if (candidates.some(lookalike)) return null;
-  const wrong = shuffle(candidates, rand).slice(0, 3);
+  const wrong = shuffle(candidates, rand).slice(0, wrongCount(cfg));
   const opts = shuffle([tense, ...wrong], rand);
   return question({
     kind: 'tense-id',
@@ -489,7 +501,7 @@ const genTransform: Gen = (cfg, rand, used) => {
     : confusable.map((t) => render(frame, t, subject)?.fr);
   const fallback = FALLBACK_TENSES.filter((t) => t !== source && t !== target).map((t) => render(frame, t, subject)?.fr);
   const answerTiles = tilesOf(dst.fr);
-  const decoys = decoyTiles(confusable.map((t) => render(frame, t, subject)?.verbFr), answerTiles);
+  const decoys = decoyTiles(confusable.map((t) => render(frame, t, subject)?.verbFr), answerTiles, tileDecoys(cfg));
   return question(
     {
       kind: 'transform',
@@ -498,7 +510,7 @@ const genTransform: Gen = (cfg, rand, used) => {
       prompt: src.fr,
       chips: trigger ? [info.fr, `${trigger}${trigger.endsWith("'") ? '' : ' '}…`] : [info.fr],
       mode,
-      options: mode === 'choice' ? optionsFrom(dst.fr, others, rand, 3, [src.fr], subjunctive ? [] : fallback) : undefined,
+      options: mode === 'choice' ? optionsFrom(dst.fr, others, rand, wrongCount(cfg, true), [src.fr], subjunctive ? [] : fallback) : undefined,
       answer: dst.fr,
       accept: uniq([dst.fr, dst.fr.replace(/\s+déjà\b/, '')]),
       reveal: { fr: dst.fr, en: dst.en },
@@ -552,7 +564,11 @@ const genNegate: Gen = (cfg, rand, used) => {
     if (other !== negation) wrong.push(render(frame, tense, subject, { negation: other })?.fr ?? null);
   }
   const answerTiles = tilesOf(neg.fr);
-  const decoys = decoyTiles([negation === 'pas' ? 'jamais' : 'pas', frame.frNeg && frame.fr ? sentenceTokens(frame.fr)[0] : null], answerTiles);
+  const decoys = decoyTiles(
+    [negation === 'pas' ? 'jamais' : 'pas', negation === 'plus' ? 'pas' : 'plus', frame.frNeg && frame.fr ? sentenceTokens(frame.fr)[0] : null, 'ne', "n'"],
+    answerTiles,
+    tileDecoys(cfg),
+  );
   return question(
     {
       kind: 'negate',
@@ -561,7 +577,7 @@ const genNegate: Gen = (cfg, rand, used) => {
       chips: [NEG_LABEL[negation]],
       prompt: aff.fr,
       mode,
-      options: mode === 'choice' ? optionsFrom(neg.fr, wrong, rand) : undefined,
+      options: mode === 'choice' ? optionsFrom(neg.fr, wrong, rand, wrongCount(cfg, true)) : undefined,
       answer: neg.fr,
       accept: uniq([neg.fr, neg.fr.replace(/\s+encore\b/, '')]),
       reveal: { fr: neg.fr, en: neg.en },
@@ -618,7 +634,7 @@ const genQForm: Gen = (cfg, rand, used) => {
     prompt: from.fr,
     mode: typed ? 'type' : 'choice',
     // the other (valid) forms aren't what was asked for, so they make good wrong options
-    options: typed ? undefined : optionsFrom(q.fr, [...broken, ...others], rand, 3, [from.fr]),
+    options: typed ? undefined : optionsFrom(q.fr, [...broken, ...others], rand, wrongCount(cfg, true), [from.fr]),
     answer: q.fr,
     reveal: { fr: q.fr, en: q.en },
     note:
@@ -681,7 +697,7 @@ const genQWord: Gen = (cfg, rand, used) => {
     // two wrong agreements when there are some, the rest other question words
     shuffle(sibs, rand).slice(0, 2).map((w) => caseLike(w, initial)),
     rand,
-    3,
+    wrongCount(cfg),
     [],
     shuffle(others, rand).map((w) => caseLike(w, initial)),
   );
@@ -714,7 +730,7 @@ const genQMatch: Gen = (cfg, rand, used) => {
     title: 'Quelle est la bonne réponse ? · Pick the right answer',
     prompt: form.text,
     mode: 'choice',
-    options: optionsFrom(item.answer.fr, others, rand),
+    options: optionsFrom(item.answer.fr, others, rand, wrongCount(cfg, true)),
     answer: item.answer.fr,
     reveal: { fr: `${form.text} — ${item.answer.fr}`, en: `${item.en} — ${item.answer.en}` },
   });
@@ -751,7 +767,7 @@ const genTranslate: Gen = (cfg, rand, used) => {
       ])
     : undefined;
   const answerTiles = tilesOf(r.fr);
-  const decoys = decoyTiles((CONFUSABLE[tense] ?? []).map((t) => render(frame, t, subject, { negation, qform })?.verbFr), answerTiles);
+  const decoys = decoyTiles((CONFUSABLE[tense] ?? []).map((t) => render(frame, t, subject, { negation, qform })?.verbFr), answerTiles, tileDecoys(cfg));
   return question(
     {
       kind: 'gtranslate',
@@ -792,7 +808,7 @@ const genListen: Gen = (cfg, rand, used) => {
     title: 'Écoute : ça veut dire… ? · Listen: what does it mean?',
     mode: 'choice',
     audio: r.fr,
-    options: optionsFrom(r.en, others, rand),
+    options: optionsFrom(r.en, others, rand, wrongCount(cfg, true)),
     answer: r.en,
     reveal: { fr: r.fr, en: r.en },
     note: tenseNote(tense),

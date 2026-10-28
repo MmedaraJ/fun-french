@@ -17,7 +17,7 @@ export function GrammarQuestion({ q, phase, result, onAnswer }: QProps) {
   // The listening exercise is the only one whose question is audio.
   useEffect(() => {
     if (!listening || !g.audio) return;
-    const t = setTimeout(() => void speak(g.audio!), 350);
+    const t = setTimeout(() => void speak(g.audio!, { queue: true }), 350);
     return () => clearTimeout(t);
   }, [q.key, listening, g.audio]);
 

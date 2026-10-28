@@ -312,9 +312,24 @@
   margin-top: 4px;
 }
 
+.deck-bar {
+  position: relative;
+}
+
 .deck-bar > span {
+  position: absolute;
+  inset: 0 auto 0 0;
   display: block;
   height: 100%;
   border-radius: 99px;
   background: var(--deck);
+}
+
+.deck-bar > .deck-bar-started {
+  opacity: 0.35;
+}
+
+.deck-card-started {
+  color: var(--text-soft);
+  font-weight: 600;
 }

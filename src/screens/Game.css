@@ -223,6 +223,12 @@
   margin-top: auto;
 }
 
+/* six pictures: three across, so they fit on a phone without scrolling */
+.option-grid--3 {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
 .option-list {
   display: flex;
   flex-direction: column;

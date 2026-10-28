@@ -17,7 +17,7 @@ interface Props {
 export function IntroCard({ card, autoplay, onDone }: Props) {
   useEffect(() => {
     if (!autoplay) return;
-    const t = setTimeout(() => void speak(card.fr), 450);
+    const t = setTimeout(() => void speak(card.fr, { queue: true }), 450);
     return () => clearTimeout(t);
   }, [card.fr, autoplay]);
 

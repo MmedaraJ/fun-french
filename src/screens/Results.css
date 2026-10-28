@@ -130,6 +130,19 @@
   color: var(--text-soft);
 }
 
+.results-learned {
+  margin-top: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--leaf);
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.95rem;
+}
+
 .levelup,
 .ach-pop {
   width: 100%;

@@ -150,6 +150,8 @@ export interface Session {
   cardIds: string[];
   /** Grammar lesson this round practised, if any. */
   lesson?: string;
+  /** Words that reached "learned" during this round. */
+  learned?: number;
 }
 
 export interface DailyStat {

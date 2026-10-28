@@ -3,6 +3,8 @@ import { persist } from 'zustand/middleware';
 import type { GameMode } from '../types';
 
 export type ThemePref = 'auto' | 'light' | 'dark';
+/** 1 Facile, 2 Normal, 3 Difficile. */
+export type Difficulty = 1 | 2 | 3;
 export type MascotColorPref = 'pink' | 'pistachio' | 'lemon' | 'lavender' | 'caramel' | 'raspberry';
 
 export interface ModeOptions {
@@ -32,6 +34,8 @@ export interface Settings {
   roundLength: number;
   newPerRound: number;
   introduceNew: boolean;
+  /** How hard the games are: answer options, typing vs choosing, decoys, accents. */
+  difficulty: Difficulty;
   theme: ThemePref;
   mascotColor: MascotColorPref;
   aiKey: string;
@@ -57,6 +61,7 @@ export const DEFAULT_SETTINGS: Settings = {
   newPerRound: 3,
   // Showing a new word right before asking it gives the answer away; she learns from feedback instead.
   introduceNew: false,
+  difficulty: 3,
   theme: 'auto',
   mascotColor: 'pink',
   aiKey: '',
@@ -80,10 +85,12 @@ export const useSettings = create<SettingsStore>()(
     }),
     {
       name: 'bonbon-settings',
-      version: 2,
+      version: 3,
       migrate: (persisted, version) => {
         const st = (persisted ?? {}) as Partial<Settings>;
         if (version < 2) st.introduceNew = false;
+        // "It's too easy": everyone starts on Difficile and can step down in Réglages
+        if (version < 3) st.difficulty = 3;
         return st as SettingsStore;
       },
     },

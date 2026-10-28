@@ -28,7 +28,7 @@ import {
 import { celebrate } from '../lib/confetti';
 import { DAY } from '../lib/date';
 import { db } from '../lib/db';
-import { DEFAULT_SETTINGS, useSettings, type MascotColorPref, type ThemePref } from '../lib/settings';
+import { DEFAULT_SETTINGS, useSettings, type Difficulty, type MascotColorPref, type ThemePref } from '../lib/settings';
 import { sfx } from '../lib/sound';
 import { speak, speechSupported, useFrenchVoices } from '../lib/speech';
 import './Settings.css';
@@ -60,6 +60,12 @@ const MASCOT_COLORS: { id: MascotColorPref; label: string }[] = [
   { id: 'lemon', label: 'Citron' },
   { id: 'lavender', label: 'Lavande' },
   { id: 'caramel', label: 'Caramel' },
+];
+
+const DIFFICULTIES: { id: Difficulty; label: string; emoji: string; help: string }[] = [
+  { id: 1, label: 'Facile', emoji: '🌱', help: 'Four choices, small slips forgiven, typing only once a word is well known.' },
+  { id: 2, label: 'Normal', emoji: '🌿', help: 'Six choices, more typing and word tiles, accents and le/la must be right.' },
+  { id: 3, label: 'Difficile', emoji: '🌶️', help: 'Six look-alike choices, mostly typing, tricky decoys, and only exact answers count.' },
 ];
 
 const THEMES: { id: ThemePref; label: string; emoji: string }[] = [
@@ -312,7 +318,18 @@ export default function Settings() {
       </Section>
 
       <Section emoji="🎮" title="Entraînement" sub="Practice">
-        <div className="field-label">Questions par partie</div>
+        <div className="field-label">Difficulté</div>
+        <div className="seg3">
+          {DIFFICULTIES.map((d) => (
+            <button key={d.id} aria-pressed={s.difficulty === d.id} onClick={() => set({ difficulty: d.id })}>
+              <Emoji e={d.emoji} size={18} /> {d.label}
+            </button>
+          ))}
+        </div>
+        <p className="set-help">{DIFFICULTIES.find((d) => d.id === s.difficulty)?.help}</p>
+        <div className="field-label" style={{ marginTop: 16 }}>
+          Questions par partie
+        </div>
         <div className="seg3">
           {[10, 15, 20].map((n) => (
             <button key={n} aria-pressed={s.roundLength === n} onClick={() => set({ roundLength: n })}>

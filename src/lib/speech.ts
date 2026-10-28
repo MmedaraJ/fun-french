@@ -89,37 +89,91 @@ export function unlockSpeech() {
 
 let speakingId = 0;
 
+interface SpeakOptions {
+  slow?: boolean;
+  rate?: number;
+  /**
+   * Wait for whatever is being said to finish instead of cutting it off. For speech the app
+   * starts by itself (a new question, the answer after a question): hearing the whole
+   * pronunciation matters more than starting the next one a second earlier.
+   */
+  queue?: boolean;
+}
+
+/** The utterance being spoken, and the one request waiting for it (only the newest waits). */
+let current: SpeechSynthesisUtterance | null = null;
+let waiting: { text: string; opts: SpeakOptions; resolve: () => void } | null = null;
+
+function utter(text: string, opts: SpeakOptions, resolve: () => void) {
+  const synth = window.speechSynthesis;
+  const u = new SpeechSynthesisUtterance(speakable(text));
+  u.lang = 'fr-FR';
+  const v = currentVoice();
+  if (v) u.voice = v;
+  const base = opts.rate ?? settings().rate;
+  u.rate = opts.slow ? Math.max(0.45, base * 0.62) : base;
+  u.pitch = 1;
+  let done = false;
+  const finish = () => {
+    if (done) return;
+    done = true;
+    if (current === u) current = null;
+    resolve();
+    const next = waiting;
+    waiting = null;
+    if (next) utter(next.text, next.opts, next.resolve);
+  };
+  u.onend = finish;
+  u.onerror = finish;
+  // Some engines never fire onend; don't leave callers (or the queue) hanging.
+  setTimeout(finish, 1200 + text.length * 140 * (opts.slow ? 1.7 : 1));
+  current = u;
+  synth.speak(u);
+}
+
 /** Speak French. Resolves when finished (or immediately if speech is unavailable). */
-export function speak(text: string, opts: { slow?: boolean; rate?: number } = {}): Promise<void> {
+export function speak(text: string, opts: SpeakOptions = {}): Promise<void> {
   if (!speechSupported() || !text) return Promise.resolve();
   const synth = window.speechSynthesis;
-  synth.cancel();
-  const id = ++speakingId;
   return new Promise((resolve) => {
-    const u = new SpeechSynthesisUtterance(speakable(text));
-    u.lang = 'fr-FR';
-    const v = currentVoice();
-    if (v) u.voice = v;
-    const base = opts.rate ?? settings().rate;
-    u.rate = opts.slow ? Math.max(0.45, base * 0.62) : base;
-    u.pitch = 1;
-    let done = false;
-    const finish = () => {
-      if (done) return;
-      done = true;
-      resolve();
-    };
-    u.onend = finish;
-    u.onerror = finish;
-    // Some engines never fire onend; don't leave callers hanging.
-    setTimeout(finish, 1200 + text.length * 140 * (opts.slow ? 1.7 : 1));
+    if (opts.queue) {
+      if (!current && !synth.speaking && !synth.pending) {
+        utter(text, opts, resolve);
+      } else {
+        // a newer request replaces an older one that hasn't started: no backlog of stale audio
+        waiting?.resolve();
+        waiting = { text, opts, resolve };
+      }
+      return;
+    }
+    // a tap on a speaker: say it now
+    const dropped = waiting;
+    waiting = null;
+    dropped?.resolve();
+    current = null;
+    synth.cancel();
+    const id = ++speakingId;
     // Chrome sometimes drops an utterance queued in the same tick as cancel().
     setTimeout(() => {
-      if (id === speakingId) synth.speak(u);
+      if (id === speakingId) utter(text, opts, resolve);
+      else resolve();
     }, 30);
   });
 }
 
+/** Forget speech that hasn't started yet, but let the current pronunciation finish. */
+export function dropQueuedSpeech() {
+  const dropped = waiting;
+  waiting = null;
+  dropped?.resolve();
+}
+
 export function stopSpeaking() {
-  if (speechSupported()) window.speechSynthesis.cancel();
+  if (!speechSupported()) return;
+  const dropped = waiting;
+  waiting = null;
+  dropped?.resolve();
+  current = null;
+  speakingId++;
+  window.speechSynthesis.cancel();
 }

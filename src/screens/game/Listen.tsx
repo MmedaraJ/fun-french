@@ -12,7 +12,7 @@ export function Listen(props: QProps) {
 
   // Audio-only game: always play the word, whatever the autoplay setting.
   useEffect(() => {
-    const t = setTimeout(() => void speak(q.card.fr), 350);
+    const t = setTimeout(() => void speak(q.card.fr, { queue: true }), 350);
     return () => clearTimeout(t);
   }, [q.key, q.card.fr]);
 
@@ -37,7 +37,15 @@ export function Listen(props: QProps) {
           </motion.div>
         )}
       </div>
-      <div className={look === 'image' ? 'option-grid' : 'option-list'}>
+      <div
+        className={
+          look === 'image'
+            ? 'option-grid' + (options.length > 4 ? ' option-grid--3' : '')
+            : options.some((c) => c.en.length > 18)
+              ? 'option-list'
+              : 'option-grid'
+        }
+      >
         {options.map((c, i) => (
           <OptionTile
             key={c.id}

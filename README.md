@@ -39,7 +39,13 @@ form a learning path (each with its own practice round), and the Conjugueur show
 every tense.
 
 **No answers given away**: nothing plays or shows the answer before she responds. The French audio
-comes after answering, except in the listening games where the sound is the question.
+comes after answering, except in the listening games where the sound is the question, and a
+pronunciation is never cut off when she moves on: the next sound waits for it to finish.
+
+**Difficulté** (Réglages): *Facile* (four choices, small slips forgiven), *Normal* (six choices, more
+typing and word tiles, accents and le/la must be right) or *Difficile*, the default (look-alike
+choices, mostly typing, decoy tiles that are other forms of the sentence's own words, exact answers
+only).
 
 Plus **Révision du jour**, a daily smart mix of due reviews, a few new words and some grammar; **Survie**
 mode with three hearts; combos, score multipliers, stars, levels, streaks and badges; and a mistakes

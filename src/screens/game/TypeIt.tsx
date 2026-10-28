@@ -3,16 +3,18 @@ import { useEffect, useRef, useState } from 'react';
 import { CardImage, hasPicture } from '../../components/CardImage';
 import { SpeakButton } from '../../components/SpeakButton';
 import { burstFrom } from '../../lib/confetti';
-import { ACCENT_KEYS, compareAnswer } from '../../lib/french';
+import { ACCENT_KEYS, compareAnswer, typedAnswerCounts } from '../../lib/french';
+import { useSettings } from '../../lib/settings';
 import { sfx } from '../../lib/sound';
 import { speak } from '../../lib/speech';
 import type { QProps } from './types';
 import './TypeIt.css';
 
+/** What to say about a near miss: [counted as right, counted as wrong]. */
 const NOTES = {
-  accents: 'Attention aux accents ! (watch the accents)',
-  typo: 'Petite faute de frappe (small typo) — counted as right.',
-  article: 'N’oublie pas l’article ! (don’t forget le/la)',
+  accents: ['Attention aux accents ! (watch the accents)', 'Presque ! Les accents comptent (accents count).'],
+  typo: ['Petite faute de frappe (small typo) — counted as right.', 'Presque ! Une lettre de travers (one letter off).'],
+  article: ['N’oublie pas l’article ! (don’t forget le/la)', 'Presque ! Il manque l’article (le/la is part of the word).'],
 };
 
 /**
@@ -24,10 +26,11 @@ export function TypeIt({ q, phase, result, onAnswer }: QProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [scope, animate] = useAnimate<HTMLFormElement>();
   const dictation = q.type === 'dictation';
+  const difficulty = useSettings((st) => st.difficulty);
 
   useEffect(() => {
     const t = setTimeout(() => {
-      if (dictation) void speak(q.card.fr);
+      if (dictation) void speak(q.card.fr, { queue: true });
       inputRef.current?.focus({ preventScroll: true });
     }, 350);
     return () => clearTimeout(t);
@@ -37,12 +40,12 @@ export function TypeIt({ q, phase, result, onAnswer }: QProps) {
     e?.preventDefault();
     if (phase !== 'ask' || !text.trim()) return;
     const match = compareAnswer(text, q.card.fr);
-    const correct = match !== 'wrong';
+    const correct = typedAnswerCounts(match, difficulty);
     if (correct) burstFrom(scope.current, { count: 26 });
     else if (scope.current) void animate(scope.current, { x: [0, -12, 12, -8, 8, 0] }, { duration: 0.45 });
     onAnswer(correct, {
       given: match === 'exact' ? undefined : text.trim(),
-      note: match === 'accents' || match === 'typo' || match === 'article' ? NOTES[match] : undefined,
+      note: match === 'accents' || match === 'typo' || match === 'article' ? NOTES[match][correct ? 0 : 1] : undefined,
     });
   };
 

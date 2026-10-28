@@ -1,7 +1,7 @@
 import type { AnswerEvent, DailyStat, Progress, QuestionType, Session } from '../../types';
 import { dayKey } from '../date';
 import { db } from '../db';
-import { applyAnswer } from '../srs';
+import { applyAnswer, applySkillAnswer } from '../srs';
 import { XP } from './scoring';
 
 export function emptyDay(day: string): DailyStat {
@@ -34,10 +34,11 @@ export async function recordAnswer(params: {
   const now = params.now ?? Date.now();
   const day = dayKey(now);
   // grammar skills have their own table so they never count as "words learned"
-  const table = params.cardId.startsWith('g:') ? db.skills : db.progress;
+  const skill = params.cardId.startsWith('g:');
+  const table = skill ? db.skills : db.progress;
   return db.transaction('rw', db.progress, db.skills, db.events, db.daily, async () => {
     const prev = await table.get(params.cardId);
-    const next = applyAnswer(prev, params.cardId, params.correct, now);
+    const next = (skill ? applySkillAnswer : applyAnswer)(prev, params.cardId, params.correct, now);
     await table.put(next);
     const ev: AnswerEvent = {
       sessionId: params.sessionId,

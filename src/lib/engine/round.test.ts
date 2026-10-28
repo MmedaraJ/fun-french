@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { Card, Progress } from '../../types';
 import { DAY } from '../date';
-import { buildQuestions, canAsk, chooseType, deferIntroduced, makeQuestion, pickCards, pickDistractors, type Pool, type Question } from './round';
+import { buildQuestions, canAsk, chooseType, deferIntroduced, makeQuestion, nearMisses, pickCards, pickDistractors, type Pool, type Question } from './round';
 
 let n = 0;
 function card(fr: string, en: string, extra: Partial<Card> = {}): Card {
@@ -83,13 +83,16 @@ describe('pickDistractors', () => {
 });
 
 describe('makeQuestion', () => {
-  it('builds a 4-option picture question containing the answer', () => {
-    const q = makeQuestion('pick-image', animals[1], pool(), { isNew: false }, seeded())!;
-    expect(q.options).toHaveLength(4);
-    expect(q.options!.map((c) => c.id)).toContain(animals[1].id);
+  it('builds a picture question containing the answer: 4 choices at Facile, 6 from Normal', () => {
+    const easy = makeQuestion('pick-image', animals[1], pool(), { isNew: false, difficulty: 1 }, seeded())!;
+    expect(easy.options).toHaveLength(4);
+    expect(easy.options!.map((c) => c.id)).toContain(animals[1].id);
+    const hard = makeQuestion('pick-image', animals[1], pool(), { isNew: false, difficulty: 3 }, seeded())!;
+    expect(hard.options).toHaveLength(Math.min(6, animals.filter((a) => a.emoji).length));
+    expect(hard.options!.map((c) => c.id)).toContain(animals[1].id);
   });
   it('builds spelling slots without the article', () => {
-    const q = makeQuestion('spell', animals[4], pool(), { isNew: false }, seeded())!;
+    const q = makeQuestion('spell', animals[4], pool(), { isNew: false, difficulty: 1 }, seeded())!;
     expect(q.article).toBe("l'");
     expect(q.slots!.map((s) => s.char).join('')).toBe('oiseau');
     // every letter of the word is in the pool, plus one decoy for a 6-letter word
@@ -104,6 +107,52 @@ describe('makeQuestion', () => {
     expect(q.answer).toEqual(["j'aime", 'le', 'chocolat']);
     for (const t of q.answer!) expect(q.tiles).toContain(t);
     expect(q.tiles!.length).toBeGreaterThanOrEqual(q.answer!.length);
+  });
+  it('harder levels add more letters to spell with, including accent look-alikes', () => {
+    const word = card('le café', 'coffee', { deckId: 'd1' });
+    const easy = makeQuestion('spell', word, pool([word, ...animals]), { isNew: false, difficulty: 1 }, seeded())!;
+    const hard = makeQuestion('spell', word, pool([word, ...animals]), { isNew: false, difficulty: 3 }, seeded())!;
+    expect(hard.letters!.length).toBeGreaterThan(easy.letters!.length + 2);
+    expect(hard.letters).toContain('è');
+  });
+  it('from Normal on, sentence tiles include wrong forms of the sentence’s own words', () => {
+    const q = makeQuestion('build', sentences[1], pool(), { isNew: false, difficulty: 3 }, seeded())!;
+    const extra = q.tiles!.filter((t) => !q.answer!.includes(t));
+    // "le" brings "la"/"les", so the article has to be right, not just the order
+    expect(extra.some((t) => ['la', 'les'].includes(t))).toBe(true);
+  });
+});
+
+describe('nearMisses', () => {
+  it('swaps small words and endings a learner confuses', () => {
+    expect(nearMisses('le')).toEqual(['la', 'les']);
+    expect(nearMisses('mangent')).toEqual(expect.arrayContaining(['mange', 'mangez']));
+    expect(nearMisses('parlez')).toEqual(expect.arrayContaining(['parler', 'parlé']));
+    expect(nearMisses('petite')).toEqual(expect.arrayContaining(['petit']));
+    expect(nearMisses("j'aime")).toEqual([]);
+  });
+  it('keeps changed endings only when they are real words she has seen', () => {
+    const known = new Set(['mange', 'française']);
+    expect(nearMisses('mangent', known)).toEqual(['mange']);
+    expect(nearMisses('français', known)).toEqual([]); // never "françait"
+    expect(nearMisses('le', known)).toEqual(['la', 'les']);
+  });
+});
+
+describe('chooseType', () => {
+  it('asks for more typing and building as the difficulty goes up', () => {
+    const c = card('le pain', 'bread', { emoji: '🍞' });
+    const types = ['pick-image', 'pick-word', 'type', 'spell'] as const;
+    const count = (d: 1 | 2 | 3) => {
+      const rand = seeded(7);
+      let production = 0;
+      for (let i = 0; i < 400; i++) {
+        const t = chooseType(c, [...types], 2, true, rand, d);
+        if (t === 'type' || t === 'spell') production++;
+      }
+      return production;
+    };
+    expect(count(3)).toBeGreaterThan(count(1) + 60);
   });
 });
 

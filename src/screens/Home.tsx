@@ -226,6 +226,7 @@ export default function Home() {
           .sort((a, b) => Number(b.active) - Number(a.active) || a.order - b.order)
           .map((d) => {
             const learned = d.counts.learned + d.counts.mastered;
+            const started = d.counts.learning;
             return (
               <motion.button
                 key={d.id}
@@ -240,12 +241,20 @@ export default function Home() {
                 <strong>{d.name}</strong>
                 <span className="deck-card-meta">
                   {learned}/{d.total} learned
+                  {started > 0 && <span className="deck-card-started"> · {started} in progress</span>}
                 </span>
+                {/* learned in the deck colour, words in progress lighter behind them */}
                 <span className="deck-bar">
+                  <motion.span
+                    className="deck-bar-started"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${((learned + started) / Math.max(1, d.total)) * 100}%` }}
+                    transition={{ type: 'spring', stiffness: 60, damping: 18, delay: 0.3 }}
+                  />
                   <motion.span
                     initial={{ width: 0 }}
                     animate={{ width: `${(learned / Math.max(1, d.total)) * 100}%` }}
-                    transition={{ type: 'spring', stiffness: 60, damping: 18, delay: 0.3 }}
+                    transition={{ type: 'spring', stiffness: 60, damping: 18, delay: 0.4 }}
                   />
                 </span>
               </motion.button>
