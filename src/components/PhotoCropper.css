@@ -1,0 +1,61 @@
+.cropper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+}
+
+.cropper-hint {
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.crop-view {
+  position: relative;
+  overflow: hidden;
+  border-radius: 30px;
+  background: #1d1b33;
+  touch-action: none;
+  cursor: grab;
+  box-shadow: 0 8px 0 var(--shadow-color);
+  user-select: none;
+}
+
+.crop-view:active {
+  cursor: grabbing;
+}
+
+.crop-view img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  max-width: none;
+  transform-origin: 0 0;
+  pointer-events: none;
+}
+
+.crop-grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(to right, transparent calc(33.33% - 1px), rgba(255, 255, 255, 0.45) 33.33%, transparent calc(33.33% + 1px)),
+    linear-gradient(to right, transparent calc(66.66% - 1px), rgba(255, 255, 255, 0.45) 66.66%, transparent calc(66.66% + 1px)),
+    linear-gradient(to bottom, transparent calc(33.33% - 1px), rgba(255, 255, 255, 0.45) 33.33%, transparent calc(33.33% + 1px)),
+    linear-gradient(to bottom, transparent calc(66.66% - 1px), rgba(255, 255, 255, 0.45) 66.66%, transparent calc(66.66% + 1px));
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.7);
+}
+
+.crop-zoom {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: min(100%, 320px);
+}
+
+.crop-zoom input {
+  flex: 1;
+  accent-color: var(--berry);
+}

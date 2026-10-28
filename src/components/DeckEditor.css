@@ -1,0 +1,50 @@
+.deck-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.deck-preview {
+  align-self: center;
+  width: 170px;
+  padding: 16px 14px;
+  border-radius: 26px;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0 16px;
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.18);
+  text-align: center;
+}
+
+.deck-preview strong {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.1rem;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.12);
+}
+
+.swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.swatch {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.18);
+  transition: transform 0.15s;
+}
+
+.swatch.is-on {
+  transform: scale(1.12);
+  box-shadow:
+    0 0 0 3px var(--surface),
+    0 0 0 6px var(--text);
+}

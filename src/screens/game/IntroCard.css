@@ -1,0 +1,90 @@
+.intro {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  perspective: 900px;
+  padding-bottom: 8px;
+}
+
+.intro-ribbon {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  border-radius: 999px;
+  background: var(--sunshine);
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.15rem;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.18);
+  z-index: 2;
+  margin-bottom: -26px;
+}
+
+.intro-card {
+  width: 100%;
+  max-width: 400px;
+  background: #fff;
+  color: var(--ink);
+  border-radius: 34px;
+  padding: 34px 22px 22px;
+  box-shadow: 0 8px 0 rgba(0, 0, 0, 0.18);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+}
+
+.intro-pic {
+  width: min(46vw, 180px);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  margin-bottom: 6px;
+}
+
+.intro-fr {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.9rem, 8vw, 2.7rem);
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+.intro-en {
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: #6b6e8a;
+}
+
+.intro-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+  min-height: 4px;
+}
+
+.intro-tags .badge {
+  background: #f1eefc;
+  color: var(--ink);
+}
+
+.badge.g-m {
+  background: #dbe7ff !important;
+  color: #2050c8 !important;
+}
+
+.badge.g-f {
+  background: #ffe0e7 !important;
+  color: #c2185b !important;
+}
+
+.intro-go {
+  max-width: 400px;
+}

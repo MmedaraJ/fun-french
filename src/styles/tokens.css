@@ -1,0 +1,64 @@
+/* Design tokens. Palette colours are vivid and flat; surfaces switch for dark mode. */
+:root {
+  --berry: #ff5e7e;
+  --tangerine: #ff8a3d;
+  --sunshine: #ffc83d;
+  --leaf: #2dbe6c;
+  --lagoon: #17b8c4;
+  --sky: #3d7bff;
+  --grape: #8c5cff;
+  --plum: #d45ab4;
+
+  --ink: #2b2d42;
+  --ink-soft: #5c5f7a;
+  --cream: #fff4e6;
+
+  --ok: #22c55e;
+  --ok-deep: #15803d;
+  --bad: #ff4d4f;
+  --bad-deep: #c81e1e;
+  --gold: #ffcb2e;
+
+  /* Surfaces (light) */
+  --bg: #fff4e6;
+  --bg-accent: #ffe7cc;
+  --surface: #ffffff;
+  --surface-2: #fff9f2;
+  --text: #2b2d42;
+  --text-soft: #6b6e8a;
+  --line: rgba(43, 45, 66, 0.12);
+  --shadow-color: rgba(43, 45, 66, 0.16);
+  --overlay: rgba(28, 26, 48, 0.45);
+
+  --radius-xs: 8px;
+  --radius-sm: 12px;
+  --radius: 20px;
+  --radius-lg: 28px;
+  --radius-xl: 36px;
+
+  --chunk: 0 6px 0 var(--shadow-color);
+  --chunk-sm: 0 4px 0 var(--shadow-color);
+  --soft: 0 10px 30px -12px rgba(43, 45, 66, 0.35);
+
+  --font-display: 'Fredoka Variable', 'Nunito Variable', ui-rounded, system-ui, sans-serif;
+  --font-body: 'Nunito Variable', ui-rounded, system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --nav-h: 74px;
+
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  --bg: #1d1b33;
+  --bg-accent: #27244a;
+  --surface: #2a2850;
+  --surface-2: #322f5c;
+  --text: #fff4e6;
+  --text-soft: #b9b5dc;
+  --line: rgba(255, 244, 230, 0.12);
+  --shadow-color: rgba(0, 0, 0, 0.35);
+  --overlay: rgba(8, 6, 20, 0.6);
+  color-scheme: dark;
+}

@@ -1,0 +1,177 @@
+// Core data model shared by the database, the game engine and the UI.
+
+export type CardKind = 'word' | 'phrase' | 'sentence';
+export type Gender = 'm' | 'f';
+export type CardSource = 'starter' | 'manual' | 'text' | 'photo' | 'ai' | 'import';
+
+/** Palette keys; the actual colours live in src/styles/tokens.css and src/lib/palette.ts. */
+export type PaletteKey =
+  | 'berry'
+  | 'tangerine'
+  | 'sunshine'
+  | 'leaf'
+  | 'lagoon'
+  | 'sky'
+  | 'grape'
+  | 'plum';
+
+export interface Deck {
+  id: string;
+  /** French name, e.g. "Les animaux". */
+  name: string;
+  /** English name, e.g. "Animals". */
+  nameEn: string;
+  emoji: string;
+  color: PaletteKey;
+  builtin: boolean;
+  /** Active decks feed new words into daily practice. */
+  active: boolean;
+  /** 1 = beginner, 2 = intermediate, 3 = advanced. */
+  level: number;
+  order: number;
+  createdAt: number;
+}
+
+export interface Card {
+  id: string;
+  deckId: string;
+  kind: CardKind;
+  /** French text. Nouns carry their article: "le chat", "l'arbre", "les lunettes". */
+  fr: string;
+  /** English meaning, without article for nouns: "cat". */
+  en: string;
+  gender?: Gender;
+  /** Plural-only nouns such as "les lunettes". */
+  plural?: boolean;
+  emoji?: string;
+  /** Id of a user photo in the images table; wins over emoji when present. */
+  imageId?: string;
+  /** Short usage note, e.g. "informal" or "feminine: chaude". */
+  note?: string;
+  source: CardSource;
+  /** Starred by the learner to practise more. */
+  focus?: boolean;
+  archived?: boolean;
+  /** Usefulness order inside the deck (lower = taught first). */
+  order: number;
+  createdAt: number;
+  updatedAt: number;
+}
+
+/** Spaced-repetition memory for one card. Missing row = never seen. */
+export interface Progress {
+  cardId: string;
+  /** Leitner-style box, 0 (new) .. 6 (rock solid). */
+  box: number;
+  /** Timestamp (ms) when the card is next due. */
+  due: number;
+  seen: number;
+  correct: number;
+  wrong: number;
+  /** Times the card dropped back after being known. */
+  lapses: number;
+  /** Current run of correct answers. */
+  streak: number;
+  firstSeen: number;
+  lastSeen: number;
+  /** When the card first reached the "learned" threshold. */
+  learnedAt?: number;
+  /** When the card first reached the "mastered" threshold. */
+  masteredAt?: number;
+}
+
+export type GameMode =
+  | 'pick-image'
+  | 'pick-word'
+  | 'spell'
+  | 'listen'
+  | 'mix'
+  | 'gender'
+  | 'build'
+  | 'type'
+  | 'pairs'
+  | 'flash'
+  | 'speak';
+
+/** A question type is what a single question actually asks ("mix" picks among these). */
+export type QuestionType = Exclude<GameMode, 'mix'>;
+
+/** One answered question, stored for statistics. */
+export interface AnswerEvent {
+  id?: number;
+  sessionId: string;
+  cardId: string;
+  type: QuestionType;
+  correct: boolean;
+  /** Milliseconds from question shown to answer. */
+  ms: number;
+  ts: number;
+  /** Local calendar day, "YYYY-MM-DD". */
+  day: string;
+}
+
+export interface Session {
+  id: string;
+  mode: GameMode;
+  survival: boolean;
+  startedAt: number;
+  endedAt: number;
+  day: string;
+  score: number;
+  correct: number;
+  total: number;
+  maxCombo: number;
+  xp: number;
+  newCards: number;
+  deckIds: string[];
+  /** Card ids answered wrong at least once. */
+  missed: string[];
+  /** Card ids in the order they were asked. */
+  cardIds: string[];
+}
+
+export interface DailyStat {
+  /** "YYYY-MM-DD", local time. */
+  day: string;
+  xp: number;
+  answers: number;
+  correct: number;
+  ms: number;
+  sessions: number;
+  newCards: number;
+}
+
+export interface StoredImage {
+  id: string;
+  blob: Blob;
+  createdAt: number;
+}
+
+export interface Unlocked {
+  id: string;
+  unlockedAt: number;
+}
+
+/** Shape of the built-in content in src/data/starter.ts (expanded into Deck + Card rows on first run). */
+export interface StarterCard {
+  fr: string;
+  en: string;
+  /** Defaults to the deck's `kind`. */
+  kind?: CardKind;
+  g?: Gender;
+  pl?: true;
+  e?: string;
+  note?: string;
+}
+
+export interface StarterDeck {
+  id: string;
+  name: string;
+  nameEn: string;
+  emoji: string;
+  color: PaletteKey;
+  level: number;
+  /** Default kind for the cards in this deck. */
+  kind: CardKind;
+  cards: StarterCard[];
+}

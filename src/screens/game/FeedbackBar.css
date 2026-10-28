@@ -1,0 +1,156 @@
+.feedback {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 30;
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 30px 30px 0 0;
+  padding: 14px 16px calc(16px + var(--safe-bottom));
+  box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.22);
+  overflow: hidden;
+}
+
+.feedback::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 7px;
+}
+
+.feedback--ok::before {
+  background: var(--ok);
+}
+
+.feedback--bad::before {
+  background: var(--bad);
+}
+
+.feedback-inner {
+  max-width: 620px;
+  margin: 0 auto;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.feedback-mascot {
+  flex-shrink: 0;
+  margin: -4px 0 -12px -6px;
+}
+
+.feedback-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.feedback-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.7rem;
+  line-height: 1.1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  transform-origin: left center;
+}
+
+.feedback--ok .feedback-title {
+  color: var(--ok-deep);
+}
+
+.feedback--bad .feedback-title {
+  color: var(--bad-deep);
+}
+
+:root[data-theme='dark'] .feedback--ok .feedback-title {
+  color: #6ee7a0;
+}
+
+:root[data-theme='dark'] .feedback--bad .feedback-title {
+  color: #ff8a8c;
+}
+
+.feedback-combo {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--tangerine);
+}
+
+.feedback-note {
+  margin-top: 4px;
+  font-weight: 700;
+  color: var(--tangerine);
+}
+
+.feedback-card {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 8px 8px 10px;
+  border-radius: 18px;
+  background: var(--surface-2);
+  box-shadow: inset 0 0 0 2px var(--line);
+}
+
+.feedback-pic {
+  flex-shrink: 0;
+  display: grid;
+}
+
+.feedback-words {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.feedback-words strong {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.25rem;
+  overflow-wrap: anywhere;
+}
+
+.feedback-words > span {
+  color: var(--text-soft);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.feedback-words em {
+  font-style: normal;
+  color: var(--grape);
+}
+
+.feedback-label {
+  font-size: 0.78rem !important;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 800 !important;
+}
+
+.feedback-given {
+  font-size: 0.85rem !important;
+}
+
+.feedback-next {
+  max-width: 620px;
+  margin: 14px auto 0;
+  display: flex;
+}
+
+.feedback-timer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 5px;
+  background: var(--ok);
+  transform-origin: left center;
+  opacity: 0.6;
+}

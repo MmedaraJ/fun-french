@@ -1,0 +1,113 @@
+.setup-head {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin: 6px 0 20px;
+}
+
+.setup-head h2 {
+  font-size: 1.8rem;
+}
+
+.setup-en {
+  font-weight: 800;
+  color: var(--text-soft);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 2px 0 4px;
+}
+
+.setup-art {
+  position: relative;
+  width: 92px;
+  height: 92px;
+  border-radius: 28px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.18);
+}
+
+.setup-num {
+  position: absolute;
+  top: 6px;
+  left: 10px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  opacity: 0.8;
+}
+
+.setup-decks {
+  margin-top: 8px;
+  gap: 8px;
+}
+
+.segmented {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.segmented button {
+  border-radius: 18px;
+  padding: 12px 6px;
+  background: var(--surface-2);
+  box-shadow: inset 0 0 0 2px var(--line);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  transition:
+    transform 0.12s,
+    background 0.2s,
+    box-shadow 0.2s;
+}
+
+.segmented button:active {
+  transform: scale(0.96);
+}
+
+.segmented button strong {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 600;
+  display: flex;
+  gap: 2px;
+  min-height: 1.6rem;
+  align-items: center;
+}
+
+.segmented button span {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-soft);
+}
+
+.segmented button[aria-pressed='true'] {
+  background: color-mix(in srgb, var(--sheet-accent, var(--sky)) 16%, var(--surface));
+  box-shadow: inset 0 0 0 3px var(--sheet-accent, var(--sky));
+}
+
+.chip--more .chev {
+  display: inline-block;
+  transition: transform 0.2s;
+}
+
+.chip--more .chev.is-open {
+  transform: rotate(180deg);
+}
+
+.setup-deck-list {
+  overflow: hidden;
+}
+
+.setup-footer {
+  position: sticky;
+  bottom: calc(-24px - var(--safe-bottom));
+  margin: 22px -20px calc(-24px - var(--safe-bottom));
+  padding: 14px 20px calc(18px + var(--safe-bottom));
+  background: linear-gradient(to top, var(--surface) 75%, transparent);
+  z-index: 2;
+}

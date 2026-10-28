@@ -1,0 +1,172 @@
+.gender-stage {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  min-height: 250px;
+}
+
+.gender-card {
+  position: relative;
+  width: min(82vw, 330px);
+  background: #fff;
+  color: var(--ink);
+  border-radius: 34px;
+  padding: 22px 20px 20px;
+  box-shadow: 0 8px 0 rgba(0, 0, 0, 0.18);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+}
+
+.gender-card:active {
+  cursor: grabbing;
+}
+
+.gender-card.is-ok {
+  box-shadow:
+    0 8px 0 var(--ok-deep),
+    0 0 0 6px var(--ok);
+}
+
+.gender-card.is-bad {
+  box-shadow:
+    0 8px 0 var(--bad-deep),
+    0 0 0 6px var(--bad);
+}
+
+.gender-pic {
+  width: min(40vw, 150px);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.gender-word {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.9rem, 8vw, 2.6rem);
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+.gender-blank {
+  color: #b5b3c9;
+}
+
+.gender-blank.is-filled.g-m {
+  color: var(--sky);
+}
+
+.gender-blank.is-filled.g-f {
+  color: var(--berry);
+}
+
+.gender-elision {
+  font-weight: 800;
+  font-size: 0.95rem;
+  padding: 2px 10px;
+  border-radius: 999px;
+}
+
+.gender-elision.g-m {
+  background: #dbe7ff;
+  color: #2050c8;
+}
+
+.gender-elision.g-f {
+  background: #ffe0e7;
+  color: #c2185b;
+}
+
+.gender-en {
+  font-weight: 700;
+  color: #8a8ca6;
+}
+
+.stamp {
+  position: absolute;
+  top: 18px;
+  padding: 4px 14px;
+  border: 4px solid currentColor;
+  border-radius: 14px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.8rem;
+  pointer-events: none;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.stamp--le {
+  right: 16px;
+  color: var(--sky);
+  transform: rotate(12deg);
+}
+
+.stamp--la {
+  left: 16px;
+  color: var(--berry);
+  transform: rotate(-12deg);
+}
+
+.gender-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.gender-btn {
+  border-radius: 28px;
+  padding: 14px 10px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #fff;
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.22);
+  transition:
+    opacity 0.3s,
+    box-shadow 0.2s;
+}
+
+.gender-btn--m {
+  background: var(--sky);
+}
+
+.gender-btn--f {
+  background: var(--berry);
+}
+
+.gender-art {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 2.6rem;
+  line-height: 1;
+}
+
+.gender-sub {
+  font-size: 0.82rem;
+  font-weight: 800;
+  opacity: 0.9;
+}
+
+.gender-btn:disabled {
+  opacity: 0.5;
+}
+
+.gender-btn.is-answer {
+  opacity: 1;
+  box-shadow:
+    0 6px 0 rgba(0, 0, 0, 0.22),
+    0 0 0 5px #fff;
+}
+
+.gender-btn.is-wrong {
+  opacity: 0.8;
+  filter: grayscale(0.5);
+}

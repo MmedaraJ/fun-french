@@ -1,0 +1,81 @@
+.flash-stage {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  perspective: 1100px;
+  min-height: 300px;
+}
+
+.flash-card {
+  position: relative;
+  width: min(84vw, 360px);
+  aspect-ratio: 3 / 3.6;
+  transform-style: preserve-3d;
+  border-radius: 34px;
+}
+
+.flash-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: 34px;
+  background: #fff;
+  color: var(--ink);
+  box-shadow: 0 8px 0 rgba(0, 0, 0, 0.18);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 22px;
+  text-align: center;
+}
+
+.flash-back {
+  transform: rotateY(180deg);
+  background: #fffaf0;
+}
+
+.flash-pic {
+  width: min(40vw, 150px);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+}
+
+.flash-fr {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.7rem, 7vw, 2.4rem);
+  line-height: 1.12;
+  overflow-wrap: anywhere;
+}
+
+.flash-en {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(1.5rem, 6vw, 2.1rem);
+  line-height: 1.15;
+  color: #4a4c66;
+}
+
+.flash-actions {
+  margin-top: 16px;
+}
+
+.flash-grade {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.flash-no {
+  --btn-bg: #fff;
+  --btn-fg: var(--ink);
+}
+
+.flash-grade .btn {
+  padding: 10px 8px;
+  font-size: 1.1rem;
+}

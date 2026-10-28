@@ -1,0 +1,72 @@
+.speak-btn {
+  display: inline-grid;
+  place-items: center;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+
+.speak-btn--light {
+  background: rgba(255, 255, 255, 0.25);
+  color: #fff;
+}
+
+.speak-btn--solid {
+  background: var(--sky);
+  color: #fff;
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--sky) 65%, #000);
+}
+
+.speak-btn--sm {
+  width: 38px;
+  height: 38px;
+}
+.speak-btn--md {
+  width: 52px;
+  height: 52px;
+}
+.speak-btn--lg {
+  width: 72px;
+  height: 72px;
+}
+.speak-btn--xl {
+  width: 132px;
+  height: 132px;
+}
+
+.speak-btn .wave {
+  opacity: 0.9;
+  transform-origin: 16px 16px;
+}
+
+.speak-btn .wave.on {
+  animation: speak-wave 0.7s ease-in-out infinite;
+}
+
+.speak-btn .wave.w2.on {
+  animation-delay: 0.15s;
+}
+
+.speak-btn.is-talking {
+  animation: speak-pulse 0.7s ease-in-out infinite;
+}
+
+@keyframes speak-wave {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes speak-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 0 12px rgba(255, 255, 255, 0);
+  }
+}
