@@ -11,7 +11,8 @@
     "typecheck": "tsc -p .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "e2e": "playwright test"
+    "e2e": "playwright test",
+    "build:pages": "npm run prepare-assets && tsc -p . && BASE_PATH=/fun-french/ vite build --outDir docs --emptyOutDir && node -e \"require('fs').writeFileSync('docs/.nojekyll', '')\""
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.3.0",

@@ -55,14 +55,23 @@ pictures and the French OCR model out of `node_modules` into `public/vendor` (no
 
 ## Deploy (GitHub Pages)
 
-1. Merge into `main`.
-2. In the repository: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
-3. The `Deploy to GitHub Pages` workflow builds and publishes on every push to `main`
-   (or run it by hand from the Actions tab). The site appears at
-   `https://<user>.github.io/<repo>/`.
+The built site is committed in `docs/`, so GitHub Pages can serve it straight from the branch, with no
+GitHub Actions needed:
 
-GitHub Pages needs a public repository on the free plan. For a private repo, any static host works
-(Netlify, Cloudflare Pages, Vercel): build command `npm run build`, output folder `dist`.
+1. **Settings → Pages → Build and deployment → Source: Deploy from a branch.**
+2. Pick the branch, choose the **/docs** folder, and press **Save**.
+3. After a minute or two the site is live at `https://<user>.github.io/<repo>/`.
+
+After changing the app, rebuild and commit `docs/`:
+
+```bash
+npm run build:pages   # builds for /fun-french/ into docs/ (adds .nojekyll)
+```
+
+If the repository is renamed, change `/fun-french/` in the `build:pages` script to match.
+When GitHub Actions is available, `.github/workflows/deploy.yml` can build and publish from `main`
+instead (Source: GitHub Actions). On the free plan, Pages needs a public repository; any static host
+(Netlify, Cloudflare Pages, Vercel) also works with build command `npm run build` and output `dist`.
 
 On a phone, open the site and use **Add to Home Screen**: it then opens full screen, works offline,
 and (on iPhone) Safari won't clear its data after a week without visits.
