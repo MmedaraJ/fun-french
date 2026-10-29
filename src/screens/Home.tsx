@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { wipeFrom } from '../components/ColorWipe';
 import { Emoji } from '../components/Emoji';
@@ -8,7 +8,9 @@ import { Mascot } from '../components/Mascot';
 import { Page } from '../components/Page';
 import { ProgressRing } from '../components/ProgressRing';
 import { Wordmark } from '../components/Wordmark';
+import { chapterDone, chapterProgress, nextChapter, useCourseProgress } from '../lib/course';
 import { MODES, recognitionSupported, type ModeInfo } from '../lib/engine/modes';
+import type { Course } from '../lib/grammar/types';
 import { levelName } from '../lib/engine/scoring';
 import { useDeckSummaries, useOverview } from '../lib/hooks';
 import { BANDS, modeShown } from '../lib/level';
@@ -34,6 +36,35 @@ const PEP_TALKS = [
   () => 'Allez, on joue !',
 ];
 
+/** The courses, shown before their content has loaded. */
+const COURSE_CARDS = [
+  { id: 'phrases', title: 'Construire des phrases', en: 'Sentence building', emoji: '🧱', color: 'grape' },
+  { id: 'temps', title: 'Les temps des verbes', en: 'Verb tenses', emoji: '⏳', color: 'lagoon' },
+] as const;
+
+/** Where she is in each course; the course content loads after the home screen is up. */
+function useCourseLines(): Record<string, { text: string; progress: number }> | undefined {
+  const progress = useCourseProgress();
+  const [courses, setCourses] = useState<Course[] | null>(null);
+  useEffect(() => {
+    let alive = true;
+    void import('../data/course').then((m) => alive && setCourses(m.COURSES));
+    return () => {
+      alive = false;
+    };
+  }, []);
+  if (!courses || !progress) return undefined;
+  return Object.fromEntries(
+    courses.map((c) => {
+      const done = c.chapters.filter((ch) => chapterDone(ch, progress)).length;
+      const next = nextChapter(c.chapters, progress);
+      const share = c.chapters.length ? c.chapters.reduce((a, ch) => a + chapterProgress(ch, progress), 0) / c.chapters.length : 0;
+      const text = `${done}/${c.chapters.length} chapitres${next ? ` · ${done ? 'Continuer' : 'Commencer'} : ${next.num}. ${next.title}` : ''}`;
+      return [c.id, { text, progress: share }];
+    }),
+  );
+}
+
 export default function Home() {
   const navigate = useNavigate();
   const overview = useOverview();
@@ -45,9 +76,10 @@ export default function Home() {
   const hello = greeting();
   const pep = useMemo(() => PEP_TALKS[Math.floor(Math.random() * PEP_TALKS.length)](), []);
   const canSpeakIt = recognitionSupported();
+  const courseLines = useCourseLines();
   // numbered as shown: from A2 on, the picture-tapping and flip-card games aren't there
-  const modes = MODES.filter((m) => m.section === 'vocab' && (m.needs !== 'recognition' || canSpeakIt) && modeShown(m, minLevel)).map((m, i) => ({ ...m, num: i + 1 }));
-  const grammarModes = MODES.filter((m) => m.section === 'grammar' && modeShown(m, minLevel)).map((m, i) => ({ ...m, num: i + 1 }));
+  const modes = MODES.filter((m) => m.section === 'vocab' && (m.needs !== 'recognition' || canSpeakIt) && modeShown(m)).map((m, i) => ({ ...m, num: i + 1 }));
+  const grammarModes = MODES.filter((m) => m.section === 'grammar').map((m, i) => ({ ...m, num: i + 1 }));
 
   const todayXp = overview?.today.xp ?? 0;
   const goalDone = todayXp >= dailyGoal;
@@ -158,6 +190,43 @@ export default function Home() {
           </svg>
         </span>
       </motion.button>
+
+      <h2 className="section-title">
+        Mes cours <small>Chapter by chapter</small>
+      </h2>
+      <div className="course-cards">
+        {COURSE_CARDS.map((c, i) => {
+          const line = courseLines?.[c.id];
+          return (
+            <motion.button
+              key={c.id}
+              className="course-card"
+              style={{ background: paletteColor(c.color), color: inkOn(c.color) }}
+              onClick={() => {
+                sfx.pop();
+                navigate(`/cours/${c.id}`);
+              }}
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 22, delay: 0.05 + i * 0.06 }}
+              whileTap={{ scale: 0.97 }}
+              data-course={c.id}
+            >
+              <span className="course-card-art">
+                <Emoji e={c.emoji} size={40} />
+              </span>
+              <span className="course-card-text">
+                <strong>{c.title}</strong>
+                <span>{c.en}</span>
+                <small>{line?.text ?? ' '}</small>
+                <span className="course-card-bar" aria-hidden>
+                  <span style={{ width: `${Math.round((line?.progress ?? 0) * 100)}%` }} />
+                </span>
+              </span>
+            </motion.button>
+          );
+        })}
+      </div>
 
       <h2 className="section-title">
         Jeux <small>Pick a game</small>

@@ -5,7 +5,7 @@ import { hasPicture } from '../../components/CardImage';
 import { decapitalize, hasArticle, isSpellable, levenshtein, normalizeAnswer, sentenceTokens, spellSlots, splitArticle, stripAccents, wordCount } from '../french';
 import type { GrammarPayload } from '../grammar/exercises';
 import { typesAtLevel } from '../level';
-import type { Difficulty } from '../settings';
+import type { Difficulty, MinLevel } from '../settings';
 import { overdueRatio } from '../srs';
 import { MODE_BY_ID } from './modes';
 
@@ -65,8 +65,8 @@ export interface RoundConfig {
   newPerRound: number;
   /** 1 Facile, 2 Normal (default), 3 Difficile. */
   difficulty?: Difficulty;
-  /** Level floor: built-in themes below it aren't used (default 1: everything). */
-  minLevel?: 1 | 2 | 3;
+  /** Her band: built-in themes outside it and the recognition-only questions aren't used (none given: everything). */
+  minLevel?: MinLevel;
 }
 
 export interface Pool {
@@ -442,7 +442,7 @@ export function arrange<T extends { card: Card }>(items: T[], rand = Math.random
 /** Build the questions for a round from an already loaded pool. Pure apart from randomness. */
 export function buildQuestions(cfg: RoundConfig, pool: Pool, rand = Math.random, now = Date.now()): Question[] {
   const mode = MODE_BY_ID[cfg.mode];
-  const types = typesAtLevel(mode.types, cfg.minLevel ?? 1);
+  const types = cfg.minLevel ? typesAtLevel(mode.types) : mode.types;
   const pictureCount = pool.all.filter(hasPicture).length;
   const pictureOptions = pictureCount >= 2;
 

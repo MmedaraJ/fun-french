@@ -207,11 +207,11 @@ export default function Game() {
   const todayBefore = useRef({ xp: 0, practiced: false });
   const finished = useRef(false);
 
-  const isGrammar = info.section === 'grammar';
+  const isGrammar = info.section !== 'vocab';
 
   /** Grammar questions for this game (or a lesson's practice), generated on demand. */
   const grammarRound = useCallback(
-    async (length: number, kindsOverride?: GrammarType[], fromBook = search.get('book') === '1'): Promise<Question[]> => {
+    async (length: number, kindsOverride?: GrammarType[], fromBook = search.get('book') === '1', exercisesOverride?: string[]): Promise<Question[]> => {
       const [{ buildGrammarQuestions, mergePractice }, skillRows] = await Promise.all([import('../lib/grammar/exercises'), db.skills.toArray()]);
       const lessonId = search.get('lesson');
       let practice = lessonId ? (await import('../data/grammar/lessons')).LESSONS.find((l) => l.id === lessonId)?.practice : undefined;
@@ -232,6 +232,7 @@ export default function Game() {
         qforms: practice?.qforms,
         qwords: practice?.qwords,
         drills: practice?.drills ?? list('drills'),
+        exercises: exercisesOverride ?? list('ex'),
         skills: new Map(skillRows.map((p) => [p.cardId, p])),
         level: cfg.difficulty ?? 2,
         minLevel: cfg.minLevel,
@@ -259,17 +260,21 @@ export default function Game() {
         // Daily practice also works on grammar: about a third of the questions (two fifths at
         // Avancé), mostly from the grammar her book teaches once she has imported one.
         if (search.get('daily') === '1' && qs.length) {
-          const band = cfg.minLevel ?? 1;
+          const band = cfg.minLevel ?? 2;
           const n = Math.max(2, Math.round(cfg.length * (band >= 3 ? 0.4 : 0.3)));
           const { getBookGrammar } = await import('../lib/book');
           const fromBook = (await getBookGrammar()).lessonIds.length ? await grammarRound(Math.ceil(n * 0.6), undefined, true) : [];
-          // the advanced structures: half the grammar at Avancé, a third at Intermédiaire, none for Débutant
-          const share = band >= 3 ? 1 / 2 : band === 2 ? 1 / 3 : 0;
+          // the advanced structures: half the grammar at Avancé, a third at Intermédiaire
+          const share = band >= 3 ? 1 / 2 : 1 / 3;
           const structures = share ? await grammarRound(Math.ceil((n - fromBook.length) * share), ['drill'], false) : [];
+          // and a couple of sentences from the course exercises she has started
+          const started = (await db.skills.where('cardId').startsWith('g:ex:').primaryKeys()).map((k) => String(k).slice(5));
+          const courses = started.length ? await grammarRound(Math.min(2, Math.max(0, n - fromBook.length - structures.length - 1)), ['compose'], false, started) : [];
           const extra = [
             ...fromBook,
             ...structures,
-            ...(await grammarRound(n - fromBook.length - structures.length, ['cloze', 'conj', 'qword', 'tense-id', 'glisten', 'negate', 'gtranslate'], false)),
+            ...courses,
+            ...(await grammarRound(n - fromBook.length - structures.length - courses.length, ['cloze', 'conj', 'qword', 'tense-id', 'glisten', 'negate', 'gtranslate'], false)),
           ];
           const merged = [...qs.slice(0, Math.max(0, qs.length - extra.length))];
           extra.forEach((g, i) => merged.splice(Math.min(merged.length, 2 + i * 3), 0, g));
@@ -389,7 +394,8 @@ export default function Game() {
         deckIds: cfg.deckIds ?? [],
         missed: [...new Set(results.filter((r) => !r.correct).map((r) => r.cardId))],
         cardIds: [...new Set(askedIds.current)],
-        ...(search.get('lesson') ? { lesson: search.get('lesson')! } : {}),
+        // a lesson's practice, or a course exercise ("ex:<id>") so the chapter knows it was done
+        ...(search.get('lesson') ? { lesson: search.get('lesson')! } : search.get('ex') ? { lesson: `ex:${search.get('ex')}` } : {}),
       };
       if (!completed && total === 0) {
         navigate('/');

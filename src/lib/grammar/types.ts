@@ -211,6 +211,71 @@ export interface DrillItem {
   why: string;
 }
 
+/**
+ * A whole sentence to build, for "Construire des phrases": two sentences to join, one to
+ * transform or correct, or an English sentence to translate. She picks the right sentence
+ * while it's new, then builds it from word tiles (the classic mistakes mixed in as decoys).
+ */
+export interface BuildItem {
+  /** Slug, unique within its exercise. */
+  id: string;
+  /** What she starts from, shown as is: the sentences to join, the sentence to transform or correct, or the English to translate. */
+  from: string;
+  /** What to do when the exercise's instruction isn't enough: "qui", "→ passif", "au passé". */
+  cue?: string;
+  /** The French sentence to build, with its final punctuation. */
+  answer: string;
+  /** Other sentences that are just as right (another word order, another connector…). */
+  accept?: string[];
+  /** The same sentence with one classic mistake each, for multiple choice (at least 2). */
+  wrong: string[];
+  /** Extra word tiles that don't belong; the words of `wrong` that aren't in the answer are added anyway. */
+  decoys?: string[];
+  /** English of the answer. */
+  en: string;
+  /** One line shown after answering: why the sentence is built this way. */
+  why: string;
+}
+
+/** One exercise of a chapter: gap sentences to complete, or whole sentences to build. */
+export type ChapterExercise = {
+  /** Slug, unique across the course: "<chapter id>-a", "-b"… The skill is "g:ex:<id>". */
+  id: string;
+  /** French instruction, e.g. "Relie les deux phrases avec un pronom relatif". */
+  title: string;
+  /** The same instruction in English. */
+  en: string;
+} & ({ kind: 'gap'; items: DrillItem[] } | { kind: 'build'; items: BuildItem[] });
+
+/** A chapter of "Construire des phrases": a detailed lesson, then its exercises. */
+export interface Chapter {
+  /** Slug, e.g. "ordre-des-mots". */
+  id: string;
+  /** Position in the course, from 1. */
+  num: number;
+  /** French title. */
+  title: string;
+  /** English title. */
+  en: string;
+  /** 2 = A2, 3 = B1, 4 = B2 and up. */
+  level: 2 | 3 | 4;
+  /** Two or three sentences: what the chapter teaches and why it matters. */
+  intro: string;
+  sections: LessonSection[];
+  tips: string[];
+  exercises: ChapterExercise[];
+}
+
+/** A course on the home screen: its chapters in order. */
+export interface Course {
+  id: 'phrases' | 'temps';
+  title: string;
+  en: string;
+  emoji: string;
+  color: 'grape' | 'lagoon';
+  chapters: Chapter[];
+}
+
 export interface DrillSet {
   /** Slug; the spaced-repetition skill is "g:dr:<id>". */
   id: string;

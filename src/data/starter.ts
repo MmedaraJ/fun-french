@@ -1,4 +1,6 @@
 // Built-in French content. Expanded into Deck + Card rows on first run (see src/lib/seed.ts).
+// Every deck here is A1 (level 1) and stays below the app's A2 floor; the themes she studies
+// are in ./advanced.ts (B1 and B2+). Nothing is deleted, so progress is kept.
 //
 // Conventions:
 // - Nouns carry their definite article and a gender ("l'arbre" g:'m'); plural-only nouns add pl:true.
@@ -414,7 +416,7 @@ export const STARTER_DECKS: StarterDeck[] = [
     nameEn: "Around town",
     emoji: "🏙️",
     color: "tangerine",
-    level: 2,
+    level: 1,
     kind: "word",
     cards: [
       { fr: "la ville", en: "town, city", g: "f", e: "🏙️" },
@@ -453,7 +455,7 @@ export const STARTER_DECKS: StarterDeck[] = [
     nameEn: "Jobs",
     emoji: "🧑‍🍳",
     color: "lagoon",
-    level: 2,
+    level: 1,
     kind: "word",
     cards: [
       { fr: "le professeur", en: "teacher", g: "m", e: "🧑‍🏫", note: "f: la professeure" },
@@ -488,7 +490,7 @@ export const STARTER_DECKS: StarterDeck[] = [
     nameEn: "Sports & hobbies",
     emoji: "⚽",
     color: "sunshine",
-    level: 2,
+    level: 1,
     kind: "word",
     cards: [
       { fr: "le football", en: "football, soccer", g: "m", e: "⚽", note: "also: le foot" },
@@ -690,7 +692,7 @@ export const STARTER_DECKS: StarterDeck[] = [
     nameEn: "Feelings",
     emoji: "😊",
     color: "sunshine",
-    level: 2,
+    level: 1,
     kind: "word",
     cards: [
       { fr: "la joie", en: "joy", g: "f", e: "😄" },
@@ -765,7 +767,7 @@ export const STARTER_DECKS: StarterDeck[] = [
     nameEn: "Describing words",
     emoji: "✨",
     color: "grape",
-    level: 2,
+    level: 1,
     kind: "word",
     cards: [
       { fr: "grand", en: "big, tall", e: "🦒", note: "f: grande" },
@@ -861,7 +863,7 @@ export const STARTER_DECKS: StarterDeck[] = [
     nameEn: "At the café",
     emoji: "🍰",
     color: "tangerine",
-    level: 2,
+    level: 1,
     kind: "sentence",
     cards: [
       { fr: "Bonjour, une table pour deux, s'il vous plaît.", en: "Hello, a table for two, please." },

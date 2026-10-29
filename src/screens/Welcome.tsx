@@ -8,27 +8,23 @@ import { useAllDecks } from '../lib/hooks';
 import { deckShown } from '../lib/level';
 import { inkOn, paletteColor } from '../lib/palette';
 import { setActiveDecks } from '../lib/seed';
-import { useSettings } from '../lib/settings';
+import { useSettings, type MinLevel } from '../lib/settings';
 import { sfx, unlockAudio } from '../lib/sound';
 import { speak } from '../lib/speech';
 import type { Deck, PaletteKey } from '../types';
 import './Welcome.css';
 
-type Level = 0 | 1 | 2 | 3;
+type Level = 0 | 1;
 
 const STEP_COLORS: PaletteKey[] = ['berry', 'sky', 'tangerine', 'leaf', 'grape', 'lagoon', 'berry'];
 const STEP_MOODS: MascotMood[] = ['excited', 'happy', 'thinking', 'happy', 'love', 'excited', 'love'];
 const LAST = STEP_COLORS.length - 1;
 
-const LEVELS: { emoji: string; fr: string; en: string; perRound: number; minLevel: 1 | 2 | 3 }[] = [
-  // the first two start in Débutant (A0–A2, centred on A1), then Intermédiaire, then Avancé
-  { emoji: '🌱', fr: 'Je débute', en: 'I’m a total beginner (A0)', perRound: 3, minLevel: 1 },
-  { emoji: '🌿', fr: 'Je connais quelques mots', en: 'I know a few words (A1)', perRound: 4, minLevel: 1 },
+// the floor is A2: Intermédiaire or Avancé
+const LEVELS: { emoji: string; fr: string; en: string; perRound: number; minLevel: MinLevel }[] = [
   { emoji: '🌳', fr: 'Je me débrouille', en: 'I can get by (A2–B1)', perRound: 5, minLevel: 2 },
   { emoji: '🎓', fr: 'Niveau avancé', en: 'I’m an advanced learner (B1–C1)', perRound: 5, minLevel: 3 },
 ];
-
-const BEGINNER = ['animals', 'food', 'home', 'colors', 'numbers', 'phrases', 'love', 'verbs-er'];
 
 const GOALS = [
   { xp: 30, fr: 'Tranquille', en: 'Relaxed', emoji: '🐢' },
@@ -37,13 +33,8 @@ const GOALS = [
   { xp: 150, fr: 'À fond !', en: 'All in', emoji: '🚀' },
 ];
 
-function suggestedDecks(decks: Deck[], level: Level): string[] {
-  if (level === 0) {
-    const picks = BEGINNER.filter((id) => decks.some((d) => d.id === id));
-    return picks.length ? picks : decks.filter((d) => d.level <= 1).slice(0, 7).map((d) => d.id);
-  }
-  if (level === 1) return decks.filter((d) => d.level <= 1 || ['love', 'cafe'].includes(d.id)).map((d) => d.id);
-  // getting by or advanced: every theme of the band
+/** Every theme of the band she picked. */
+function suggestedDecks(decks: Deck[]): string[] {
   return decks.map((d) => d.id);
 }
 
@@ -64,7 +55,7 @@ export default function Welcome() {
   const nameRef = useRef<HTMLInputElement>(null);
 
   // the themes for the level she picks (all of them until she has picked one)
-  const floor = level === null ? 1 : LEVELS[level].minLevel;
+  const floor = level === null ? 2 : LEVELS[level].minLevel;
   const builtin = useMemo(() => (decks ?? []).filter((d) => d.builtin && deckShown(d, floor)).sort((a, b) => a.order - b.order), [decks, floor]);
   const color = STEP_COLORS[step];
   const ink = inkOn(color);
@@ -97,7 +88,7 @@ export default function Welcome() {
 
   const pickLevel = (l: Level) => {
     setLevel(l);
-    setChosen(suggestedDecks((decks ?? []).filter((d) => d.builtin && deckShown(d, LEVELS[l].minLevel)), l));
+    setChosen(suggestedDecks((decks ?? []).filter((d) => d.builtin && deckShown(d, LEVELS[l].minLevel))));
     sfx.pop();
     setReact((r) => r + 1);
     setTimeout(() => go(4), 380);
@@ -112,7 +103,7 @@ export default function Welcome() {
   const finish = async () => {
     if (finishing.current) return;
     finishing.current = true;
-    const ids = chosen.length ? chosen : suggestedDecks(builtin, level ?? 0);
+    const ids = chosen.length ? chosen : suggestedDecks(builtin);
     await setActiveDecks(ids);
     update({
       name: trimmed,

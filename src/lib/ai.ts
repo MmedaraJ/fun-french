@@ -41,16 +41,14 @@ function model(): string {
 
 /** Who the cards are for, from the level set in Réglages → Niveau. */
 function learner(): string {
-  const level = settings().minLevel;
-  return level >= 3 ? 'an advanced (B1–C1) English-speaking learner' : level === 2 ? 'an English-speaking learner around A2–B1' : 'an English-speaking beginner, around A1';
+  return settings().minLevel >= 3 ? 'an advanced (B1–C1) English-speaking learner' : 'an English-speaking learner around A2–B1';
 }
 
 /** What to leave out when picking words for her: nothing she already knows at her level. */
 function levelHint(): string {
   const level = settings().minLevel;
   if (level >= 3) return 'She is advanced: skip basic words any A2 learner knows (la maison, manger, bonjour, rouge…); prefer precise or less common vocabulary, idioms, linking words and sentences with advanced structures.';
-  if (level === 2) return 'Skip the A1 basics (colours, numbers, greetings, family words); prefer A2–B1 vocabulary.';
-  return 'She is around A1: prefer common, useful everyday words and short sentences; skip rare or advanced vocabulary.';
+  return 'Skip the A1 basics (colours, numbers, greetings, family words); prefer A2–B1 vocabulary.';
 }
 
 /** Human-friendly message for any failure from the SDK. */

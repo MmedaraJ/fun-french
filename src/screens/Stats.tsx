@@ -120,7 +120,7 @@ export default function Stats() {
       .filter((x) => x.card)
       .slice(0, 8);
     // games the level floor hides only appear once she has played them
-    const bests = MODES.filter((m) => modeShown(m, minLevel) || sessions.some((s) => s.mode === m.id)).map((m) => {
+    const bests = MODES.filter((m) => modeShown(m) || sessions.some((s) => s.mode === m.id)).map((m) => {
       const mine = sessions.filter((s) => s.mode === m.id);
       const classic = mine.filter((s) => !s.survival);
       const survival = mine.filter((s) => s.survival);

@@ -2,7 +2,7 @@ import { LayoutGroup, motion, useAnimate } from 'framer-motion';
 import { useCallback, useEffect, useState } from 'react';
 import { SpeakButton } from '../../components/SpeakButton';
 import { burstFrom } from '../../lib/confetti';
-import { finalPunctuation, frenchSpaces } from '../../lib/french';
+import { finalPunctuation, frenchSpaces, sentenceTiles } from '../../lib/french';
 import { sfx } from '../../lib/sound';
 import type { QProps } from './types';
 import './Build.css';
@@ -21,11 +21,13 @@ export function Build({ q, phase, result, onAnswer }: QProps) {
   const check = useCallback(() => {
     if (phase !== 'ask' || !placed.length) return;
     const built = placed.map((i) => tiles[i]);
-    const correct = built.length === answer.length && built.every((t, i) => norm(t) === norm(answer[i]));
+    // any sentence the question accepts counts, in whatever order its words come
+    const orders = [answer, ...(q.g?.accept ?? []).filter((a) => a !== q.g?.answer).map(sentenceTiles)];
+    const correct = orders.some((ans) => built.length === ans.length && built.every((t, i) => norm(t) === norm(ans[i])));
     if (correct) burstFrom(scope.current, { count: 34 });
     else if (scope.current) void animate(scope.current, { x: [0, -12, 12, -8, 8, 0] }, { duration: 0.45 });
     onAnswer(correct, { given: correct ? undefined : built.join(' ') });
-  }, [phase, placed, tiles, answer, onAnswer, scope, animate]);
+  }, [phase, placed, tiles, answer, q.g, onAnswer, scope, animate]);
 
   const add = (i: number) => {
     if (phase !== 'ask' || used.has(i)) return;
@@ -67,7 +69,7 @@ export function Build({ q, phase, result, onAnswer }: QProps) {
             ))}
           </div>
         ) : null}
-        {q.g && q.g.kind !== 'gtranslate' ? (
+        {q.g && q.g.kind !== 'gtranslate' && q.g.promptStyle !== 'en' ? (
           <div className="g-sentence" data-target={q.card.id}>
             {frenchSpaces(q.g.prompt ?? '')}
           </div>

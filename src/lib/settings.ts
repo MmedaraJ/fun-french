@@ -5,8 +5,8 @@ import type { GameMode } from '../types';
 export type ThemePref = 'auto' | 'light' | 'dark';
 /** 1 Facile, 2 Normal, 3 Difficile. */
 export type Difficulty = 1 | 2 | 3;
-/** Her CEFR band (see lib/level): 1 Débutant A0–A2 (centred on A1), 2 Intermédiaire A2–B1, 3 Avancé B1–C1. */
-export type MinLevel = 1 | 2 | 3;
+/** Her CEFR band (see lib/level): 2 Intermédiaire A2–B1, 3 Avancé B1–C1. The floor is A2: nothing below it. */
+export type MinLevel = 2 | 3;
 export type MascotColorPref = 'pink' | 'pistachio' | 'lemon' | 'lavender' | 'caramel' | 'raspberry';
 
 export interface ModeOptions {
@@ -93,7 +93,7 @@ export const useSettings = create<SettingsStore>()(
     }),
     {
       name: 'bonbon-settings',
-      version: 5,
+      version: 6,
       migrate: (persisted, version) => {
         const st = (persisted ?? {}) as Partial<Settings>;
         if (version < 2) st.introduceNew = false;
@@ -103,6 +103,11 @@ export const useSettings = create<SettingsStore>()(
         if (version < 4) st.minLevel = 2;
         // "I'm an advanced learner. Advanced learning only": the floor goes up to Avancé
         if (version < 5) st.minLevel = 3;
+        // "Remove all the too simple exercises, increase the floor": no band below A2, no Facile
+        if (version < 6) {
+          if ((st.minLevel as number | undefined) === 1) st.minLevel = 2;
+          if (st.difficulty === 1) st.difficulty = 2;
+        }
         return st as SettingsStore;
       },
     },

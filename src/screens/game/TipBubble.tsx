@@ -21,6 +21,7 @@ export const TIPS: Record<GameMode, { fr: string; en: string }> = {
   questions: { fr: 'Choisis le bon mot interrogatif et la bonne façon de poser la question.', en: 'Pick the right question word and the right way to ask.' },
   structures: { fr: 'Lis toute la phrase, puis complète le trou : pronom, mode, temps, connecteur…', en: 'Read the whole sentence, then fill the gap: pronoun, mood, tense, linking word…' },
   grammaire: { fr: 'Lis la petite leçon, puis entraîne-toi.', en: 'Read the short lesson, then practise.' },
+  cours: { fr: 'Choisis la bonne phrase ; quand tu la connais, construis-la avec les mots.', en: 'Pick the right sentence; once you know it, build it from the word tiles.' },
 };
 
 export function TipBubble({ mode, onDone }: { mode: GameMode; onDone: () => void }) {

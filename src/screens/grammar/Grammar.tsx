@@ -12,7 +12,7 @@ import { LESSONS } from '../../data/grammar/lessons';
 import { getBookGrammar } from '../../lib/book';
 import { db } from '../../lib/db';
 import { MODES, type ModeInfo } from '../../lib/engine/modes';
-import { inBand, modeShown } from '../../lib/level';
+import { inBand } from '../../lib/level';
 import { lessonSkillIds } from '../../lib/grammar/exercises';
 import type { Lesson } from '../../lib/grammar/types';
 import { inkOn, paletteColor } from '../../lib/palette';
@@ -89,10 +89,9 @@ export default function Grammar() {
 function GrammarHome() {
   const navigate = useNavigate();
   const mascotColor = useSettings((s) => s.mascotColor);
-  const band = useSettings((s) => s.minLevel);
   const [setupMode, setSetupMode] = useState<ModeInfo | null>(null);
   const skills = useLiveQuery(async () => new Map((await db.skills.toArray()).map((p) => [p.cardId, p])), []) ?? new Map<string, Progress>();
-  const games = MODES.filter((m) => m.section === 'grammar' && m.id !== 'grammaire' && modeShown(m, band));
+  const games = MODES.filter((m) => m.section === 'grammar' && m.id !== 'grammaire');
   const conjRef = useRef<HTMLButtonElement>(null);
   const visible = useVisibleLessons();
 

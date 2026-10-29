@@ -1,7 +1,8 @@
 import { expect, test } from '@playwright/test';
 import { answerCurrent, onboarded, playRound } from './helpers';
 
-const MODES = ['pick-image', 'pick-word', 'listen', 'spell', 'gender', 'build', 'type', 'flash', 'pairs', 'mix'];
+// the games on the home screen (the picture-tapping, pairs and flip-card ones are below the A2 floor)
+const MODES = ['listen', 'spell', 'gender', 'build', 'type', 'dictation', 'mix'];
 
 test.describe('every game can be played to the end', () => {
   for (const mode of MODES) {
@@ -20,7 +21,7 @@ test.describe('every game can be played to the end', () => {
 
 test('survival ends after three mistakes', async ({ page }) => {
   await onboarded(page, { introduceNew: false });
-  await page.goto('/#/play/pick-word?survival=1');
+  await page.goto('/#/play/listen?survival=1');
   await playRound(page, { wrongEvery: 1 });
   await expect(page.getByText(/You survived/)).toBeVisible();
 });
@@ -156,42 +157,71 @@ test('Avancé: nothing for beginners, advanced structures in the daily practice'
   expect(errors).toEqual([]);
 });
 
-test('Débutant: A0 to A2 around A1, and the level is the first thing in Réglages', async ({ page }) => {
+test('Intermédiaire: A2 to B1, no simple games, and the level is the first thing in Réglages', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', (e) => errors.push(String(e)));
-  await onboarded(page, { minLevel: 1 });
+  await onboarded(page, { minLevel: 2 });
 
-  // the level shows on the home screen and leads to Réglages, where it comes first
-  await page.locator('.level-chip', { hasText: 'Débutant' }).click();
+  // the level shows on the home screen and leads to Réglages, where it comes first: two levels, no Facile
+  await page.locator('.level-chip', { hasText: 'Intermédiaire' }).click();
   await expect(page).toHaveURL(/#\/settings/);
   await expect(page.locator('.set-section').first().locator('h2')).toHaveText('Mon niveau');
-  await expect(page.locator('.level-card.is-on')).toContainText('A0 → A2');
+  await expect(page.locator('.level-card')).toHaveCount(2);
+  await expect(page.locator('.level-card.is-on')).toContainText('A2 → B1');
+  await expect(page.getByRole('button', { name: /Facile/ })).toHaveCount(0);
 
-  // picture games are there, the advanced structures aren't
+  // no picture-tapping, pairs or flip-card games; the Structures game is there
   await page.goto('/#/');
   await expect(page.locator('.mode-grid .mode-name').first()).toBeVisible();
   const games = await page.locator('.mode-grid .mode-name').allTextContents();
-  expect(games).toContain('Images');
-  expect(games).not.toContain('Structures');
+  for (const basic of ['Images', 'Mots', 'Paires', 'Cartes']) expect(games).not.toContain(basic);
+  expect(games).toContain('Structures');
 
-  // no advanced theme in the word list
-  const advanced = await page.evaluate(async () => {
-    const w = window as unknown as { __bonbon: { db: { decks: { toArray: () => Promise<{ name: string; level: number; builtin: boolean }[]> } } } };
-    return (await w.__bonbon.db.decks.toArray()).filter((d) => d.builtin && d.level >= 3).map((d) => d.name);
+  // no A1 theme, no B2 theme, not the -er verb list
+  const hidden = await page.evaluate(async () => {
+    const w = window as unknown as { __bonbon: { db: { decks: { toArray: () => Promise<{ id: string; name: string; level: number; builtin: boolean }[]> } } } };
+    return (await w.__bonbon.db.decks.toArray()).filter((d) => d.builtin && (d.level < 2 || d.level > 3 || d.id === 'verbs-er')).map((d) => d.name);
   });
   await page.goto('/#/words');
   const shown = (await page.locator('.words-decks .chip').allTextContents()).map((t) => t.trim());
-  for (const name of advanced) expect(shown).not.toContain(name);
+  for (const name of hidden) expect(shown).not.toContain(name);
 
-  // the lesson path stops at A2
+  // the lesson path: A2 and B1 only
   await page.goto('/#/grammaire');
-  await expect(page.locator('.gr-unit h2', { hasText: 'Les bases' })).toBeVisible();
-  await expect(page.locator('.gr-level.l3, .gr-level.l4')).toHaveCount(0);
+  await expect(page.locator('.gr-lesson').first()).toBeVisible();
+  await expect(page.locator('.gr-level.l1, .gr-level.l4')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
 
-  // switching to Avancé from Réglages takes effect straight away
-  await page.goto('/#/settings');
-  await page.locator('.level-card', { hasText: 'Avancé' }).click();
-  await page.goto('/#/');
-  await expect(page.locator('.level-chip')).toContainText('B1 → C1');
+test('a course: chapter by chapter, a detailed lesson, then its exercises', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('pageerror', (e) => errors.push(String(e)));
+  await onboarded(page, { minLevel: 3 });
+
+  // both courses are on the home screen
+  await expect(page.locator('[data-course="phrases"]')).toBeVisible();
+  await expect(page.locator('[data-course="temps"]')).toBeVisible();
+  await page.locator('[data-course="phrases"]').click();
+  await expect(page.locator('.course-hero h1')).toHaveText('Construire des phrases');
+  await expect(page.locator('.course-path .gr-lesson')).toHaveCount(16);
+
+  // chapter 1: the lesson and its exercises
+  await page.locator('.course-continue').click();
+  await expect(page.locator('.course-chapter-num')).toHaveText('Chapitre 1');
+  expect(await page.locator('.lesson-sec').count()).toBeGreaterThanOrEqual(3);
+  const exercises = page.locator('[data-exercise]');
+  expect(await exercises.count()).toBeGreaterThanOrEqual(3);
+
+  // play the first exercise to the end, then back to the chapter, which remembers the score
+  await exercises.first().click();
+  await playRound(page, { wrongEvery: 6 });
+  await expect(page.locator('.results-title')).toBeVisible();
+  await page.getByRole('button', { name: 'Chapitre' }).click();
+  await expect(page.locator('.course-chapter-num')).toHaveText('Chapitre 1');
+  await expect(page.locator('[data-exercise]').first()).toContainText('meilleur score');
+
+  // the verb-tenses course too
+  await page.goto('/#/cours/temps');
+  await expect(page.locator('.course-path .gr-lesson')).toHaveCount(18);
   expect(errors).toEqual([]);
 });

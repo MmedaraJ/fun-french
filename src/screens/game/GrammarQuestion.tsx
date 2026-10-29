@@ -7,6 +7,7 @@ import { checkTyped } from '../../lib/grammar/check';
 import { sfx } from '../../lib/sound';
 import { speak } from '../../lib/speech';
 import type { QProps } from './types';
+import './Build.css';
 import './GrammarQuestion.css';
 
 /** Grammar questions answered by multiple choice or by typing (tile questions use Build). */
@@ -40,6 +41,11 @@ export function GrammarQuestion({ q, phase, result, onAnswer }: QProps) {
               <SpeakButton text={g.audio ?? ''} size="xl" label="Play the sentence again" />
             </motion.div>
             <SpeakButton text={g.audio ?? ''} size="md" slow />
+          </div>
+        ) : g.prompt && g.promptStyle === 'en' ? (
+          // an English sentence to translate
+          <div className="q-en build-en" data-target={q.card.id}>
+            “{g.prompt}”
           </div>
         ) : g.prompt ? (
           <motion.div className="g-sentence" data-target={q.card.id} initial={{ y: 14, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ type: 'spring', stiffness: 300, damping: 24 }}>

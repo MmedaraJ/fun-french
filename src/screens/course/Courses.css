@@ -1,0 +1,110 @@
+.course-hero {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  border-left: 8px solid var(--course);
+}
+
+.course-hero-art {
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  flex: none;
+  border-radius: 22px;
+  background: color-mix(in srgb, var(--course) 18%, var(--surface));
+}
+
+.course-continue {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 18px;
+  margin-bottom: 18px;
+  border-radius: 24px;
+  color: #fff;
+  text-align: left;
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.18);
+}
+
+.course-continue small {
+  display: block;
+  font-weight: 800;
+  opacity: 0.9;
+}
+
+.course-continue strong {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.course-continue-go {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.course-path {
+  margin-bottom: 24px;
+}
+
+.course-chapter-num {
+  font-weight: 800;
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.course-exercises {
+  display: grid;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.course-ex {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  text-align: left;
+}
+
+.course-ex-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.course-ex-text strong {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+
+.course-ex-text span {
+  font-size: 0.85rem;
+  color: var(--text-soft);
+}
+
+.course-ex-text small {
+  font-size: 0.78rem;
+  font-weight: 800;
+  opacity: 0.75;
+}
+
+.course-ex-go {
+  font-size: 1.1rem;
+  opacity: 0.5;
+}
+
+.course-ex.is-done .course-ex-text strong::after {
+  content: ' ✓';
+  color: var(--ok);
+}

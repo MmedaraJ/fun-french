@@ -4,7 +4,7 @@ import { db } from './db';
 import { MODES } from './engine/modes';
 import { modeShown } from './level';
 import { LEARNED_BOX, MASTERED_BOX } from './srs';
-import { g, settings } from './settings';
+import { g } from './settings';
 import { computeStreak, sumXp } from './stats';
 
 export interface AchCtx {
@@ -56,7 +56,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   { id: 'own-25', emoji: '🧺', title: () => g('Collectionneur', 'Collectionneuse'), desc: 'Add 25 words or phrases of your own.', test: (c) => own(c) >= 25 },
   { id: 'own-100', emoji: '🏛️', title: () => 'Musée des mots', desc: 'Add 100 words or phrases of your own.', test: (c) => own(c) >= 100 },
   { id: 'photo-1', emoji: '📸', title: () => g('Photographe', 'Photographe'), desc: 'Turn one of your photos into a card.', test: (c) => c.cards.some((x) => !!x.imageId) },
-  { id: 'all-modes', emoji: '🎪', title: () => 'Touche-à-tout', desc: 'Play every game at least once.', test: (c) => MODES.filter((m) => m.needs !== 'recognition' && modeShown(m, settings().minLevel)).every((m) => c.sessions.some((s) => s.mode === m.id)) },
+  { id: 'all-modes', emoji: '🎪', title: () => 'Touche-à-tout', desc: 'Play every game at least once.', test: (c) => MODES.filter((m) => m.needs !== 'recognition' && modeShown(m)).every((m) => c.sessions.some((s) => s.mode === m.id)) },
   { id: 'survival-20', emoji: '❤️‍🔥', title: () => g('Survivant', 'Survivante'), desc: 'Get 20 right in a Survie round.', test: (c) => c.sessions.some((s) => s.survival && s.correct >= 20) },
   { id: 'score-3000', emoji: '🏆', title: () => 'Grand score', desc: 'Score 3,000 points in one round.', test: (c) => c.sessions.some((s) => s.score >= 3000) },
   { id: 'gender-perfect', emoji: '👑', title: () => g('Le roi du le/la', 'La reine du le/la'), desc: 'A perfect “Le ou la ?” round.', test: (c) => c.session?.mode === 'gender' && perfect(c.session) },

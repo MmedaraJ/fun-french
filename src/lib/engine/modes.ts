@@ -10,8 +10,8 @@ export interface ModeInfo {
   color: PaletteKey;
   types: QuestionType[];
   needs?: 'recognition';
-  /** Grammar games draw generated sentences instead of word cards. */
-  section: 'vocab' | 'grammar';
+  /** Grammar games draw generated sentences instead of word cards; course rounds come from a chapter's exercises. */
+  section: 'vocab' | 'grammar' | 'course';
 }
 
 export const MIX_TYPES: QuestionType[] = ['pick-image', 'pick-word', 'listen', 'spell', 'gender', 'build', 'type', 'dictation'];
@@ -35,6 +35,7 @@ export const MODES: ModeInfo[] = [
   { id: 'temps', num: 2, name: 'Les temps', en: 'Tenses in context', blurb: 'Past, present, future: spot, change and build the right tense.', emoji: '⏳', color: 'grape', types: ['cloze', 'tense-id', 'transform', 'negate', 'gtranslate', 'glisten'], section: 'grammar' },
   { id: 'questions', num: 3, name: 'Questions', en: 'Asking questions', blurb: 'Où, quand, pourquoi… and three ways to ask.', emoji: '❓', color: 'tangerine', types: ['qword', 'qform', 'qmatch'], section: 'grammar' },
   { id: 'structures', num: 4, name: 'Structures', en: 'Advanced structures', blurb: 'Dont, lequel, le lui, si j’avais su, bien qu’il soit… complete real sentences.', emoji: '🏗️', color: 'plum', types: ['drill'], section: 'grammar' },
+  { id: 'cours', num: 0, name: 'Cours', en: 'Courses', blurb: 'A chapter’s exercises: complete, build, translate and correct whole sentences.', emoji: '📚', color: 'grape', types: ['compose'], section: 'course' },
   { id: 'grammaire', num: 5, name: 'Leçons', en: 'Grammar lessons', blurb: 'Short lessons with tables and examples, then practice.', emoji: '📘', color: 'leaf', types: GRAMMAR_TYPES, section: 'grammar' },
 ];
 
@@ -63,6 +64,7 @@ export const TYPE_LABEL: Record<QuestionType, string> = {
   gtranslate: 'Translate',
   glisten: 'Listening (grammar)',
   drill: 'Structures',
+  compose: 'Courses',
 };
 
 export function recognitionSupported(): boolean {

@@ -1,11 +1,12 @@
 // Grammar questions generated from the conjugation engine, the sentence frames
 // and the question bank. Nothing here plays or shows the answer before the
 // learner responds: audio is only the question in the listening exercise.
+import { EXERCISES, type CourseExercise } from '../../data/course';
 import { DRILL_SETS } from '../../data/grammar/drills';
 import { FRAMES } from '../../data/grammar/frames';
 import { QUESTIONS } from '../../data/grammar/questions';
 import type { Card, GrammarType, Progress } from '../../types';
-import { decapitalize, normalizeAnswer, sentenceTokens } from '../french';
+import { decapitalize, normalizeAnswer, sentenceTiles, sentenceTokens } from '../french';
 import { shuffle, type Question } from '../engine/round';
 import { auxiliary, conjugate, pastParticiple } from './conjugate';
 import { englishClause, englishVerb } from './english';
@@ -15,6 +16,8 @@ import {
   QWORD_LABEL,
   TENSE_BY_ID,
   TENSES,
+  type BuildItem,
+  type DrillItem,
   type DrillSet,
   type Frame,
   type Lesson,
@@ -27,6 +30,7 @@ import {
   type Tense,
 } from './types';
 import { BANDS, inBand, tensesAtLevel } from '../level';
+import type { MinLevel } from '../settings';
 import { VERBS, VERB_BY_INF } from './verb-list';
 
 export interface GrammarPayload {
@@ -37,6 +41,8 @@ export interface GrammarPayload {
   title: string;
   /** Main prompt text; "____" marks a gap. */
   prompt?: string;
+  /** The prompt is English (a sentence to translate), shown in quotes. */
+  promptStyle?: 'en';
   /** A second line under the prompt (e.g. the answer to a question in "qword"). */
   promptSub?: string;
   /** Small labels: subject, infinitive, tense... */
@@ -69,16 +75,18 @@ export interface GrammarConfig {
   qwords?: QWord[];
   /** Drill sets for the 'drill' kind (default: all of them). */
   drills?: string[];
+  /** Course exercises for the 'compose' kind (default: all of them). */
+  exercises?: string[];
   /** Skill progress, for spaced repetition and difficulty. */
   skills: Map<string, Progress>;
   /** 1 beginner, 2 A2, 3 B1 – typing comes earlier at higher levels. */
   level: 1 | 2 | 3;
   /**
-   * Her band (1 Débutant A0–A2, 2 Intermédiaire A2–B1, 3 Avancé B1–C1): tenses, question items
-   * and drill sets outside it are left out unless a lesson asks for them by name; from
-   * Intermédiaire on, plain "ne… pas" and the easy ways to ask are too.
+   * Her band (2 Intermédiaire A2–B1, 3 Avancé B1–C1): tenses, question items and drill sets
+   * outside it are left out unless a lesson asks for them by name, and so are plain
+   * "ne… pas" and the easy ways to ask. None given (tests): everything.
    */
-  minLevel?: 1 | 2 | 3;
+  minLevel?: MinLevel;
 }
 
 type Rand = () => number;
@@ -144,7 +152,7 @@ function skillWeight(skills: Map<string, Progress>, id: string): number {
 
 function pickTense(cfg: GrammarConfig, kind: GrammarType, skillPrefix: string, rand: Rand): Tense | undefined {
   const allowed = KIND_TENSES[kind] ?? TENSES.map((t) => t.id);
-  const atLevel = tensesAtLevel(cfg.minLevel ?? 1);
+  const atLevel = cfg.minLevel ? tensesAtLevel(cfg.minLevel) : TENSES.map((t) => t.id);
   const pool = cfg.tenses?.length ? allowed.filter((t) => cfg.tenses!.includes(t)) : allowed.filter((t) => atLevel.includes(t));
   return pickWeighted(pool, (t) => TENSE_WEIGHT[TENSE_BY_ID[t].level] * skillWeight(cfg.skills, `${skillPrefix}:${t}`), rand);
 }
@@ -307,12 +315,7 @@ function sameCase(option: string | null | undefined, like: string): string | nul
   return upper ? option[0].toUpperCase() + option.slice(1) : decapitalize(option);
 }
 
-/** Word tiles for a sentence: the opening capital is dropped so it doesn't mark the first tile. */
-function tilesOf(fr: string): string[] {
-  const t = sentenceTokens(fr);
-  if (t.length) t[0] = decapitalize(t[0]);
-  return t;
-}
+const tilesOf = sentenceTiles;
 
 /** Wrong word tiles taken from other forms of the verb, all lowercase like the answer tiles. */
 function decoyTiles(forms: (string | null | undefined)[], answerTiles: string[], n = 2): string[] {
@@ -544,7 +547,7 @@ const NEG_LABEL: Record<Negation, string> = {
 
 /** Make the sentence negative (pas / jamais / plus / rien / personne). */
 const genNegate: Gen = (cfg, rand, used) => {
-  const above = (cfg.minLevel ?? 1) >= 2 && !cfg.negations?.length;
+  const above = !!cfg.minLevel && !cfg.negations?.length;
   const weights: Record<Negation, number> = above ? { pas: 1, jamais: 3, plus: 3, rien: 2, personne: 2 } : { pas: 4, jamais: 2, plus: 2, rien: 1.5, personne: 1.5 };
   let negation = (cfg.negations?.length ? pick(cfg.negations, rand) : pickWeighted<Negation>(['pas', 'jamais', 'plus', 'rien', 'personne'], (n) => weights[n], rand)) ?? 'pas';
   const tense = pickTense(cfg, 'negate', `g:neg:${negation}`, rand);
@@ -618,7 +621,7 @@ const QFORM_LABEL: Record<QForm, { fr: string; en: string }> = {
 /** Turn the statement into a question with the requested form. */
 const genQForm: Gen = (cfg, rand, used) => {
   // above A1 it's mostly inversion; intonation (the statement with a rising voice) is left out
-  const qWeights: Record<QForm, number> = (cfg.minLevel ?? 1) >= 2 ? { inversion: 4, 'est-ce-que': 1, intonation: 0 } : { inversion: 3, 'est-ce-que': 2, intonation: 1 };
+  const qWeights: Record<QForm, number> = cfg.minLevel ? { inversion: 4, 'est-ce-que': 1, intonation: 0 } : { inversion: 3, 'est-ce-que': 2, intonation: 1 };
   const qform = (cfg.qforms?.length ? pick(cfg.qforms, rand) : pickWeighted<QForm>(['inversion', 'est-ce-que', 'intonation'], (q) => qWeights[q], rand)) ?? 'inversion';
   const tense = pickTense(cfg, 'qform', `g:qf:${qform}`, rand);
   if (!tense) return null;
@@ -858,11 +861,28 @@ function drillSets(cfg: GrammarConfig): DrillSet[] {
   const band = cfg.minLevel;
   const atLevel = DRILL_SETS.filter((d) => inBand(d.level, band));
   if (atLevel.length) return atLevel;
-  // the Structures game opened in a band with none of its own (Débutant) still plays
+  // the Structures game always has something to play
   return cfg.kinds.length === 1 && cfg.kinds[0] === 'drill' ? DRILL_SETS : [];
 }
 
-/** One hand-written gap sentence: pick the filler while the structure is new, type it once it's known. */
+/** A hand-written gap sentence: pick the filler while the skill is new, type it once it's known. */
+function gapQuestion(kind: GrammarType, skill: string, title: string, item: DrillItem, cfg: GrammarConfig, rand: Rand): Question {
+  const mode = answerMode(cfg, skill, rand) === 'type' ? 'type' : 'choice';
+  return question({
+    kind,
+    skill,
+    title,
+    prompt: item.fr,
+    chips: item.cue ? [item.cue] : undefined,
+    mode,
+    options: mode === 'choice' ? optionsFrom(item.answer, item.wrong, rand, wrongCount(cfg), item.accept ?? []) : undefined,
+    answer: item.answer,
+    accept: uniq([item.answer, ...(item.accept ?? [])]),
+    reveal: { fr: item.fr.replace('____', item.answer), en: item.en },
+    note: item.why,
+  });
+}
+
 const genDrill: Gen = (cfg, rand, used) => {
   const fresh = (d: DrillSet) => d.items.filter((it) => !used.has(`dr:${d.id}:${it.id}`));
   const set = pickWeighted(
@@ -873,21 +893,55 @@ const genDrill: Gen = (cfg, rand, used) => {
   if (!set) return null;
   const item = pick(fresh(set), rand);
   used.add(`dr:${set.id}:${item.id}`);
-  const skill = `g:dr:${set.id}`;
-  const mode = answerMode(cfg, skill, rand) === 'type' ? 'type' : 'choice';
-  return question({
-    kind: 'drill',
+  return gapQuestion('drill', `g:dr:${set.id}`, `${set.title} · ${set.en}`, item, cfg, rand);
+};
+
+/* ----------------------------------------------------------------- courses */
+
+/**
+ * A whole sentence to build: pick the right one among near-misses while it's new, then build
+ * it from word tiles, with the words of the near-misses (the classic mistakes) as decoys.
+ */
+function buildQuestion(skill: string, title: string, item: BuildItem, english: boolean, cfg: GrammarConfig, rand: Rand): Question {
+  const box = cfg.skills.get(skill)?.box ?? 0;
+  const tiles = box >= (cfg.level >= 3 ? 1 : 2) && rand() < (cfg.level >= 3 ? 0.85 : 0.7);
+  const accept = uniq([item.answer, ...(item.accept ?? [])]);
+  const base: GrammarPayload = {
+    kind: 'compose',
     skill,
-    title: `${set.title} · ${set.en}`,
-    prompt: item.fr,
+    title,
+    prompt: item.from,
+    promptStyle: english ? 'en' : undefined,
     chips: item.cue ? [item.cue] : undefined,
-    mode,
-    options: mode === 'choice' ? optionsFrom(item.answer, item.wrong, rand, wrongCount(cfg), item.accept ?? []) : undefined,
+    mode: tiles ? 'tiles' : 'choice',
     answer: item.answer,
-    accept: uniq([item.answer, ...(item.accept ?? [])]),
-    reveal: { fr: item.fr.replace('____', item.answer), en: item.en },
+    accept,
+    reveal: { fr: item.answer, en: item.en },
     note: item.why,
-  });
+  };
+  if (!tiles) return question({ ...base, options: optionsFrom(item.answer, item.wrong, rand, wrongCount(cfg, true), accept) });
+  const answerTiles = sentenceTiles(item.answer);
+  const own = (t: string) => answerTiles.some((a) => a.toLowerCase() === t.toLowerCase());
+  const decoys = uniq([...(item.decoys ?? []), ...decoyTiles(item.wrong, answerTiles, tileDecoys(cfg) + 2)]).filter((t) => !own(t)).slice(0, tileDecoys(cfg) + 1);
+  return question(base, { tiles: shuffle([...answerTiles, ...decoys], rand), answer: answerTiles });
+}
+
+/** A course exercise's item: its gap sentences and whole sentences, in the chosen exercises (or all of them). */
+const genCompose: Gen = (cfg, rand, used) => {
+  const chosen = cfg.exercises?.length ? EXERCISES.filter((e) => cfg.exercises!.includes(e.id)) : EXERCISES;
+  const fresh = (e: CourseExercise) => (e.items as { id: string }[]).filter((it) => !used.has(`ex:${e.id}:${it.id}`));
+  const ex = pickWeighted(
+    chosen.filter((e) => fresh(e).length),
+    (e) => skillWeight(cfg.skills, `g:ex:${e.id}`),
+    rand,
+  );
+  if (!ex) return null;
+  const item = pick(fresh(ex), rand);
+  used.add(`ex:${ex.id}:${item.id}`);
+  const skill = `g:ex:${ex.id}`;
+  const title = `${ex.title} · ${ex.en}`;
+  if (ex.kind === 'gap') return gapQuestion('compose', skill, title, item as DrillItem, cfg, rand);
+  return buildQuestion(skill, title, item as BuildItem, /^tradui/i.test(ex.title), cfg, rand);
 };
 
 const GENERATORS: Record<GrammarType, Gen> = {
@@ -902,6 +956,7 @@ const GENERATORS: Record<GrammarType, Gen> = {
   gtranslate: genTranslate,
   glisten: genListen,
   drill: genDrill,
+  compose: genCompose,
 };
 
 const KIND_WEIGHT: Record<GrammarType, number> = {
@@ -916,6 +971,7 @@ const KIND_WEIGHT: Record<GrammarType, number> = {
   gtranslate: 3,
   glisten: 2,
   drill: 4,
+  compose: 4,
 };
 
 /** Build a round of grammar questions; never repeats a frame or question item. */

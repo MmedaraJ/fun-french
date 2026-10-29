@@ -272,6 +272,10 @@
   margin-top: 8px;
 }
 
+.seg3--two {
+  grid-template-columns: repeat(2, 1fr);
+}
+
 .seg3 button {
   display: inline-flex;
   align-items: center;

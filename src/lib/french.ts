@@ -121,6 +121,13 @@ export function sentenceTokens(s: string): string[] {
     .filter((t) => t.length > 0 && !/^[-–—]$/.test(t));
 }
 
+/** Word tiles for a sentence: its words without punctuation, the opening capital dropped so it doesn't mark the first tile. */
+export function sentenceTiles(fr: string): string[] {
+  const t = sentenceTokens(fr);
+  if (t.length) t[0] = decapitalize(t[0]);
+  return t;
+}
+
 // Names and places that keep their capital letter at the start of a sentence.
 const PROPER_NOUNS = new Set([
   'Marie', 'Paul', 'Léa', 'Lucas', 'Sophie', 'Thomas', 'Julie', 'Pierre', 'Anne', 'Louis', 'Emma', 'Hugo', 'Chloé', 'Nicolas',

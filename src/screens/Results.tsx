@@ -125,9 +125,18 @@ export default function Results() {
     sfx.whoosh();
     const p = new URLSearchParams();
     if (session.deckIds.length) p.set('decks', session.deckIds.join(','));
+    // the same lesson practice or course exercise again
+    if (session.lesson?.startsWith('ex:')) p.set('ex', session.lesson.slice(3));
+    else if (session.lesson) p.set('lesson', session.lesson);
     if (session.survival) p.set('survival', '1');
     else p.set('len', String(Math.max(10, Math.min(20, session.total))));
     navigate(`/play/${session.mode}?${p}`, { replace: true });
+  };
+  // a course exercise leads back to its chapter
+  const toChapter = async () => {
+    const id = session?.lesson?.startsWith('ex:') ? session.lesson.slice(3).split(',')[0] : '';
+    const ex = id ? (await import('../data/course')).EXERCISE_BY_ID[id] : undefined;
+    navigate(ex ? `/cours/${ex.course.id}/${ex.chapter.id}` : '/', { replace: true });
   };
   const reviewMissed = () => {
     sfx.whoosh();
@@ -276,9 +285,15 @@ export default function Results() {
             </button>
           )}
           <div className="row" style={{ gap: 12 }}>
-            <button className="btn btn--ghost grow" onClick={() => navigate('/', { replace: true })}>
-              Accueil
-            </button>
+            {session.lesson?.startsWith('ex:') ? (
+              <button className="btn btn--ghost grow" onClick={() => void toChapter()}>
+                Chapitre
+              </button>
+            ) : (
+              <button className="btn btn--ghost grow" onClick={() => navigate('/', { replace: true })}>
+                Accueil
+              </button>
+            )}
             <button className="btn btn--white grow" onClick={replay}>
               Rejouer
             </button>

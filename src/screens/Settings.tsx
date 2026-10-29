@@ -64,11 +64,8 @@ const MASCOT_COLORS: { id: MascotColorPref; label: string }[] = [
 ];
 
 /** Her level, as three CEFR bands (lib/level). */
+// the floor is A2: no beginner band
 const LEVELS: { id: MinLevel; help: string }[] = [
-  {
-    id: 1,
-    help: 'Centred on A1: everyday words and phrases, the présent, passé composé and futur proche, simple questions and negation, with some A2 (imparfait, futur, conditionnel) to stretch you. Picture games included.',
-  },
   {
     id: 2,
     help: 'No basics: A2 and B1 themes, your textbook verbs, every common tense up to the subjonctif, the B1 lessons and the first advanced structures.',
@@ -79,8 +76,8 @@ const LEVELS: { id: MinLevel; help: string }[] = [
   },
 ];
 
+// the floor is Normal: no Facile
 const DIFFICULTIES: { id: Difficulty; label: string; emoji: string; help: string }[] = [
-  { id: 1, label: 'Facile', emoji: '🌱', help: 'Four choices, small slips forgiven, typing only once a word is well known.' },
   { id: 2, label: 'Normal', emoji: '🌿', help: 'Six choices, more typing and word tiles, accents and le/la must be right.' },
   { id: 3, label: 'Difficile', emoji: '🌶️', help: 'Six look-alike choices, mostly typing, tricky decoys, and only exact answers count.' },
 ];
@@ -260,7 +257,7 @@ export default function Settings() {
         <div className="field-label" style={{ marginTop: 18 }}>
           Difficulté · How hard the questions are
         </div>
-        <div className="seg3">
+        <div className="seg3 seg3--two">
           {DIFFICULTIES.map((d) => (
             <button key={d.id} aria-pressed={s.difficulty === d.id} onClick={() => set({ difficulty: d.id })}>
               <Emoji e={d.emoji} size={18} /> {d.label}

@@ -1,10 +1,10 @@
 import { expect, type Page } from '@playwright/test';
 
-/** A set-up profile. The level floor defaults to everything, so every game has words to use. */
+/** A set-up profile, at Intermédiaire (A2 → B1) unless `extra` says otherwise. */
 export async function onboarded(page: Page, extra: Record<string, unknown> = {}) {
   await page.goto('/');
   await page.evaluate((extra) => {
-    localStorage.setItem('bonbon-settings', JSON.stringify({ state: { onboarded: true, name: 'Test', sound: false, minLevel: 1, ...extra }, version: 5 }));
+    localStorage.setItem('bonbon-settings', JSON.stringify({ state: { onboarded: true, name: 'Test', sound: false, minLevel: 2, ...extra }, version: 6 }));
   }, extra);
   await page.goto('/');
   await expect(page.getByText('Révision du jour')).toBeVisible({ timeout: 20_000 });

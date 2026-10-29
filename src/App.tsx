@@ -22,6 +22,7 @@ const Stats = lazy(() => import('./screens/Stats'));
 const Settings = lazy(() => import('./screens/Settings'));
 const Welcome = lazy(() => import('./screens/Welcome'));
 const Grammar = lazy(() => import('./screens/grammar/Grammar'));
+const Courses = lazy(() => import('./screens/course/Courses'));
 
 function useThemeAttr() {
   const theme = useSettings((s) => s.theme);
@@ -74,7 +75,7 @@ function Shell() {
   const path = location.pathname;
   const fullscreen = /^\/(play|results|welcome)/.test(path);
   if (!onboarded && path !== '/welcome') return <Navigate to="/welcome" replace />;
-  const routeKey = path.startsWith('/add') ? '/add' : path.startsWith('/words') ? '/words' : path.startsWith('/grammaire') ? '/grammaire' : path;
+  const routeKey = path.startsWith('/add') ? '/add' : path.startsWith('/words') ? '/words' : path.startsWith('/grammaire') ? '/grammaire' : path.startsWith('/cours/') ? '/cours' : path;
   return (
     <div className="app">
       <Suspense fallback={<Loader />}>
@@ -88,6 +89,7 @@ function Shell() {
             <Route path="/stats" element={<Stats />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/grammaire/*" element={<Grammar />} />
+            <Route path="/cours/*" element={<Courses />} />
             <Route path="/welcome" element={<Welcome />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

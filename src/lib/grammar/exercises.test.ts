@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { GrammarType } from '../../types';
 import { normalizeAnswer } from '../french';
+import { EXERCISES } from '../../data/course';
 import { DRILL_SETS } from '../../data/grammar/drills';
 import { LESSONS } from '../../data/grammar/lessons';
 import { QUESTIONS } from '../../data/grammar/questions';
@@ -89,8 +90,8 @@ describe('grammar exercises', () => {
   it('every lesson’s practice makes a full round in its own tenses', () => {
     for (const lesson of LESSONS) {
       for (const seed of [1, 2, 3]) {
-        // A2+ lessons are practised with the A2 floor on
-        const minLevel = lesson.level >= 2 ? 2 : 1;
+        // every lesson works at the A2 floor (a lesson her PDFs teach can be below it)
+        const minLevel = lesson.level >= 3 ? 3 : 2;
         const qs = buildGrammarQuestions({ ...lesson.practice, length: 10, skills: new Map(), level: 2, minLevel }, seeded(seed));
         expect(qs.length, `${lesson.id} (seed ${seed})`).toBe(10);
         for (const q of qs) expect(lesson.practice.kinds, lesson.id).toContain(q.g!.kind);
@@ -133,35 +134,6 @@ describe('grammar exercises', () => {
     }
   });
 
-  it('Débutant: A1 and A2 tenses only, mostly A1, easy question items, no advanced structures', () => {
-    const a1 = ['present', 'passe_compose', 'futur_proche', 'passe_recent', 'imperatif'];
-    const a2 = ['imparfait', 'futur_simple', 'conditionnel_present'];
-    let inA1 = 0;
-    let inA2 = 0;
-    for (const seed of [1, 2, 3, 4, 5, 6]) {
-      const qs = buildGrammarQuestions({ kinds: [...KINDS, 'drill'], length: 30, skills: new Map(), level: 3, minLevel: 1 }, seeded(seed));
-      expect(qs.length).toBe(30);
-      for (const q of qs) {
-        const g = q.g!;
-        expect(g.kind).not.toBe('drill');
-        const tense = /^g:(conj|tense|id|listen):(.+)$/.exec(g.skill)?.[2];
-        if (tense) {
-          expect([...a1, ...a2], g.skill).toContain(tense);
-          if (a1.includes(tense)) inA1++;
-          else inA2++;
-        }
-        if (g.kind === 'qword' || g.kind === 'qmatch') {
-          const asked = g.reveal.fr.split(' — ')[0];
-          const item = QUESTIONS.find((it) => Object.values(it.forms).includes(asked));
-          expect(item!.level, asked).toBeLessThanOrEqual(2);
-        }
-      }
-    }
-    // centred on A1, with A2 to stretch
-    expect(inA1).toBeGreaterThan(inA2);
-    expect(inA2).toBeGreaterThan(0);
-  });
-
   it('Intermédiaire practises the B1 structures, Avancé all of them', () => {
     const level = new Map(DRILL_SETS.map((d) => [`g:dr:${d.id}`, d.level]));
     const b1 = buildGrammarQuestions({ kinds: ['drill'], length: 20, skills: new Map(), level: 3, minLevel: 2 }, seeded(3));
@@ -169,6 +141,43 @@ describe('grammar exercises', () => {
     for (const q of b1) expect(level.get(q.g!.skill), q.g!.skill).toBe(3);
     const all = buildGrammarQuestions({ kinds: ['drill'], length: 40, skills: new Map(), level: 3, minLevel: 3 }, seeded(3));
     expect(new Set(all.map((q) => level.get(q.g!.skill)))).toEqual(new Set([3, 4]));
+  });
+
+  it('a course exercise plays its own items: gaps to fill, sentences to pick, nothing twice', () => {
+    expect(EXERCISES.length).toBeGreaterThan(100);
+    for (const ex of EXERCISES) {
+      const n = Math.min(ex.items.length, 20);
+      const qs = buildGrammarQuestions({ kinds: ['compose'], exercises: [ex.id], length: n, skills: new Map(), level: 3, minLevel: 3 }, seeded(5));
+      expect(qs.length, ex.id).toBe(n);
+      expect(new Set(qs.map((q) => q.g!.prompt)).size, `${ex.id} repeats`).toBe(n);
+      for (const q of qs) {
+        const g = q.g!;
+        expect(g.kind).toBe('compose');
+        expect(g.skill).toBe(`g:ex:${ex.id}`);
+        // new: multiple choice, the answer offered exactly once
+        expect(g.mode, ex.id).toBe('choice');
+        expect(g.options!.filter((o) => normalizeAnswer(o) === normalizeAnswer(g.answer)), `${ex.id}: ${g.answer}`).toHaveLength(1);
+        expect(g.options!.length, ex.id).toBeGreaterThanOrEqual(3);
+        if (ex.kind === 'gap') expect(g.prompt).toContain('____');
+        else expect(g.reveal.fr).toBe(g.answer);
+        expect(g.promptStyle === 'en', `${ex.id} English prompt`).toBe(/^tradui/i.test(ex.title));
+      }
+    }
+  });
+
+  it('once known, a sentence to build comes as word tiles with the classic mistakes as decoys', () => {
+    const ex = EXERCISES.find((e) => e.kind === 'build')!;
+    const known = new Map([[`g:ex:${ex.id}`, { cardId: `g:ex:${ex.id}`, box: 2, due: Date.now() + 1e9, seen: 6, correct: 6, wrong: 0, lapses: 0, streak: 6, firstSeen: 1, lastSeen: 1 }]]);
+    const qs = buildGrammarQuestions({ kinds: ['compose'], exercises: [ex.id], length: 10, skills: known, level: 3 }, seeded(8));
+    const tiled = qs.filter((q) => q.g!.mode === 'tiles');
+    expect(tiled.length).toBeGreaterThanOrEqual(6);
+    for (const q of tiled) {
+      const answer = q.answer as string[];
+      expect(answer.join(' ').length).toBeGreaterThan(0);
+      // every word of the answer is there, plus at least one that doesn't belong
+      for (const w of answer) expect(q.tiles).toContain(w);
+      expect(q.tiles!.length).toBeGreaterThan(answer.length);
+    }
   });
 
   it('a Structures round fills up with gap sentences, never the same one twice', () => {

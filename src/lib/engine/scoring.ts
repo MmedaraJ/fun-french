@@ -24,6 +24,7 @@ const SPEED: Record<QuestionType, [number, number]> = {
   gtranslate: [6000, 25000],
   glisten: [3000, 12000],
   drill: [4000, 18000],
+  compose: [6000, 30000],
 };
 
 export const BASE_POINTS = 100;

@@ -1,10 +1,9 @@
 import { motion } from 'framer-motion';
-import { Fragment, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { wipeFrom } from '../../components/ColorWipe';
 import { Emoji } from '../../components/Emoji';
 import { Page } from '../../components/Page';
-import { SpeakButton } from '../../components/SpeakButton';
 import { LESSONS } from '../../data/grammar/lessons';
 import { conjugationTable } from '../../lib/grammar/conjugate';
 import { PERSONS, TENSE_BY_ID, type Tense } from '../../lib/grammar/types';
@@ -12,22 +11,7 @@ import { VERB_BY_INF } from '../../lib/grammar/verb-list';
 import { sfx } from '../../lib/sound';
 import { speak } from '../../lib/speech';
 import { LESSON_LEVEL, UNIT_INFO, useBookLessons, useLessonsDone, useVisibleLessons } from './Grammar';
-
-/** **bold** and line breaks, nothing more. */
-export function RichText({ text }: { text: string }): ReactNode {
-  return text.split(/\n{2,}/).map((para, i) => (
-    <p key={i}>
-      {para.split('\n').map((line, j) => (
-        <Fragment key={j}>
-          {j > 0 && <br />}
-          {line.split(/(\*\*[^*]+\*\*)/g).map((chunk, k) =>
-            chunk.startsWith('**') && chunk.endsWith('**') ? <strong key={k}>{chunk.slice(2, -2)}</strong> : <Fragment key={k}>{chunk}</Fragment>,
-          )}
-        </Fragment>
-      ))}
-    </p>
-  ));
-}
+import { LessonBody, RichText } from './LessonBody';
 
 const DEFAULT_VERBS = ['parler', 'finir', 'être', 'avoir', 'aller', 'faire', 'prendre', 'se lever'];
 
@@ -98,56 +82,7 @@ export function LessonView() {
         </div>
       </motion.header>
 
-      {lesson.sections.map((sec, i) => (
-        <motion.section key={i} className="lesson-sec panel" initial={{ y: 18, opacity: 0 }} whileInView={{ y: 0, opacity: 1 }} viewport={{ once: true, margin: '-40px' }} transition={{ type: 'spring', stiffness: 260, damping: 26 }}>
-          <h2>{sec.heading}</h2>
-          <div className="lesson-body">
-            <RichText text={sec.body} />
-          </div>
-          {sec.table && (
-            <div className="lesson-table-wrap">
-              <table className={'lesson-table' + (sec.table.head.length >= 4 ? ' lesson-table--wide' : '')}>
-                <thead>
-                  <tr>
-                    {sec.table.head.map((h, k) => (
-                      <th key={k}>{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {sec.table.rows.map((row, r) => (
-                    <tr key={r}>
-                      {row.map((cell, k) => (
-                        <td key={k}>{cell}</td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-          {sec.examples?.length ? (
-            <ul className="lesson-examples">
-              {sec.examples.map((ex, k) => (
-                <li key={k}>
-                  <SpeakButton text={ex.fr} size="sm" tone="solid" />
-                  <span>
-                    <strong>{ex.fr}</strong>
-                    <span>{ex.en}</span>
-                  </span>
-                </li>
-              ))}
-            </ul>
-          ) : null}
-        </motion.section>
-      ))}
-
-      {lesson.tips?.map((tip, i) => (
-        <div key={i} className="lesson-tip">
-          <Emoji e="💡" size={26} />
-          <RichText text={tip} />
-        </div>
-      ))}
+      <LessonBody sections={lesson.sections} tips={lesson.tips} />
 
       {tenses.length > 0 && (
         <section className="lesson-sec panel lesson-explorer">

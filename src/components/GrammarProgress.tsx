@@ -1,7 +1,9 @@
 import { useLiveQuery } from 'dexie-react-hooks';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { COURSES } from '../data/course';
 import { DRILL_SETS } from '../data/grammar/drills';
+import { chapterDone, chapterProgress, useCourseProgress } from '../lib/course';
 import { LESSONS } from '../data/grammar/lessons';
 import { db } from '../lib/db';
 import { QWORD_LABEL, TENSES, type Negation, type QWord } from '../lib/grammar/types';
@@ -36,7 +38,13 @@ const DRILL_NAMES = new Map(LESSONS.flatMap((l) => (l.practice.drills ?? []).map
 export function GrammarProgress() {
   const navigate = useNavigate();
   const skills = useLiveQuery(async () => new Map((await db.skills.toArray()).map((p) => [p.cardId, p])), []);
+  const course = useCourseProgress();
   if (!skills) return null;
+  const courses = COURSES.map((c) => ({
+    course: c,
+    done: course ? c.chapters.filter((ch) => chapterDone(ch, course)).length : 0,
+    progress: course && c.chapters.length ? c.chapters.reduce((a, ch) => a + chapterProgress(ch, course), 0) / c.chapters.length : 0,
+  }));
 
   const tenses: Row[] = TENSES.map((t) => ({
     id: t.id,
@@ -47,7 +55,7 @@ export function GrammarProgress() {
   const negations: Row[] = NEGATIONS.map((n) => ({ id: n, label: `ne… ${n}`, sub: '', ...summarise([`g:neg:${n}`], skills) }));
   const qwords: Row[] = (Object.keys(QWORD_LABEL) as QWord[]).map((w) => ({ id: w, label: QWORD_LABEL[w], sub: '', ...summarise([`g:qw:${w}`, `g:qa:${w}`], skills) }));
   const structures: Row[] = DRILL_SETS.map((d) => ({ id: d.id, label: DRILL_NAMES.get(d.id) ?? d.en, sub: d.en, ...summarise([`g:dr:${d.id}`], skills) }));
-  const played = [...tenses, ...negations, ...qwords, ...structures].some((r) => r.answers > 0);
+  const played = [...tenses, ...negations, ...qwords, ...structures].some((r) => r.answers > 0) || courses.some((c) => c.progress > 0);
 
   if (!played) {
     return (
@@ -66,6 +74,24 @@ export function GrammarProgress() {
 
   return (
     <div className="panel gp">
+      <h3 className="gp-title">Mes cours · Courses</h3>
+      <ul className="gp-list">
+        {courses.map(({ course: c, done, progress }, i) => (
+          <li key={c.id}>
+            <span className="gp-label">
+              <strong>
+                {c.emoji} {c.title}
+              </strong>
+              <span>
+                {done}/{c.chapters.length} chapitres terminés
+              </span>
+            </span>
+            <span className="gp-bar" aria-label={`${Math.round(progress * 100)}% of the course`}>
+              <motion.span initial={{ width: 0 }} whileInView={{ width: `${Math.max(progress ? 4 : 0, progress * 100)}%` }} viewport={{ once: true }} transition={{ delay: i * 0.05, type: 'spring', stiffness: 70, damping: 18 }} />
+            </span>
+          </li>
+        ))}
+      </ul>
       <h3 className="gp-title">Les temps · Tenses</h3>
       <ul className="gp-list">
         {tenses.map((r, i) => (

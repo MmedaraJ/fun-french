@@ -4,7 +4,7 @@ import { dayKey } from './date';
 import { db } from './db';
 import { levelFromXp } from './engine/scoring';
 import { deckShown } from './level';
-import { useSettings } from './settings';
+import { useSettings, type MinLevel } from './settings';
 import { computeStreak, statusCounts, sumXp, type StatusCounts } from './stats';
 
 /** Every theme, whatever the level floor (onboarding picks a floor of its own). */
@@ -19,7 +19,7 @@ export function useDecks(): Deck[] | undefined {
 }
 
 /** Ids of the themes the level floor shows. */
-async function shownDeckIds(minLevel: 1 | 2 | 3): Promise<Set<string>> {
+async function shownDeckIds(minLevel: MinLevel): Promise<Set<string>> {
   return new Set((await db.decks.toArray()).filter((d) => deckShown(d, minLevel)).map((d) => d.id));
 }
 

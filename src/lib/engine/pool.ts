@@ -12,7 +12,8 @@ import type { Pool, RoundConfig } from './round';
 export async function loadPool(cfg: Pick<RoundConfig, 'deckIds' | 'cardIds' | 'focusOnly' | 'minLevel'>): Promise<Pool> {
   const [allDecks, allCards, progressRows] = await Promise.all([db.decks.toArray(), db.cards.toArray(), db.progress.toArray()]);
   const progress = new Map(progressRows.map((p) => [p.cardId, p]));
-  const decks = allDecks.filter((d) => deckShown(d, cfg.minLevel ?? 1));
+  // no band given (tests, tools): every theme
+  const decks = cfg.minLevel ? allDecks.filter((d) => deckShown(d, cfg.minLevel!)) : allDecks;
   const shown = new Set(decks.map((d) => d.id));
   const usable = allCards.filter((c) => !c.archived && shown.has(c.deckId));
   let cards: Card[];
