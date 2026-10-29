@@ -200,7 +200,7 @@ export const AVANCE_PRONOMS: Lesson[] = [
     ],
     tips: [
       'Me, te, nous, vous come before le / la / les, but lui and leur come after: je **te le** dis / je **le lui** dis.',
-      'In the imperative, -er verbs only take an s before **en** or **y**: **parles-en**, **vas-y**, but **parle-lui-en**.',
+      'In the imperative, the tu form of -er verbs (and va) only takes an s right before **en** or **y**: **parles-en**, **vas-y**, but **parle-lui-en**.',
       'Y and en together are rare outside **il y en a** (there is / there are some).',
     ],
     practice: { kinds: ['drill'], drills: ['doubles-pronoms'] },
