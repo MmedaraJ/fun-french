@@ -264,6 +264,7 @@ export const CH_STYLE: Chapter = {
           en: "The Eiffel Tower, built for the 1889 World's Fair, was supposed to be taken down twenty years later.",
           why: 'A past participle in apposition agrees with its noun: la tour, construite.',
         },
+        // @@MORE-A@@
       ],
     },
     {
@@ -483,6 +484,7 @@ export const CH_STYLE: Chapter = {
           en: 'As it was raining, we visited the museum everyone had told us about.',
           why: 'Comme gives the cause first; parler de → dont, which already contains the de (no en).',
         },
+        // @@MORE-B@@
       ],
     },
     {
@@ -702,6 +704,7 @@ export const CH_STYLE: Chapter = {
           en: "I don't know what he wants.",
           why: "In an indirect question, 'what' (object) is ce que, never qu'est-ce que; in writing, keep the ne.",
         },
+        // @@MORE-C@@
       ],
     },
     {
@@ -831,6 +834,7 @@ export const CH_STYLE: Chapter = {
           en: 'Now 90, my grandmother finds her house too big.',
           why: "The opening apposition must describe the subject: it's the grandmother who is 90, not the house.",
         },
+        // @@MORE-D@@
       ],
     },
   ],

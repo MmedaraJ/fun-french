@@ -292,6 +292,7 @@ export const T_CONDITIONNEL_PASSE: Chapter = {
           en: 'It would have been better to wait for the sales to buy that sofa.',
           why: 'Il aurait mieux valu + infinitive = it would have been better to; valu comes from valoir, not vouloir.',
         },
+        // @@MORE-10A@@
       ],
     },
     {
@@ -455,6 +456,7 @@ export const T_CONDITIONNEL_PASSE: Chapter = {
           en: 'If he had studied law, he would be a lawyer today.',
           why: 'Mixed pattern: a past condition (plus-que-parfait), a present result (conditionnel présent).',
         },
+        // @@MORE-10B@@
       ],
     },
     {
@@ -595,6 +597,7 @@ export const T_CONDITIONNEL_PASSE: Chapter = {
           en: 'You could at least have said thank you!',
           why: "Could have = aurais pu + infinitive; tu pourrais is 'you could' (now).",
         },
+        // @@MORE-10C@@
       ],
     },
     {
@@ -712,6 +715,7 @@ export const T_CONDITIONNEL_PASSE: Chapter = {
           en: 'What would you have done in my place?',
           why: 'The past participle of faire is fait, whatever the person: tu aurais fait.',
         },
+        // @@MORE-10D@@
       ],
     },
   ],

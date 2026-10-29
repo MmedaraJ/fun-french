@@ -250,6 +250,7 @@ export const CH_QUESTIONS: Chapter = {
           en: 'Why did the management terminate his contract without telling anyone?',
           why: 'With pourquoi, a noun subject needs complex inversion: noun + auxiliary-pronoun.',
         },
+        // @@MORE-A@@
       ],
     },
     {
@@ -385,6 +386,7 @@ export const CH_QUESTIONS: Chapter = {
           en: "Didn't you notice anything unusual that evening?",
           why: 'Ne… rien wraps the inverted auxiliary-pronoun block.',
         },
+        // @@MORE-B@@
       ],
     },
     {
@@ -549,6 +551,7 @@ export const CH_QUESTIONS: Chapter = {
           en: "Why didn't the minister answer the question?",
           why: 'Pourquoi + noun subject: complex inversion, with ne… pas around the auxiliary-pronoun block; répondre à.',
         },
+        // @@MORE-C@@
       ],
     },
     {
@@ -650,6 +653,7 @@ export const CH_QUESTIONS: Chapter = {
           en: 'That book, did you take it back to the library?',
           why: "The object pronoun stays in front of the inverted auxiliary: l'as-tu…?",
         },
+        // @@MORE-D@@
       ],
     },
   ],

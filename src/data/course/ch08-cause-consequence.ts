@@ -264,6 +264,7 @@ export const CH_CAUSE: Chapter = {
           en: 'We cancelled the hike because the forecast was bad.',
           why: 'A clause after the main clause: parce que; comme must come first, à cause de needs a noun.',
         },
+        // @@MORE-A@@
       ],
     },
     {
@@ -420,6 +421,7 @@ export const CH_CAUSE: Chapter = {
           en: "It rained a lot this summer, hence the abundance of mushrooms.",
           why: "D'où is followed by a noun: sont abondants becomes l'abondance.",
         },
+        // @@MORE-B@@
       ],
     },
     {
@@ -634,6 +636,7 @@ export const CH_CAUSE: Chapter = {
           en: "I'll come all the more willingly because Julie will be there.",
           why: "All the more… because = d'autant plus… que, and the future for a future fact.",
         },
+        // @@MORE-C@@
       ],
     },
     {
@@ -764,6 +767,7 @@ export const CH_CAUSE: Chapter = {
           en: 'She was promoted thanks to her excellent results.',
           why: 'The preposition is grâce à, followed directly by the noun group.',
         },
+        // @@MORE-D@@
       ],
     },
   ],
