@@ -8,6 +8,7 @@
 import type { StarterDeck } from '../types';
 
 import { BOOK_ER_VERBS } from "./grammar/book-er-verbs";
+import { ADVANCED_DECKS } from "./advanced";
 
 /** Pictures for the textbook verbs, only where the emoji is unambiguous. */
 const ER_EMOJI: Record<string, string> = {
@@ -977,4 +978,5 @@ export const STARTER_DECKS: StarterDeck[] = [
       { fr: "Il a acheté une voiture.", en: "He bought a car.", e: "🚗" },
     ],
   },
+  ...ADVANCED_DECKS,
 ];
