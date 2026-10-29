@@ -22,6 +22,7 @@ import { ACHIEVEMENTS, type AchievementDef } from '../lib/achievements';
 import { dayKey, formatDuration, prettyDay, timeOfDay, weekdayShort } from '../lib/date';
 import { db } from '../lib/db';
 import { MODE_BY_ID, MODES, TYPE_LABEL } from '../lib/engine/modes';
+import { modeShown } from '../lib/level';
 import { levelFromXp, levelName } from '../lib/engine/scoring';
 import { useDeckSummaries } from '../lib/hooks';
 import { paletteColor } from '../lib/palette';
@@ -86,7 +87,7 @@ const minutes = (ms: number) => Math.round(ms / 60000);
 
 export default function Stats() {
   const navigate = useNavigate();
-  const { dailyGoal, agreement, mascotColor } = useSettings();
+  const { dailyGoal, agreement, mascotColor, minLevel } = useSettings();
   const data = useLiveQuery(loadStats, []);
   const decks = useDeckSummaries();
   const [selectedDay, setSelectedDay] = useState(dayKey());
@@ -118,7 +119,8 @@ export default function Stats() {
       .map(({ p, rate }) => ({ p, rate, card: cards.find((c) => c.id === p.cardId) }))
       .filter((x) => x.card)
       .slice(0, 8);
-    const bests = MODES.map((m) => {
+    // games the level floor hides only appear once she has played them
+    const bests = MODES.filter((m) => modeShown(m, minLevel) || sessions.some((s) => s.mode === m.id)).map((m) => {
       const mine = sessions.filter((s) => s.mode === m.id);
       const classic = mine.filter((s) => !s.survival);
       const survival = mine.filter((s) => s.survival);
@@ -152,7 +154,7 @@ export default function Stats() {
       recent: sessions.slice(0, 8),
       hasData: daily.some((d) => d.answers > 0) || sessions.length > 0,
     };
-  }, [data]);
+  }, [data, minLevel]);
 
   if (!data || !view) {
     return (

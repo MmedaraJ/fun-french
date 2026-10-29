@@ -11,6 +11,7 @@ import { Wordmark } from '../components/Wordmark';
 import { MODES, recognitionSupported, type ModeInfo } from '../lib/engine/modes';
 import { levelName } from '../lib/engine/scoring';
 import { useDeckSummaries, useOverview } from '../lib/hooks';
+import { modeShown } from '../lib/level';
 import { inkOn, paletteColor } from '../lib/palette';
 import { g, useSettings } from '../lib/settings';
 import { sfx } from '../lib/sound';
@@ -37,14 +38,15 @@ export default function Home() {
   const navigate = useNavigate();
   const overview = useOverview();
   const decks = useDeckSummaries();
-  const { name, dailyGoal, mascotColor, agreement } = useSettings();
+  const { name, dailyGoal, mascotColor, agreement, minLevel } = useSettings();
   const [setupMode, setSetupMode] = useState<ModeInfo | null>(null);
   const [mascotKey, setMascotKey] = useState(0);
   const ctaRef = useRef<HTMLButtonElement>(null);
   const hello = greeting();
   const pep = useMemo(() => PEP_TALKS[Math.floor(Math.random() * PEP_TALKS.length)](), []);
   const canSpeakIt = recognitionSupported();
-  const modes = MODES.filter((m) => m.section === 'vocab' && (m.needs !== 'recognition' || canSpeakIt));
+  // numbered as shown: from A2 on, the picture-tapping and flip-card games aren't there
+  const modes = MODES.filter((m) => m.section === 'vocab' && (m.needs !== 'recognition' || canSpeakIt) && modeShown(m, minLevel)).map((m, i) => ({ ...m, num: i + 1 }));
   const grammarModes = MODES.filter((m) => m.section === 'grammar');
 
   const todayXp = overview?.today.xp ?? 0;

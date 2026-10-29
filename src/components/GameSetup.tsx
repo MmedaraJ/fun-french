@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { ModeInfo } from '../lib/engine/modes';
 import { TENSES } from '../lib/grammar/types';
+import { LEVEL_NAMES, tensesAtLevel } from '../lib/level';
 import { useDecks } from '../lib/hooks';
 import { inkOn, paletteColor } from '../lib/palette';
 import { useSettings, type ModeOptions } from '../lib/settings';
@@ -20,7 +21,7 @@ interface Props {
 export function GameSetup({ mode, onClose }: Props) {
   const navigate = useNavigate();
   const decks = useDecks();
-  const { modeOptions, roundLength, update } = useSettings();
+  const { modeOptions, roundLength, update, minLevel } = useSettings();
   const startRef = useRef<HTMLButtonElement>(null);
   const opts: ModeOptions = (mode && modeOptions[mode.id]) || { deckIds: [], survival: false, length: roundLength };
   const [showDecks, setShowDecks] = useState(false);
@@ -33,7 +34,8 @@ export function GameSetup({ mode, onClose }: Props) {
   const color = mode ? paletteColor(mode.color) : undefined;
   const noSurvival = mode?.id === 'pairs' || mode?.id === 'flash';
   const grammar = mode?.section === 'grammar';
-  const tenseChoices = TENSES.filter((t) => mode?.id !== 'questions' && (t.id !== 'passe_simple' || mode?.id === 'temps'));
+  const atLevel = tensesAtLevel(minLevel);
+  const tenseChoices = TENSES.filter((t) => mode?.id !== 'questions' && atLevel.includes(t.id) && (t.id !== 'passe_simple' || mode?.id === 'temps'));
   const toggleTense = (id: string) => {
     const cur = opts.tenses ?? [];
     setOpts({ tenses: cur.includes(id) ? cur.filter((t) => t !== id) : [...cur, id] });
@@ -55,7 +57,9 @@ export function GameSetup({ mode, onClose }: Props) {
     sfx.whoosh();
     const params = new URLSearchParams();
     if (grammar) {
-      if (opts.tenses?.length) params.set('tenses', opts.tenses.join(','));
+      // a tense chosen before the level floor went up is dropped
+      const tenses = (opts.tenses ?? []).filter((t) => atLevel.includes(t as never));
+      if (tenses.length) params.set('tenses', tenses.join(','));
       if (mode.id === 'conjugaison' && opts.verbSet && opts.verbSet !== 'all') params.set('verbset', opts.verbSet);
     } else {
       if (opts.deckIds.length) params.set('decks', opts.deckIds.join(','));
@@ -101,7 +105,7 @@ export function GameSetup({ mode, onClose }: Props) {
                   <div className="field-label">Tenses</div>
                   <div className="row row--wrap setup-decks">
                     <button className="chip" aria-pressed={!opts.tenses?.length} onClick={() => setOpts({ tenses: [] })}>
-                      <Emoji e="🌈" size={18} /> All tenses
+                      <Emoji e="🌈" size={18} /> All tenses{minLevel > 1 ? ` (${LEVEL_NAMES[minLevel]}+)` : ''}
                     </button>
                     {tenseChoices.map((t) => (
                       <button key={t.id} className="chip" aria-pressed={!!opts.tenses?.includes(t.id)} onClick={() => toggleTense(t.id)}>

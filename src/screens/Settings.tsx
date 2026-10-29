@@ -28,7 +28,7 @@ import {
 import { celebrate } from '../lib/confetti';
 import { DAY } from '../lib/date';
 import { db } from '../lib/db';
-import { DEFAULT_SETTINGS, useSettings, type Difficulty, type MascotColorPref, type ThemePref } from '../lib/settings';
+import { DEFAULT_SETTINGS, useSettings, type Difficulty, type MascotColorPref, type MinLevel, type ThemePref } from '../lib/settings';
 import { sfx } from '../lib/sound';
 import { speak, speechSupported, useFrenchVoices } from '../lib/speech';
 import './Settings.css';
@@ -60,6 +60,12 @@ const MASCOT_COLORS: { id: MascotColorPref; label: string }[] = [
   { id: 'lemon', label: 'Citron' },
   { id: 'lavender', label: 'Lavande' },
   { id: 'caramel', label: 'Caramel' },
+];
+
+const FLOORS: { id: MinLevel; label: string; emoji: string; help: string }[] = [
+  { id: 1, label: 'Tout', emoji: '🧺', help: 'Everything, from the A1 basics (colours, numbers, the présent) up.' },
+  { id: 2, label: 'A2 +', emoji: '🎒', help: 'The A1 basics are left out: their themes, lessons, tenses and easy questions, and the picture-tapping and flip-card games. Your own words, your book and your PDFs always stay.' },
+  { id: 3, label: 'B1', emoji: '🎓', help: 'Only B1 grammar: the hardest tenses and lessons. The built-in themes stop at A2, so word games use your book and your own words.' },
 ];
 
 const DIFFICULTIES: { id: Difficulty; label: string; emoji: string; help: string }[] = [
@@ -327,6 +333,17 @@ export default function Settings() {
           ))}
         </div>
         <p className="set-help">{DIFFICULTIES.find((d) => d.id === s.difficulty)?.help}</p>
+        <div className="field-label" style={{ marginTop: 16 }}>
+          Niveau
+        </div>
+        <div className="seg3">
+          {FLOORS.map((f) => (
+            <button key={f.id} aria-pressed={s.minLevel === f.id} onClick={() => set({ minLevel: f.id })}>
+              <Emoji e={f.emoji} size={18} /> {f.label}
+            </button>
+          ))}
+        </div>
+        <p className="set-help">{FLOORS.find((f) => f.id === s.minLevel)?.help}</p>
         <div className="field-label" style={{ marginTop: 16 }}>
           Questions par partie
         </div>

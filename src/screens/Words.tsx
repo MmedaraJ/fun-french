@@ -53,8 +53,14 @@ const ringColor = (s: CardStatus) => STATUS.find((x) => x.id === s)!.color;
 export default function Words() {
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
-  const cards = useCards();
+  const allCards = useCards();
   const decks = useDecks();
+  // words from themes below the level floor are left out, like the themes themselves
+  const cards = useMemo(() => {
+    if (!allCards || !decks) return undefined;
+    const shown = new Set(decks.map((d) => d.id));
+    return allCards.filter((c) => shown.has(c.deckId));
+  }, [allCards, decks]);
   const progress = useProgressMap();
   const mascotColor = useSettings((s) => s.mascotColor);
   const [query, setQuery] = useState('');

@@ -169,7 +169,7 @@ export default function Game() {
   const info = MODE_BY_ID[mode];
   const [search] = useSearchParams();
   const navigate = useNavigate();
-  const { introduceNew, autoplay, newPerRound, roundLength, difficulty } = useSettings();
+  const { introduceNew, autoplay, newPerRound, roundLength, difficulty, minLevel } = useSettings();
 
   const survival = search.get('survival') === '1' && mode !== 'pairs' && mode !== 'flash';
   const cfg = useMemo<RoundConfig>(
@@ -182,6 +182,7 @@ export default function Game() {
       focusOnly: search.get('focus') === '1',
       newPerRound,
       difficulty,
+      minLevel,
     }),
     // read once per mount; settings changes mid-round shouldn't rebuild the round
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -232,6 +233,7 @@ export default function Game() {
         qwords: practice?.qwords,
         skills: new Map(skillRows.map((p) => [p.cardId, p])),
         level: cfg.difficulty ?? 2,
+        minLevel: cfg.minLevel,
       });
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps

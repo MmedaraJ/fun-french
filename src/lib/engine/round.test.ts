@@ -211,6 +211,13 @@ describe('buildQuestions', () => {
     expect(qs.length).toBeGreaterThan(0);
     expect(qs[0].pairs!.length).toBeGreaterThanOrEqual(3);
   });
+  it('from the A2 floor on, a mix never asks her to tap a picture or pick a word', () => {
+    for (let i = 0; i < 20; i++) {
+      const qs = buildQuestions({ mode: 'mix', length: 10, newPerRound: 3, minLevel: 2, difficulty: 3 }, pool(), seeded(i + 1));
+      expect(qs).toHaveLength(10);
+      expect(qs.filter((q) => q.type === 'pick-image' || q.type === 'pick-word')).toEqual([]);
+    }
+  });
 });
 
 describe('deferIntroduced', () => {

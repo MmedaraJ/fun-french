@@ -45,6 +45,13 @@ export function useLessonsDone(): Set<string> {
   return useLiveQuery(async () => lessonsDone(await db.sessions.filter((s) => !!s.lesson).toArray()), []) ?? new Set<string>();
 }
 
+/** Lessons at or above the level floor, plus any her own PDFs teach, in path order. */
+export function useVisibleLessons(): Lesson[] {
+  const minLevel = useSettings((s) => s.minLevel);
+  const book = useBookLessons();
+  return LESSONS.filter((l) => l.level >= minLevel || book.has(l.id));
+}
+
 /** Lesson ids the PDFs she imported teach. */
 export function useBookLessons(): Set<string> {
   return new Set(useLiveQuery(() => getBookGrammar(), [])?.lessonIds ?? []);
@@ -76,22 +83,24 @@ function GrammarHome() {
   const skills = useLiveQuery(async () => new Map((await db.skills.toArray()).map((p) => [p.cardId, p])), []) ?? new Map<string, Progress>();
   const games = MODES.filter((m) => m.section === 'grammar' && m.id !== 'grammaire');
   const conjRef = useRef<HTMLButtonElement>(null);
+  const visible = useVisibleLessons();
 
   const units = useMemo(() => {
     const out: { unit: Lesson['unit']; lessons: Lesson[] }[] = [];
-    for (const l of LESSONS) {
+    for (const l of visible) {
       const last = out[out.length - 1];
       if (last && last.unit === l.unit) last.lessons.push(l);
       else out.push({ unit: l.unit, lessons: [l] });
     }
     return out;
-  }, []);
+  }, [visible]);
 
   const done = useLessonsDone();
   const book = useBookLessons();
   const bookRef = useRef<HTMLButtonElement>(null);
-  const total = LESSONS.length;
-  const started = LESSONS.filter((l) => lessonMastery(l, skills) > 0 || done.has(l.id)).length;
+  const total = visible.length;
+  const doneCount = visible.filter((l) => done.has(l.id)).length;
+  const started = visible.filter((l) => lessonMastery(l, skills) > 0 || done.has(l.id)).length;
 
   return (
     <Page className="grammar">
@@ -100,8 +109,8 @@ function GrammarHome() {
         <div>
           <h1 className="screen-title">Grammaire</h1>
           <p className="muted">
-            Every tense, questions, negation: short lessons, then games. {done.size}/{total} lessons done
-            {started > done.size ? `, ${started - done.size} started` : ''}.
+            Every tense, questions, negation: short lessons, then games. {doneCount}/{total} lessons done
+            {started > doneCount ? `, ${started - doneCount} started` : ''}.
           </p>
         </div>
       </header>
@@ -194,7 +203,7 @@ function GrammarHome() {
                     style={{ '--unit': u.color } as React.CSSProperties}
                   >
                     <ProgressRing value={isDone ? Math.max(m, 0.34) : m} size={48} stroke={6} color={u.color}>
-                      {m >= 0.99 ? <Emoji e="⭐" size={20} /> : isDone ? <span className="gr-check" aria-label="done">✓</span> : <span className="gr-num">{LESSONS.indexOf(l) + 1}</span>}
+                      {m >= 0.99 ? <Emoji e="⭐" size={20} /> : isDone ? <span className="gr-check" aria-label="done">✓</span> : <span className="gr-num">{visible.indexOf(l) + 1}</span>}
                     </ProgressRing>
                     <span className="gr-lesson-text">
                       <strong>{l.title}</strong>

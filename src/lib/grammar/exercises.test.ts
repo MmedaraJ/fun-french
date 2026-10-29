@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { GrammarType } from '../../types';
 import { normalizeAnswer } from '../french';
 import { LESSONS } from '../../data/grammar/lessons';
+import { QUESTIONS } from '../../data/grammar/questions';
 import { buildGrammarQuestions } from './exercises';
 
 function seeded(seed: number) {
@@ -87,11 +88,54 @@ describe('grammar exercises', () => {
   it('every lesson’s practice makes a full round in its own tenses', () => {
     for (const lesson of LESSONS) {
       for (const seed of [1, 2, 3]) {
-        const qs = buildGrammarQuestions({ ...lesson.practice, length: 10, skills: new Map(), level: 2 }, seeded(seed));
+        // A2+ lessons are practised with the A2 floor on
+        const minLevel = lesson.level >= 2 ? 2 : 1;
+        const qs = buildGrammarQuestions({ ...lesson.practice, length: 10, skills: new Map(), level: 2, minLevel }, seeded(seed));
         expect(qs.length, `${lesson.id} (seed ${seed})`).toBe(10);
         for (const q of qs) expect(lesson.practice.kinds, lesson.id).toContain(q.g!.kind);
       }
     }
+  });
+
+  it('at the A2 floor: no A1 tenses, no plain intonation questions, no A1 question-bank items', () => {
+    const basic = ['present', 'futur_proche', 'passe_recent', 'imperatif'];
+    for (const seed of [1, 2, 3, 4, 5, 6]) {
+      const qs = buildGrammarQuestions({ kinds: KINDS, length: 30, skills: new Map(), level: 3, minLevel: 2 }, seeded(seed));
+      expect(qs.length).toBe(30);
+      for (const q of qs) {
+        const g = q.g!;
+        const tense = /^g:(conj|tense|id|listen):(.+)$/.exec(g.skill)?.[2];
+        if (tense) expect(basic, g.skill).not.toContain(tense);
+        if (g.kind === 'qform') expect(g.skill).not.toBe('g:qf:intonation');
+        if (g.kind === 'qword' || g.kind === 'qmatch') {
+          const asked = g.reveal.fr.split(' — ')[0];
+          const item = QUESTIONS.find((it) => Object.values(it.forms).includes(asked));
+          expect(item, asked).toBeDefined();
+          expect(item!.level, asked).toBeGreaterThanOrEqual(2);
+        }
+      }
+    }
+  });
+
+  it('at the B1 floor every grammar game still fills its round, in B1 tenses', () => {
+    const b1 = ['plus_que_parfait', 'futur_anterieur', 'conditionnel_passe', 'subjonctif_present', 'subjonctif_passe', 'passe_simple'];
+    const games: GrammarType[][] = [['conj', 'cloze'], ['cloze', 'tense-id', 'transform', 'negate', 'gtranslate', 'glisten'], ['qword', 'qform', 'qmatch'], KINDS];
+    for (const kinds of games) {
+      for (const seed of [1, 2, 3]) {
+        const qs = buildGrammarQuestions({ kinds, length: 15, skills: new Map(), level: 3, minLevel: 3 }, seeded(seed));
+        expect(qs.length, kinds.join()).toBe(15);
+        for (const q of qs) {
+          const tense = /^g:(conj|tense|id|listen):(.+)$/.exec(q.g!.skill)?.[2];
+          if (tense) expect(b1, q.g!.skill).toContain(tense);
+        }
+      }
+    }
+  });
+
+  it('a lesson that names an A1 tense still gets it above the floor', () => {
+    const qs = buildGrammarQuestions({ kinds: ['conj'], length: 10, tenses: ['imperatif'], skills: new Map(), level: 2, minLevel: 2 }, seeded(3));
+    expect(qs).toHaveLength(10);
+    for (const q of qs) expect(q.g!.skill).toBe('g:conj:imperatif');
   });
 
   it('builds a full mixed round', () => {

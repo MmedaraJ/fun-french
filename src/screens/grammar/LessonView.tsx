@@ -11,7 +11,7 @@ import { PERSONS, TENSE_BY_ID, type Tense } from '../../lib/grammar/types';
 import { VERB_BY_INF } from '../../lib/grammar/verb-list';
 import { sfx } from '../../lib/sound';
 import { speak } from '../../lib/speech';
-import { UNIT_INFO, useBookLessons, useLessonsDone } from './Grammar';
+import { UNIT_INFO, useBookLessons, useLessonsDone, useVisibleLessons } from './Grammar';
 
 /** **bold** and line breaks, nothing more. */
 export function RichText({ text }: { text: string }): ReactNode {
@@ -39,6 +39,7 @@ export function LessonView() {
   const goRef = useRef<HTMLButtonElement>(null);
   const done = useLessonsDone();
   const book = useBookLessons();
+  const visible = useVisibleLessons();
 
   const tenses = useMemo(() => lesson?.practice.tenses ?? [], [lesson]);
   const verbs = useMemo(() => {
@@ -61,8 +62,11 @@ export function LessonView() {
 
   const unit = UNIT_INFO[lesson.unit];
   const table = tense && verb ? conjugationTable(verb, tense) : null;
-  const prev = LESSONS[index - 1];
-  const next = LESSONS[index + 1];
+  // previous / next among the lessons the path shows (a hidden lesson opened by link still has neighbours)
+  const path = visible.some((l) => l.id === lesson.id) ? visible : LESSONS;
+  const at = path.findIndex((l) => l.id === lesson.id);
+  const prev = path[at - 1];
+  const next = path[at + 1];
 
   const practise = async () => {
     sfx.whoosh();

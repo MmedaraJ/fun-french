@@ -24,6 +24,7 @@ import {
   type Subject,
   type Tense,
 } from './types';
+import { tensesAtLevel } from '../level';
 import { VERBS, VERB_BY_INF } from './verb-list';
 
 export interface GrammarPayload {
@@ -68,6 +69,11 @@ export interface GrammarConfig {
   skills: Map<string, Progress>;
   /** 1 beginner, 2 A2, 3 B1 – typing comes earlier at higher levels. */
   level: 1 | 2 | 3;
+  /**
+   * Level floor (1 A1, 2 A2, 3 B1): below it, tenses, plain "ne… pas", the easy ways to ask
+   * and the easy question-bank items are left out, unless a lesson asks for them by name.
+   */
+  minLevel?: 1 | 2 | 3;
 }
 
 type Rand = () => number;
@@ -132,7 +138,8 @@ function skillWeight(skills: Map<string, Progress>, id: string): number {
 
 function pickTense(cfg: GrammarConfig, kind: GrammarType, skillPrefix: string, rand: Rand): Tense | undefined {
   const allowed = KIND_TENSES[kind] ?? TENSES.map((t) => t.id);
-  const pool = cfg.tenses?.length ? allowed.filter((t) => cfg.tenses!.includes(t)) : allowed;
+  const atLevel = tensesAtLevel(cfg.minLevel ?? 1);
+  const pool = cfg.tenses?.length ? allowed.filter((t) => cfg.tenses!.includes(t)) : allowed.filter((t) => atLevel.includes(t));
   return pickWeighted(pool, (t) => TENSE_WEIGHT[TENSE_BY_ID[t].level] * skillWeight(cfg.skills, `${skillPrefix}:${t}`), rand);
 }
 
@@ -531,10 +538,13 @@ const NEG_LABEL: Record<Negation, string> = {
 
 /** Make the sentence negative (pas / jamais / plus / rien / personne). */
 const genNegate: Gen = (cfg, rand, used) => {
-  const negation =
-    (cfg.negations?.length ? pick(cfg.negations, rand) : pickWeighted<Negation>(['pas', 'jamais', 'plus', 'rien', 'personne'], (n) => ({ pas: 4, jamais: 2, plus: 2, rien: 1.5, personne: 1.5 })[n], rand)) ?? 'pas';
+  const above = (cfg.minLevel ?? 1) >= 2 && !cfg.negations?.length;
+  const weights: Record<Negation, number> = above ? { pas: 1, jamais: 3, plus: 3, rien: 2, personne: 2 } : { pas: 4, jamais: 2, plus: 2, rien: 1.5, personne: 1.5 };
+  let negation = (cfg.negations?.length ? pick(cfg.negations, rand) : pickWeighted<Negation>(['pas', 'jamais', 'plus', 'rien', 'personne'], (n) => weights[n], rand)) ?? 'pas';
   const tense = pickTense(cfg, 'negate', `g:neg:${negation}`, rand);
   if (!tense) return null;
+  // above A1, plain "ne… pas" only where its place is the point: around the auxiliary
+  if (above && negation === 'pas' && !TENSE_BY_ID[tense].compound) negation = pick(['jamais', 'plus'] as Negation[], rand);
   const needs = negation === 'rien' ? 'thing' : negation === 'personne' ? 'person' : null;
   const frame = pickFrame(tense, rand, used, (f) => !needs || f.object === needs);
   if (!frame) return null;
@@ -601,7 +611,9 @@ const QFORM_LABEL: Record<QForm, { fr: string; en: string }> = {
 
 /** Turn the statement into a question with the requested form. */
 const genQForm: Gen = (cfg, rand, used) => {
-  const qform = (cfg.qforms?.length ? pick(cfg.qforms, rand) : pickWeighted<QForm>(['inversion', 'est-ce-que', 'intonation'], (q) => ({ inversion: 3, 'est-ce-que': 2, intonation: 1 })[q], rand)) ?? 'inversion';
+  // above A1 it's mostly inversion; intonation (the statement with a rising voice) is left out
+  const qWeights: Record<QForm, number> = (cfg.minLevel ?? 1) >= 2 ? { inversion: 4, 'est-ce-que': 1, intonation: 0 } : { inversion: 3, 'est-ce-que': 2, intonation: 1 };
+  const qform = (cfg.qforms?.length ? pick(cfg.qforms, rand) : pickWeighted<QForm>(['inversion', 'est-ce-que', 'intonation'], (q) => qWeights[q], rand)) ?? 'inversion';
   const tense = pickTense(cfg, 'qform', `g:qf:${qform}`, rand);
   if (!tense) return null;
   const frame = pickFrame(tense, rand, used);
@@ -672,8 +684,15 @@ function caseLike(word: string, sentenceInitial: boolean): string {
 }
 
 /** Pick the question word that fits the answer. */
+/** Question-bank items at the level floor (the bank tops out at A2), or all of them if none fit. */
+function questionBank(cfg: GrammarConfig): QAItem[] {
+  const floor = Math.min(cfg.minLevel ?? 1, 2);
+  const atLevel = QUESTIONS.filter((q) => q.level >= floor && (!cfg.qwords?.length || cfg.qwords.includes(q.word)));
+  return atLevel.length ? atLevel : QUESTIONS.filter((q) => !cfg.qwords?.length || cfg.qwords.includes(q.word));
+}
+
 const genQWord: Gen = (cfg, rand, used) => {
-  const pool = QUESTIONS.filter((q) => (!cfg.qwords?.length || cfg.qwords.includes(q.word)) && !used.has(q.id));
+  const pool = questionBank(cfg).filter((q) => !used.has(q.id));
   const item = pickWeighted(pool, (q) => skillWeight(cfg.skills, `g:qw:${q.word}`), rand);
   if (!item) return null;
   used.add(item.id);
@@ -718,7 +737,7 @@ const genQWord: Gen = (cfg, rand, used) => {
 
 /** Choose the answer that fits the question. */
 const genQMatch: Gen = (cfg, rand, used) => {
-  const pool = QUESTIONS.filter((q) => (!cfg.qwords?.length || cfg.qwords.includes(q.word)) && !used.has(q.id));
+  const pool = questionBank(cfg).filter((q) => !used.has(q.id));
   const item = pickWeighted(pool, (q) => skillWeight(cfg.skills, `g:qa:${q.word}`), rand);
   if (!item) return null;
   used.add(item.id);

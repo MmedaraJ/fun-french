@@ -4,7 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { Emoji } from '../components/Emoji';
 import { Mascot, type MascotMood } from '../components/Mascot';
 import { celebrate, emojiRain } from '../lib/confetti';
-import { useDecks } from '../lib/hooks';
+import { useAllDecks } from '../lib/hooks';
+import { deckShown } from '../lib/level';
 import { inkOn, paletteColor } from '../lib/palette';
 import { setActiveDecks } from '../lib/seed';
 import { useSettings } from '../lib/settings';
@@ -19,10 +20,11 @@ const STEP_COLORS: PaletteKey[] = ['berry', 'sky', 'tangerine', 'leaf', 'grape',
 const STEP_MOODS: MascotMood[] = ['excited', 'happy', 'thinking', 'happy', 'love', 'excited', 'love'];
 const LAST = STEP_COLORS.length - 1;
 
-const LEVELS: { emoji: string; fr: string; en: string; perRound: number }[] = [
-  { emoji: '🌱', fr: 'Je débute', en: 'I’m a total beginner', perRound: 3 },
-  { emoji: '🌿', fr: 'Je connais quelques mots', en: 'I know a few words', perRound: 4 },
-  { emoji: '🌳', fr: 'Je me débrouille', en: 'I can get by', perRound: 5 },
+const LEVELS: { emoji: string; fr: string; en: string; perRound: number; minLevel: 1 | 2 }[] = [
+  { emoji: '🌱', fr: 'Je débute', en: 'I’m a total beginner', perRound: 3, minLevel: 1 },
+  { emoji: '🌿', fr: 'Je connais quelques mots', en: 'I know a few words', perRound: 4, minLevel: 1 },
+  // getting by: the A1 basics are left out (Réglages → Niveau brings them back)
+  { emoji: '🌳', fr: 'Je me débrouille', en: 'I can get by', perRound: 5, minLevel: 2 },
 ];
 
 const BEGINNER = ['animals', 'food', 'home', 'colors', 'numbers', 'phrases', 'love', 'verbs-er'];
@@ -47,7 +49,7 @@ export default function Welcome() {
   const navigate = useNavigate();
   const update = useSettings((s) => s.update);
   const mascotColor = useSettings((s) => s.mascotColor);
-  const decks = useDecks();
+  const decks = useAllDecks();
   const [step, setStep] = useState(0);
   const [dir, setDir] = useState(1);
   const [name, setName] = useState(useSettings.getState().name);
@@ -59,7 +61,9 @@ export default function Welcome() {
   const finishing = useRef(false);
   const nameRef = useRef<HTMLInputElement>(null);
 
-  const builtin = useMemo(() => (decks ?? []).filter((d) => d.builtin).sort((a, b) => a.order - b.order), [decks]);
+  // the themes for the level she picks (all of them until she has picked one)
+  const floor = level === null ? 1 : LEVELS[level].minLevel;
+  const builtin = useMemo(() => (decks ?? []).filter((d) => d.builtin && deckShown(d, floor)).sort((a, b) => a.order - b.order), [decks, floor]);
   const color = STEP_COLORS[step];
   const ink = inkOn(color);
   const trimmed = name.trim();
@@ -91,7 +95,7 @@ export default function Welcome() {
 
   const pickLevel = (l: Level) => {
     setLevel(l);
-    setChosen(suggestedDecks(builtin, l));
+    setChosen(suggestedDecks((decks ?? []).filter((d) => d.builtin && deckShown(d, LEVELS[l].minLevel)), l));
     sfx.pop();
     setReact((r) => r + 1);
     setTimeout(() => go(4), 380);
@@ -112,6 +116,7 @@ export default function Welcome() {
       name: trimmed,
       agreement,
       newPerRound: LEVELS[level ?? 0].perRound,
+      minLevel: LEVELS[level ?? 0].minLevel,
       dailyGoal: goal,
       onboarded: true,
     });

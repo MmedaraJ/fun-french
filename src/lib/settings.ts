@@ -5,6 +5,8 @@ import type { GameMode } from '../types';
 export type ThemePref = 'auto' | 'light' | 'dark';
 /** 1 Facile, 2 Normal, 3 Difficile. */
 export type Difficulty = 1 | 2 | 3;
+/** Built-in material below this level (1 A1, 2 A2, 3 B1) is left out. */
+export type MinLevel = 1 | 2 | 3;
 export type MascotColorPref = 'pink' | 'pistachio' | 'lemon' | 'lavender' | 'caramel' | 'raspberry';
 
 export interface ModeOptions {
@@ -36,6 +38,8 @@ export interface Settings {
   introduceNew: boolean;
   /** How hard the games are: answer options, typing vs choosing, decoys, accents. */
   difficulty: Difficulty;
+  /** Level floor: built-in themes, lessons, tenses and questions below it are left out. */
+  minLevel: MinLevel;
   theme: ThemePref;
   mascotColor: MascotColorPref;
   aiKey: string;
@@ -62,6 +66,7 @@ export const DEFAULT_SETTINGS: Settings = {
   // Showing a new word right before asking it gives the answer away; she learns from feedback instead.
   introduceNew: false,
   difficulty: 3,
+  minLevel: 2,
   theme: 'auto',
   mascotColor: 'pink',
   aiKey: '',
@@ -85,12 +90,14 @@ export const useSettings = create<SettingsStore>()(
     }),
     {
       name: 'bonbon-settings',
-      version: 3,
+      version: 4,
       migrate: (persisted, version) => {
         const st = (persisted ?? {}) as Partial<Settings>;
         if (version < 2) st.introduceNew = false;
         // "It's too easy": everyone starts on Difficile and can step down in Réglages
         if (version < 3) st.difficulty = 3;
+        // "Remove all the easy or basic material": A1 themes, lessons and questions are left out
+        if (version < 4) st.minLevel = 2;
         return st as SettingsStore;
       },
     },
