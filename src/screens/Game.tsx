@@ -5,6 +5,7 @@ import { Emoji } from '../components/Emoji';
 import { Loader } from '../components/Loader';
 import { Sheet } from '../components/Sheet';
 import { checkAchievements } from '../lib/achievements';
+import { loadSeen, markSeen } from '../lib/course';
 import { dayKey } from '../lib/date';
 import { db } from '../lib/db';
 import { MODE_BY_ID } from '../lib/engine/modes';
@@ -212,7 +213,7 @@ export default function Game() {
   /** Grammar questions for this game (or a lesson's practice), generated on demand. */
   const grammarRound = useCallback(
     async (length: number, kindsOverride?: GrammarType[], fromBook = search.get('book') === '1', exercisesOverride?: string[]): Promise<Question[]> => {
-      const [{ buildGrammarQuestions, mergePractice }, skillRows] = await Promise.all([import('../lib/grammar/exercises'), db.skills.toArray()]);
+      const [{ buildGrammarQuestions, mergePractice }, skillRows, seen] = await Promise.all([import('../lib/grammar/exercises'), db.skills.toArray(), loadSeen()]);
       const lessonId = search.get('lesson');
       let practice = lessonId ? (await import('../data/grammar/lessons')).LESSONS.find((l) => l.id === lessonId)?.practice : undefined;
       if (fromBook) {
@@ -222,10 +223,13 @@ export default function Game() {
         practice = mergePractice(LESSONS.filter((l) => lessonIds.includes(l.id)).map((l) => l.practice)) ?? practice;
       }
       const list = (k: string) => search.get(k)?.split(',').filter(Boolean);
+      // a verb chapter's endless practice: its tenses, its kinds of question
+      const endlessId = search.get('endless');
+      const endless = endlessId ? (await import('../data/course/endless')).ENDLESS[endlessId] : undefined;
       return buildGrammarQuestions({
-        kinds: kindsOverride ?? practice?.kinds ?? (info.types as GrammarType[]),
+        kinds: kindsOverride ?? practice?.kinds ?? endless?.kinds ?? (info.types as GrammarType[]),
         length,
-        tenses: (practice?.tenses ?? list('tenses')) as never,
+        tenses: (practice?.tenses ?? endless?.tenses ?? list('tenses')) as never,
         verbs: practice?.verbs ?? list('verbs'),
         verbSet: (search.get('verbset') as 'book' | 'core' | 'all' | null) ?? undefined,
         negations: practice?.negations,
@@ -233,6 +237,7 @@ export default function Game() {
         qwords: practice?.qwords,
         drills: practice?.drills ?? list('drills'),
         exercises: exercisesOverride ?? list('ex'),
+        seen,
         skills: new Map(skillRows.map((p) => [p.cardId, p])),
         level: cfg.difficulty ?? 2,
         minLevel: cfg.minLevel,
@@ -337,6 +342,9 @@ export default function Game() {
       const combo = correct ? s.combo + 1 : 0;
       const points = extra.points ?? (q.type === 'pairs' ? 0 : pointsFor(q.type, correct, ms, combo));
       if (q.type !== 'pairs') persist(q.card, q.type, correct, ms);
+      // a course sentence she has now met: the next rounds start with the ones she hasn't
+      const item = q.g?.item;
+      if (item) saving.current = saving.current.then(() => markSeen(item, correct));
       if (correct) {
         sfx.correct(q.type === 'pairs' ? 4 : combo);
         haptic(25);
@@ -394,8 +402,15 @@ export default function Game() {
         deckIds: cfg.deckIds ?? [],
         missed: [...new Set(results.filter((r) => !r.correct).map((r) => r.cardId))],
         cardIds: [...new Set(askedIds.current)],
-        // a lesson's practice, or a course exercise ("ex:<id>") so the chapter knows it was done
-        ...(search.get('lesson') ? { lesson: search.get('lesson')! } : search.get('ex') ? { lesson: `ex:${search.get('ex')}` } : {}),
+        // a lesson's practice, or a course exercise ("ex:<id>") so the chapter knows it was done,
+        // or a verb chapter's endless practice ("endless:<chapter id>"), to replay it and go back to it
+        ...(search.get('lesson')
+          ? { lesson: search.get('lesson')! }
+          : search.get('ex')
+            ? { lesson: `ex:${search.get('ex')}` }
+            : search.get('endless')
+              ? { lesson: `endless:${search.get('endless')}` }
+              : {}),
       };
       if (!completed && total === 0) {
         navigate('/');

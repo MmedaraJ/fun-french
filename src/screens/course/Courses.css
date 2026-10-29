@@ -111,6 +111,24 @@
   opacity: 0.5;
 }
 
+/* the endless practice of a verb chapter */
+.course-endless {
+  border: 2px dashed color-mix(in srgb, var(--text) 18%, transparent);
+}
+
+.course-endless-art {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  flex: none;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 1.7rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
 .course-ex.is-done .course-ex-text strong::after {
   content: ' ✓';
   color: var(--ok);

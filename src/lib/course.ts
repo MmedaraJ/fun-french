@@ -1,9 +1,11 @@
 // Progress in the courses ("Construire des phrases", "Les temps des verbes"): an exercise is
 // done once a round of it went well (8+ questions, 80%+ right), a chapter once all its
-// exercises are; mastery comes from the exercise skills ("g:ex:<id>").
+// exercises are; mastery comes from the exercise skills ("g:ex:<id>"). Every item she answers
+// is remembered, so rounds go through all of an exercise's sentences before any comes back.
 import { useLiveQuery } from 'dexie-react-hooks';
+import type { ItemSeen } from './grammar/exercises';
 import type { Chapter } from './grammar/types';
-import { db } from './db';
+import { db, getMeta } from './db';
 import { MAX_BOX } from './srs';
 import type { Progress, Session } from '../types';
 
@@ -21,16 +23,44 @@ export function exerciseBests(sessions: Session[]): Map<string, { best: number; 
   return out;
 }
 
+/** The items she has answered, keyed "<exercise id>:<item id>". */
+const SEEN_KEY = 'courseSeen';
+
+export async function loadSeen(): Promise<Map<string, ItemSeen>> {
+  return new Map(Object.entries(await getMeta<Record<string, ItemSeen>>(SEEN_KEY, {})));
+}
+
+/** Remember that she answered an item, and how it went. */
+export function markSeen(item: string, ok: boolean): Promise<unknown> {
+  return db.transaction('rw', db.meta, async () => {
+    const all = await getMeta<Record<string, ItemSeen>>(SEEN_KEY, {});
+    all[item] = { t: Date.now(), ok };
+    await db.meta.put({ key: SEEN_KEY, value: all });
+  });
+}
+
+/** How many of each exercise's items she has met. */
+export function seenCounts(seen: Map<string, ItemSeen>): Map<string, number> {
+  const out = new Map<string, number>();
+  for (const key of seen.keys()) {
+    const ex = key.slice(0, key.indexOf(':'));
+    out.set(ex, (out.get(ex) ?? 0) + 1);
+  }
+  return out;
+}
+
 export interface CourseProgress {
   bests: Map<string, { best: number; done: boolean; plays: number }>;
   skills: Map<string, Progress>;
+  /** Items met, per exercise. */
+  seen: Map<string, number>;
 }
 
-/** The rounds and skills the course screens need, kept up to date. */
+/** The rounds, skills and items met that the course screens need, kept up to date. */
 export function useCourseProgress(): CourseProgress | undefined {
   return useLiveQuery(async () => {
-    const [sessions, skills] = await Promise.all([db.sessions.filter((s) => !!s.lesson?.startsWith('ex:')).toArray(), db.skills.where('cardId').startsWith('g:ex:').toArray()]);
-    return { bests: exerciseBests(sessions), skills: new Map(skills.map((p) => [p.cardId, p])) };
+    const [sessions, skills, seen] = await Promise.all([db.sessions.filter((s) => !!s.lesson?.startsWith('ex:')).toArray(), db.skills.where('cardId').startsWith('g:ex:').toArray(), loadSeen()]);
+    return { bests: exerciseBests(sessions), skills: new Map(skills.map((p) => [p.cardId, p])), seen: seenCounts(seen) };
   }, []);
 }
 

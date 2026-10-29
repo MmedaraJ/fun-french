@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { normalizeAnswer, sentenceTokens } from '../../lib/french';
 import type { BuildItem, DrillItem } from '../../lib/grammar/types';
+import { DRILL_SETS } from '../grammar/drills';
 import { CHAPTERS as ALL_CHAPTERS, COURSES, EXERCISES as ALL_EXERCISES } from './index';
 
 // COURSE_CHAPTERS=id1,id2 checks only those chapters (while others are still being written)
@@ -56,17 +57,17 @@ describe('Construire des phrases: chapters', () => {
     }
   });
 
-  it('each have gap and build exercises, at least 40 items in all', () => {
+  it('each have gap and build exercises: at least 50 items each, 200 in all', () => {
     for (const c of CHAPTERS) {
       expect(c.exercises.length, `${c.id} exercises`).toBeGreaterThanOrEqual(3);
       expect(c.exercises.some((e) => e.kind === 'gap'), `${c.id} gap exercise`).toBe(true);
       expect(c.exercises.filter((e) => e.kind === 'build').length, `${c.id} build exercises`).toBeGreaterThanOrEqual(2);
-      expect(c.exercises.reduce((n, e) => n + e.items.length, 0), `${c.id} items`).toBeGreaterThanOrEqual(40);
+      expect(c.exercises.reduce((n, e) => n + e.items.length, 0), `${c.id} items`).toBeGreaterThanOrEqual(200);
       for (const e of c.exercises) {
         expect(e.id.startsWith(`${c.id}-`), `${e.id} prefix`).toBe(true);
         expect(e.id, e.id).toMatch(SLUG);
         expect(e.title.trim() && e.en.trim(), `${e.id} title`).toBeTruthy();
-        expect(e.items.length, `${e.id} items`).toBeGreaterThanOrEqual(10);
+        expect(e.items.length, `${e.id} items`).toBeGreaterThanOrEqual(50);
         const ids = e.items.map((it) => it.id);
         expect(dupes(ids), `${e.id} item ids`).toEqual([]);
         for (const id of ids) expect(id, `${e.id}/${id}`).toMatch(SLUG);
@@ -124,5 +125,23 @@ describe('Construire des phrases: build items', () => {
       expect(it.en.trim(), `${where} en`).toMatch(/[.?!]$/);
       expect(it.why.trim(), `${where} why`).not.toBe('');
     }
+  });
+});
+
+describe('Courses: every sentence once', () => {
+  it('no sentence is used twice in the two courses or the Structures drills', () => {
+    const uses = new Map<string, string[]>();
+    const add = (sentence: string, where: string) => {
+      const k = normalizeAnswer(sentence);
+      uses.set(k, [...(uses.get(k) ?? []), where]);
+    };
+    for (const e of ALL_EXERCISES) {
+      for (const it of e.items) add(e.kind === 'gap' ? (it as DrillItem).fr.replace(GAP, (it as DrillItem).answer) : (it as BuildItem).answer, `${e.id}/${it.id}`);
+    }
+    for (const d of DRILL_SETS) for (const it of d.items) add(it.fr.replace(GAP, it.answer), `drill:${d.id}/${it.id}`);
+    // only the chapters being checked: a clash involving one of them
+    const mine = new Set(EXERCISES.map((e) => e.id));
+    const clashes = [...uses.entries()].filter(([, where]) => where.length > 1 && where.some((w) => mine.has(w.split('/')[0]))).map(([k, where]) => `${where.join(' = ')}: ${k}`);
+    expect(clashes).toEqual([]);
   });
 });

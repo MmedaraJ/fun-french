@@ -6,8 +6,9 @@ import { Emoji } from '../../components/Emoji';
 import { Page } from '../../components/Page';
 import { ProgressRing } from '../../components/ProgressRing';
 import { COURSE_BY_ID } from '../../data/course';
+import { ENDLESS, endlessLink } from '../../data/course/endless';
 import { chapterDone, chapterProgress, exerciseMastery, exerciseRoundLength, nextChapter, useCourseProgress, type CourseProgress } from '../../lib/course';
-import type { Chapter, Course } from '../../lib/grammar/types';
+import { TENSE_BY_ID, type Chapter, type Course } from '../../lib/grammar/types';
 import { paletteColor } from '../../lib/palette';
 import { sfx } from '../../lib/sound';
 import { LessonBody, RichText } from '../grammar/LessonBody';
@@ -17,7 +18,7 @@ import './Courses.css';
 /** CEFR badge for a chapter level. */
 const LESSON_LEVEL = ['', 'A1', 'A2', 'B1', 'B2'];
 
-const EMPTY: CourseProgress = { bests: new Map(), skills: new Map() };
+const EMPTY: CourseProgress = { bests: new Map(), skills: new Map(), seen: new Map() };
 
 export default function Courses() {
   return (
@@ -94,6 +95,7 @@ function ChapterRow({ course, chapter, progress, index }: { course: Course; chap
   const m = chapterProgress(chapter, progress);
   const isDone = chapterDone(chapter, progress);
   const items = chapter.exercises.reduce((n, e) => n + e.items.length, 0);
+  const met = chapter.exercises.reduce((n, e) => n + (progress.seen.get(e.id) ?? 0), 0);
   return (
     <motion.button
       className={'gr-lesson' + (isDone ? ' is-done' : '')}
@@ -114,6 +116,7 @@ function ChapterRow({ course, chapter, progress, index }: { course: Course; chap
         <strong>{chapter.title}</strong>
         <span>
           {chapter.en} · {chapter.exercises.length} exercices, {items} phrases
+          {met ? ` · ${met} vues` : ''}
         </span>
       </span>
       <span className={'badge gr-level l' + chapter.level}>{LESSON_LEVEL[chapter.level]}</span>
@@ -142,6 +145,13 @@ function ChapterView() {
     sfx.whoosh();
     if (from) await wipeFrom(from, color);
     navigate(`/play/cours?ex=${ids.join(',')}&len=${len}`);
+  };
+  // the verb chapters the sentence generator covers: new sentences in the chapter's tense, endlessly
+  const endless = course.id === 'temps' ? ENDLESS[chapter.id] : undefined;
+  const playEndless = async (from: HTMLElement) => {
+    sfx.whoosh();
+    await wipeFrom(from, color);
+    navigate(endlessLink(chapter.id));
   };
 
   return (
@@ -176,6 +186,7 @@ function ChapterView() {
         </h2>
         {chapter.exercises.map((e, i) => {
           const best = progress.bests.get(e.id);
+          const seen = Math.min(progress.seen.get(e.id) ?? 0, e.items.length);
           const m = exerciseMastery(e.id, progress.skills);
           return (
             <motion.button
@@ -192,7 +203,7 @@ function ChapterView() {
                 <strong>{e.title}</strong>
                 <span>{e.en}</span>
                 <small>
-                  {e.items.length} {e.kind === 'gap' ? 'phrases à compléter' : 'phrases à construire'}
+                  {seen ? `${seen}/${e.items.length} phrases vues` : `${e.items.length} ${e.kind === 'gap' ? 'phrases à compléter' : 'phrases à construire'}`}
                   {best ? ` · meilleur score ${Math.round(best.best * 100)} %` : ''}
                 </small>
               </span>
@@ -202,12 +213,27 @@ function ChapterView() {
             </motion.button>
           );
         })}
+        {endless && (
+          <motion.button className="course-ex course-endless panel" onClick={(ev) => void playEndless(ev.currentTarget)} whileTap={{ scale: 0.98 }} data-endless={chapter.id}>
+            <span className="course-endless-art" style={{ background: color }} aria-hidden>
+              ∞
+            </span>
+            <span className="course-ex-text">
+              <strong>Entraînement sans fin</strong>
+              <span>Endless practice: new sentences in the {endless.tenses.map((t) => TENSE_BY_ID[t].fr).join(' and ')}, round after round</span>
+              <small>Phrases générées · conjuguer, compléter, transformer</small>
+            </span>
+            <span className="course-ex-go" aria-hidden>
+              ▶
+            </span>
+          </motion.button>
+        )}
         <button
           ref={reviewRef}
           className="btn btn--lg btn--block btn--ok lesson-go"
           onClick={() => void play(
             chapter.exercises.map((e) => e.id),
-            15,
+            20,
             reviewRef.current,
           )}
         >

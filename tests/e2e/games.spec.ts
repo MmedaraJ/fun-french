@@ -194,6 +194,8 @@ test('Intermédiaire: A2 to B1, no simple games, and the level is the first thin
 });
 
 test('a course: chapter by chapter, a detailed lesson, then its exercises', async ({ page }) => {
+  // two whole rounds (a chapter exercise, then a verb chapter's endless practice)
+  test.setTimeout(180_000);
   const errors: string[] = [];
   page.on('pageerror', (e) => errors.push(String(e)));
   await onboarded(page, { minLevel: 3 });
@@ -219,9 +221,18 @@ test('a course: chapter by chapter, a detailed lesson, then its exercises', asyn
   await page.getByRole('button', { name: 'Chapitre' }).click();
   await expect(page.locator('.course-chapter-num')).toHaveText('Chapitre 1');
   await expect(page.locator('[data-exercise]').first()).toContainText('meilleur score');
+  // it remembers the sentences she has met, so the next round starts with new ones
+  await expect(page.locator('[data-exercise]').first()).toContainText(/\d+\/\d+ phrases vues/);
 
-  // the verb-tenses course too
+  // the verb-tenses course too, with endless practice in the chapter's tense
   await page.goto('/#/cours/temps');
   await expect(page.locator('.course-path .gr-lesson')).toHaveCount(18);
+  await page.goto('/#/cours/temps/futur');
+  await expect(page.locator('[data-endless]')).toContainText('futur simple');
+  await page.locator('[data-endless]').click();
+  await playRound(page, { wrongEvery: 5 });
+  await expect(page.locator('.results-title')).toBeVisible();
+  await page.getByRole('button', { name: 'Chapitre' }).click();
+  await expect(page).toHaveURL(/#\/cours\/temps\/futur$/);
   expect(errors).toEqual([]);
 });

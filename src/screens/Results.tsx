@@ -125,16 +125,22 @@ export default function Results() {
     sfx.whoosh();
     const p = new URLSearchParams();
     if (session.deckIds.length) p.set('decks', session.deckIds.join(','));
-    // the same lesson practice or course exercise again
+    // the same lesson practice, course exercise or chapter's endless practice again
     if (session.lesson?.startsWith('ex:')) p.set('ex', session.lesson.slice(3));
+    else if (session.lesson?.startsWith('endless:')) p.set('endless', session.lesson.slice(8));
     else if (session.lesson) p.set('lesson', session.lesson);
     if (session.survival) p.set('survival', '1');
     else p.set('len', String(Math.max(10, Math.min(20, session.total))));
     navigate(`/play/${session.mode}?${p}`, { replace: true });
   };
-  // a course exercise leads back to its chapter
+  // a course exercise (or a verb chapter's endless practice) leads back to its chapter
   const toChapter = async () => {
-    const id = session?.lesson?.startsWith('ex:') ? session.lesson.slice(3).split(',')[0] : '';
+    const lesson = session?.lesson ?? '';
+    if (lesson.startsWith('endless:')) {
+      navigate(`/cours/temps/${lesson.slice(8)}`, { replace: true });
+      return;
+    }
+    const id = lesson.startsWith('ex:') ? lesson.slice(3).split(',')[0] : '';
     const ex = id ? (await import('../data/course')).EXERCISE_BY_ID[id] : undefined;
     navigate(ex ? `/cours/${ex.course.id}/${ex.chapter.id}` : '/', { replace: true });
   };
@@ -285,7 +291,7 @@ export default function Results() {
             </button>
           )}
           <div className="row" style={{ gap: 12 }}>
-            {session.lesson?.startsWith('ex:') ? (
+            {session.lesson?.startsWith('ex:') || session.lesson?.startsWith('endless:') ? (
               <button className="btn btn--ghost grow" onClick={() => void toChapter()}>
                 Chapitre
               </button>

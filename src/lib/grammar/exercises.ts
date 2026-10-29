@@ -61,6 +61,14 @@ export interface GrammarPayload {
   reveal: { fr: string; en: string };
   /** Grammar reminder shown in the feedback. */
   note?: string;
+  /** A course item ("<exercise id>:<item id>"), remembered once answered. */
+  item?: string;
+}
+
+/** When she last answered a course item, and whether she got it right. */
+export interface ItemSeen {
+  t: number;
+  ok: boolean;
 }
 
 export interface GrammarConfig {
@@ -77,6 +85,8 @@ export interface GrammarConfig {
   drills?: string[];
   /** Course exercises for the 'compose' kind (default: all of them). */
   exercises?: string[];
+  /** Course items she has answered ("<exercise id>:<item id>"): the ones she hasn't met come first. */
+  seen?: Map<string, ItemSeen>;
   /** Skill progress, for spaced repetition and difficulty. */
   skills: Map<string, Progress>;
   /** 1 beginner, 2 A2, 3 B1 – typing comes earlier at higher levels. */
@@ -948,6 +958,24 @@ function buildQuestion(skill: string, title: string, item: BuildItem, english: b
   return question(base, { tiles: shuffle([...answerTiles, ...decoys], rand), answer: answerTiles });
 }
 
+/**
+ * The next item of an exercise: one she hasn't met yet; once she has met them all, one she got
+ * wrong last time; then the ones she saw longest ago (a few of them, so rounds still vary).
+ */
+function nextItem<T extends { id: string }>(exId: string, items: T[], seen: Map<string, ItemSeen> | undefined, rand: Rand): T {
+  if (!seen?.size) return pick(items, rand);
+  const at = (it: T) => seen.get(`${exId}:${it.id}`);
+  const rank = (it: T) => {
+    const s = at(it);
+    return !s ? 0 : s.ok ? 2 : 1;
+  };
+  const best = Math.min(...items.map(rank));
+  const pool = items.filter((it) => rank(it) === best);
+  if (best === 0) return pick(pool, rand);
+  pool.sort((a, b) => at(a)!.t - at(b)!.t);
+  return pick(pool.slice(0, Math.max(3, Math.ceil(pool.length / 4))), rand);
+}
+
 /** A course exercise's item: its gap sentences and whole sentences, in the chosen exercises (or all of them). */
 const genCompose: Gen = (cfg, rand, used) => {
   const chosen = cfg.exercises?.length ? EXERCISES.filter((e) => cfg.exercises!.includes(e.id)) : EXERCISES;
@@ -958,12 +986,13 @@ const genCompose: Gen = (cfg, rand, used) => {
     rand,
   );
   if (!ex) return null;
-  const item = pick(fresh(ex), rand);
+  const item = nextItem(ex.id, fresh(ex), cfg.seen, rand);
   used.add(`ex:${ex.id}:${item.id}`);
   const skill = `g:ex:${ex.id}`;
   const title = `${ex.title} · ${ex.en}`;
-  if (ex.kind === 'gap') return gapQuestion('compose', skill, title, item as DrillItem, cfg, rand);
-  return buildQuestion(skill, title, item as BuildItem, /^tradui/i.test(ex.title), cfg, rand);
+  const q = ex.kind === 'gap' ? gapQuestion('compose', skill, title, item as DrillItem, cfg, rand) : buildQuestion(skill, title, item as BuildItem, /^tradui/i.test(ex.title), cfg, rand);
+  q.g!.item = `${ex.id}:${item.id}`;
+  return q;
 };
 
 const GENERATORS: Record<GrammarType, Gen> = {

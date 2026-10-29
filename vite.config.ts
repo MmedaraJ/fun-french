@@ -37,7 +37,8 @@ export default defineConfig({
         clientsClaim: true,
         globPatterns: ['**/*.{js,css,html,woff2,png,svg,json}'],
         globIgnores: ['vendor/**'],
-        maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
+        // the two courses' sentences make one large chunk: it must still be cached for offline use
+        maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
         runtimeCaching: [
           {
             urlPattern: ({ url }) => url.pathname.includes('/vendor/twemoji/'),

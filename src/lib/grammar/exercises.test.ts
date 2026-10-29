@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest';
 import type { GrammarType } from '../../types';
 import type { DrillItem } from './types';
 import { normalizeAnswer } from '../french';
-import { EXERCISES } from '../../data/course';
+import { COURSE_BY_ID, EXERCISES } from '../../data/course';
+import { ENDLESS } from '../../data/course/endless';
 import { DRILL_SETS } from '../../data/grammar/drills';
 import { LESSONS } from '../../data/grammar/lessons';
 import { QUESTIONS } from '../../data/grammar/questions';
@@ -250,6 +251,42 @@ describe('grammar exercises', () => {
     }
     expect(typedSeen).toBeGreaterThan(100);
     expect(scrambledSeen).toBeGreaterThan(10);
+  });
+
+  it('a course round starts with the sentences she has not met, then the ones she got wrong', () => {
+    const ex = EXERCISES.find((e) => e.kind === 'gap')!;
+    const ids = ex.items.map((it) => it.id);
+    const unmet = ids.slice(0, 3);
+    const seen = new Map(ids.slice(3).map((id, i) => [`${ex.id}:${id}`, { t: 1000 + i, ok: true }]));
+    const qs = buildGrammarQuestions({ kinds: ['compose'], exercises: [ex.id], length: 3, skills: new Map(), level: 3, seen }, seeded(2));
+    // every question says which item it is, and the three she hasn't met come first
+    for (const q of qs) expect(q.g!.item!.startsWith(`${ex.id}:`)).toBe(true);
+    expect(qs.map((q) => q.g!.item!.split(':')[1]).sort()).toEqual([...unmet].sort());
+    // all met: the ones she got wrong last time come back first
+    const wrong = ids.slice(5, 7);
+    const allSeen = new Map(ids.map((id, i) => [`${ex.id}:${id}`, { t: 1000 + i, ok: !wrong.includes(id) }]));
+    const again = buildGrammarQuestions({ kinds: ['compose'], exercises: [ex.id], length: 2, skills: new Map(), level: 3, seen: allSeen }, seeded(3));
+    expect(again.map((q) => q.g!.item!.split(':')[1]).sort()).toEqual([...wrong].sort());
+    // then the ones seen longest ago
+    const oldest = buildGrammarQuestions({ kinds: ['compose'], exercises: [ex.id], length: 1, skills: new Map(), level: 3, seen: new Map(ids.map((id, i) => [`${ex.id}:${id}`, { t: 1000 + i, ok: true }])) }, seeded(4));
+    expect(ids.slice(0, Math.max(3, Math.ceil(ids.length / 4)))).toContain(oldest[0].g!.item!.split(':')[1]);
+  });
+
+  it('every verb chapter with endless practice fills its rounds, in its own tenses', () => {
+    const chapters = new Set(COURSE_BY_ID.temps.chapters.map((c) => c.id));
+    expect(Object.keys(ENDLESS).length).toBeGreaterThanOrEqual(12);
+    for (const [id, e] of Object.entries(ENDLESS)) {
+      expect(chapters, id).toContain(id);
+      for (const [seed, level, band] of [[1, 3, 3], [2, 2, 2]] as const) {
+        const qs = buildGrammarQuestions({ kinds: e.kinds, tenses: e.tenses, length: 20, skills: new Map(), level, minLevel: band }, seeded(seed));
+        expect(qs.length, `${id} at level ${level}`).toBe(20);
+        for (const q of qs) {
+          expect(e.kinds, id).toContain(q.g!.kind);
+          const tense = q.g!.skill.match(/^g:(?:conj|tense|id):(.+)$/)?.[1];
+          if (tense) expect(e.tenses, `${id}: ${q.g!.skill}`).toContain(tense);
+        }
+      }
+    }
   });
 
   it('a lesson that names an A1 tense still gets it above the floor', () => {
