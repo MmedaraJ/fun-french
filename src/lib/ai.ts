@@ -39,6 +39,20 @@ function model(): string {
   return settings().aiModel || 'claude-opus-5-5';
 }
 
+/** Who the cards are for, from the level set in Réglages → Niveau. */
+function learner(): string {
+  const level = settings().minLevel;
+  return level >= 3 ? 'an advanced (B2–C1) English-speaking learner' : level === 2 ? 'an English-speaking learner around A2–B1' : 'an English-speaking learner (beginner to intermediate)';
+}
+
+/** What to leave out when picking words for her: nothing she already knows at her level. */
+function levelHint(): string {
+  const level = settings().minLevel;
+  if (level >= 3) return 'She is advanced: skip basic words any A2 learner knows (la maison, manger, bonjour, rouge…); prefer precise or less common vocabulary, idioms, linking words and sentences with advanced structures.';
+  if (level === 2) return 'Skip the A1 basics (colours, numbers, greetings, family words).';
+  return '';
+}
+
 /** Human-friendly message for any failure from the SDK. */
 export async function friendlyAiError(e: unknown): Promise<string> {
   const { default: A } = await import('@anthropic-ai/sdk');
@@ -177,11 +191,11 @@ export async function aiExtractFromText(text: string): Promise<AiItem[]> {
       betas: [FALLBACK_BETA],
       fallbacks: 'default',
       output_config: { effort: 'medium', format: s.extraction },
-      system: 'You help an English-speaking learner (beginner to intermediate) build French flashcards from material they are reading.',
+      system: `You help ${learner()} build French flashcards from material they are reading.`,
       messages: [
         {
           role: 'user',
-          content: `From the text below, pick the most useful items to learn: everyday nouns, verbs, adjectives and expressions, plus up to 8 short, useful sentences taken from it (fix obvious OCR mistakes). Skip names, numbers and very rare words. At most 30 items, most useful first. If the text is in English, give the French equivalents.\n\n${RULES}\n\n<text>\n${t.slice(0, 12000)}\n</text>`,
+          content: `From the text below, pick the most useful items to learn: nouns, verbs, adjectives and expressions, plus up to 8 short, useful sentences taken from it (fix obvious OCR mistakes). Skip names, numbers and very rare words. ${levelHint()} At most 30 items, most useful first. If the text is in English, give the French equivalents.\n\n${RULES}\n\n<text>\n${t.slice(0, 12000)}\n</text>`,
         },
       ],
     });
@@ -211,7 +225,7 @@ export async function aiExtractFromImage(blob: Blob): Promise<AiItem[]> {
       betas: [FALLBACK_BETA],
       fallbacks: 'default',
       output_config: { effort: 'medium', format: s.photo },
-      system: 'You help an English-speaking learner (beginner to intermediate) build French flashcards from photos: things around them, and pages of their French books.',
+      system: `You help ${learner()} build French flashcards from photos: things around them, and pages of their French books.`,
       messages: [
         {
           role: 'user',
@@ -221,7 +235,7 @@ export async function aiExtractFromImage(blob: Blob): Promise<AiItem[]> {
               type: 'text',
               text: `If this photo shows a printed vocabulary list (French words with their English meanings, for example a textbook page of verbs), transcribe EVERY entry in reading order, column by column. Keep the English meaning exactly as printed on the page (several meanings joined with ", ", e.g. "to admit, to grant"); only fix obvious print or OCR slips. Verbs stay in the infinitive with gender "none". Skip page numbers, titles and footers. There is no limit on the number of entries; set "main" to false for all of them.
 
-Otherwise, list the clearly visible things in the photo as French vocabulary (most prominent first, at most 15), plus any French text you can read in it as phrase or sentence items (menus, signs, labels). Mark exactly one item with "main": true for the photo's main subject; all others false.
+Otherwise, list the clearly visible things in the photo as French vocabulary (most prominent first, at most 15), plus any French text you can read in it as phrase or sentence items (menus, signs, labels). ${levelHint()} Mark exactly one item with "main": true for the photo's main subject; all others false.
 
 ${RULES}`,
             },
@@ -377,7 +391,7 @@ export async function aiExtractFromPdf(
           betas: [FALLBACK_BETA],
           fallbacks: 'default',
           output_config: { effort: 'medium', format },
-          system: 'You help an English-speaking A2 learner turn the French textbook pages they are studying into flashcards, organised by the topics the pages teach.',
+          system: `You help ${learner()} turn the French textbook pages they are studying into flashcards, organised by the topics the pages teach.`,
           messages: [{ role: 'user', content: [...(await partContent(part, input)), { type: 'text', text: pdfPrompt(input, part, previous, lessons) }] }],
         },
         { signal },

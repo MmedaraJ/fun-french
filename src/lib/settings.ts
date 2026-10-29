@@ -19,6 +19,8 @@ export interface ModeOptions {
   tenses?: string[];
   /** Conjugation drills: which verbs. */
   verbSet?: 'book' | 'core' | 'all';
+  /** Structures game: drill sets to practise (empty = all). */
+  drills?: string[];
 }
 
 export interface Settings {
@@ -66,7 +68,8 @@ export const DEFAULT_SETTINGS: Settings = {
   // Showing a new word right before asking it gives the answer away; she learns from feedback instead.
   introduceNew: false,
   difficulty: 3,
-  minLevel: 2,
+  // she's an advanced learner: no beginner material unless she lowers the level in Réglages
+  minLevel: 3,
   theme: 'auto',
   mascotColor: 'pink',
   aiKey: '',
@@ -90,7 +93,7 @@ export const useSettings = create<SettingsStore>()(
     }),
     {
       name: 'bonbon-settings',
-      version: 4,
+      version: 5,
       migrate: (persisted, version) => {
         const st = (persisted ?? {}) as Partial<Settings>;
         if (version < 2) st.introduceNew = false;
@@ -98,6 +101,8 @@ export const useSettings = create<SettingsStore>()(
         if (version < 3) st.difficulty = 3;
         // "Remove all the easy or basic material": A1 themes, lessons and questions are left out
         if (version < 4) st.minLevel = 2;
+        // "I'm an advanced learner. Advanced learning only": the floor goes up to Avancé
+        if (version < 5) st.minLevel = 3;
         return st as SettingsStore;
       },
     },

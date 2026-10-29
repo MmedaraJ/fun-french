@@ -19,6 +19,7 @@ export const TIPS: Record<GameMode, { fr: string; en: string }> = {
   conjugaison: { fr: 'Trouve la bonne forme du verbe pour la personne et le temps donnés.', en: 'Find the right verb form for the person and tense shown.' },
   temps: { fr: 'Repère le temps, change-le, complète la phrase : tous les temps y passent !', en: 'Spot the tense, change it, fill the gap: every tense comes up.' },
   questions: { fr: 'Choisis le bon mot interrogatif et la bonne façon de poser la question.', en: 'Pick the right question word and the right way to ask.' },
+  structures: { fr: 'Lis toute la phrase, puis complète le trou : pronom, mode, temps, connecteur…', en: 'Read the whole sentence, then fill the gap: pronoun, mood, tense, linking word…' },
   grammaire: { fr: 'Lis la petite leçon, puis entraîne-toi.', en: 'Read the short lesson, then practise.' },
 };
 

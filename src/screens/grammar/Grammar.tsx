@@ -33,7 +33,16 @@ export const UNIT_INFO: Record<Lesson['unit'], { fr: string; en: string; emoji: 
   conditionnel: { fr: 'Le conditionnel', en: 'The conditional', emoji: '💭', color: 'var(--lagoon)' },
   imperatif: { fr: 'L’impératif', en: 'Commands', emoji: '📣', color: 'var(--leaf)' },
   subjonctif: { fr: 'Le subjonctif', en: 'The subjunctive', emoji: '🎭', color: 'var(--berry)' },
+  pronoms: { fr: 'Les pronoms', en: 'Pronouns', emoji: '🔗', color: 'var(--sky)' },
+  subordonnees: { fr: 'Les subordonnées', en: 'Mood and si-clauses', emoji: '🧩', color: 'var(--grape)' },
+  discours: { fr: 'Le discours rapporté', en: 'Reported speech', emoji: '💬', color: 'var(--tangerine)' },
+  formes: { fr: 'Les formes du verbe', en: 'Passive, gerund & agreement', emoji: '🔧', color: 'var(--lagoon)' },
+  relations: { fr: 'Articuler ses idées', en: 'Cause, purpose, contrast', emoji: '🧠', color: 'var(--plum)' },
+  style: { fr: 'Nuances et style', en: 'Nuance and style', emoji: '🎨', color: 'var(--leaf)' },
 };
+
+/** CEFR badge for a lesson level. */
+export const LESSON_LEVEL = ['', 'A1', 'A2', 'B1', 'B2'];
 
 /** A lesson counts as done once one of its practice rounds went well (8+ questions, 80%+ right). */
 export function lessonsDone(sessions: Session[]): Set<string> {
@@ -212,7 +221,7 @@ function GrammarHome() {
                         {l.en}
                       </span>
                     </span>
-                    <span className={'badge gr-level l' + l.level}>{['', 'A1', 'A2', 'B1'][l.level]}</span>
+                    <span className={'badge gr-level l' + l.level}>{LESSON_LEVEL[l.level]}</span>
                   </motion.button>
                 );
               })}

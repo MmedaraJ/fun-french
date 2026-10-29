@@ -65,7 +65,7 @@ const MASCOT_COLORS: { id: MascotColorPref; label: string }[] = [
 const FLOORS: { id: MinLevel; label: string; emoji: string; help: string }[] = [
   { id: 1, label: 'Tout', emoji: '🧺', help: 'Everything, from the A1 basics (colours, numbers, the présent) up.' },
   { id: 2, label: 'A2 +', emoji: '🎒', help: 'The A1 basics are left out: their themes, lessons, tenses and easy questions, and the picture-tapping and flip-card games. Your own words, your book and your PDFs always stay.' },
-  { id: 3, label: 'B1', emoji: '🎓', help: 'Only B1 grammar: the hardest tenses and lessons. The built-in themes stop at A2, so word games use your book and your own words.' },
+  { id: 3, label: 'Avancé', emoji: '🎓', help: 'Advanced only: B2–C1 themes (linking words, idioms, false friends, society, work…), the hardest tenses, and the advanced structures and lessons. Nothing for beginners. Your own words and PDFs always stay.' },
 ];
 
 const DIFFICULTIES: { id: Difficulty; label: string; emoji: string; help: string }[] = [

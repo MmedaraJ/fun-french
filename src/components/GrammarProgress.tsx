@@ -1,6 +1,8 @@
 import { useLiveQuery } from 'dexie-react-hooks';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { DRILL_SETS } from '../data/grammar/drills';
+import { LESSONS } from '../data/grammar/lessons';
 import { db } from '../lib/db';
 import { QWORD_LABEL, TENSES, type Negation, type QWord } from '../lib/grammar/types';
 import { MAX_BOX } from '../lib/srs';
@@ -27,6 +29,9 @@ function summarise(ids: string[], skills: Map<string, Progress>): Omit<Row, 'id'
 
 const NEGATIONS: Negation[] = ['pas', 'jamais', 'plus', 'rien', 'personne'];
 
+/** Each advanced structure is named after the lesson that teaches it. */
+const DRILL_NAMES = new Map(LESSONS.flatMap((l) => (l.practice.drills ?? []).map((d) => [d, l.title] as const)));
+
 /** Mastery of every tense, negation and question word, from the grammar games. */
 export function GrammarProgress() {
   const navigate = useNavigate();
@@ -41,7 +46,8 @@ export function GrammarProgress() {
   }));
   const negations: Row[] = NEGATIONS.map((n) => ({ id: n, label: `ne… ${n}`, sub: '', ...summarise([`g:neg:${n}`], skills) }));
   const qwords: Row[] = (Object.keys(QWORD_LABEL) as QWord[]).map((w) => ({ id: w, label: QWORD_LABEL[w], sub: '', ...summarise([`g:qw:${w}`, `g:qa:${w}`], skills) }));
-  const played = [...tenses, ...negations, ...qwords].some((r) => r.answers > 0);
+  const structures: Row[] = DRILL_SETS.map((d) => ({ id: d.id, label: DRILL_NAMES.get(d.id) ?? d.en, sub: d.en, ...summarise([`g:dr:${d.id}`], skills) }));
+  const played = [...tenses, ...negations, ...qwords, ...structures].some((r) => r.answers > 0);
 
   if (!played) {
     return (
@@ -74,6 +80,28 @@ export function GrammarProgress() {
           </li>
         ))}
       </ul>
+      <h3 className="gp-title">Structures avancées · Advanced structures</h3>
+      {structures.some((r) => r.answers > 0) ? (
+        <ul className="gp-list">
+          {structures
+            .filter((r) => r.answers > 0)
+            .map((r, i) => (
+              <li key={r.id}>
+                <span className="gp-label">
+                  <strong>{r.label}</strong>
+                  <span>{`${Math.round((r.correct / r.answers) * 100)}% right · ${r.answers}`}</span>
+                </span>
+                <span className="gp-bar" aria-label={`${Math.round(r.mastery * 100)}% mastered`}>
+                  <motion.span initial={{ width: 0 }} whileInView={{ width: `${Math.max(4, r.mastery * 100)}%` }} viewport={{ once: true }} transition={{ delay: i * 0.03, type: 'spring', stiffness: 70, damping: 18 }} />
+                </span>
+              </li>
+            ))}
+        </ul>
+      ) : (
+        <div className="gp-chips">
+          <span className="muted">Play “Structures” or an advanced lesson to fill this in.</span>
+        </div>
+      )}
       <h3 className="gp-title">Négation & questions</h3>
       <div className="gp-chips">
         {[...negations, ...qwords]

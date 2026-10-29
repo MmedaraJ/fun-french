@@ -1,6 +1,7 @@
 // Grammar questions generated from the conjugation engine, the sentence frames
 // and the question bank. Nothing here plays or shows the answer before the
 // learner responds: audio is only the question in the listening exercise.
+import { DRILL_SETS } from '../../data/grammar/drills';
 import { FRAMES } from '../../data/grammar/frames';
 import { QUESTIONS } from '../../data/grammar/questions';
 import type { Card, GrammarType, Progress } from '../../types';
@@ -14,6 +15,7 @@ import {
   QWORD_LABEL,
   TENSE_BY_ID,
   TENSES,
+  type DrillSet,
   type Frame,
   type Lesson,
   type Negation,
@@ -65,6 +67,8 @@ export interface GrammarConfig {
   negations?: Negation[];
   qforms?: QForm[];
   qwords?: QWord[];
+  /** Drill sets for the 'drill' kind (default: all of them). */
+  drills?: string[];
   /** Skill progress, for spaced repetition and difficulty. */
   skills: Map<string, Progress>;
   /** 1 beginner, 2 A2, 3 B1 – typing comes earlier at higher levels. */
@@ -104,10 +108,11 @@ const KIND_TENSES: Partial<Record<GrammarType, Tense[]>> = {
   cloze: TENSES.map((t) => t.id).filter((t) => t !== 'passe_simple'),
   'tense-id': TENSES.map((t) => t.id).filter((t) => t !== 'imperatif'),
   transform: TENSES.map((t) => t.id).filter((t) => t !== 'passe_simple' && t !== 'imperatif'),
-  negate: ['present', 'passe_compose', 'imparfait', 'futur_proche', 'futur_simple', 'conditionnel_present', 'imperatif', 'plus_que_parfait'],
-  qform: ['present', 'passe_compose', 'futur_proche', 'futur_simple', 'imparfait', 'conditionnel_present'],
+  negate: ['present', 'passe_compose', 'imparfait', 'futur_proche', 'futur_simple', 'conditionnel_present', 'imperatif', 'plus_que_parfait', 'futur_anterieur'],
+  // the compound tenses invert their auxiliary: "Marie avait-elle déjà mangé ?" (Avancé asks in these)
+  qform: ['present', 'passe_compose', 'futur_proche', 'futur_simple', 'imparfait', 'conditionnel_present', 'plus_que_parfait', 'futur_anterieur', 'conditionnel_passe'],
   gtranslate: TENSES.map((t) => t.id).filter((t) => t !== 'passe_simple' && t !== 'subjonctif_passe'),
-  glisten: ['present', 'passe_compose', 'imparfait', 'futur_proche', 'futur_simple', 'conditionnel_present', 'plus_que_parfait', 'passe_recent', 'conditionnel_passe'],
+  glisten: ['present', 'passe_compose', 'imparfait', 'futur_proche', 'futur_simple', 'conditionnel_present', 'plus_que_parfait', 'passe_recent', 'conditionnel_passe', 'futur_anterieur'],
 };
 
 /** Tenses a learner mixes up, used for wrong options. */
@@ -685,10 +690,14 @@ function caseLike(word: string, sentenceInitial: boolean): string {
 
 /** Pick the question word that fits the answer. */
 /** Question-bank items at the level floor (the bank tops out at A2), or all of them if none fit. */
+/** Question items at the level floor; a lesson about one question word falls back to easier items when it must. */
 function questionBank(cfg: GrammarConfig): QAItem[] {
-  const floor = Math.min(cfg.minLevel ?? 1, 2);
-  const atLevel = QUESTIONS.filter((q) => q.level >= floor && (!cfg.qwords?.length || cfg.qwords.includes(q.word)));
-  return atLevel.length ? atLevel : QUESTIONS.filter((q) => !cfg.qwords?.length || cfg.qwords.includes(q.word));
+  const words = QUESTIONS.filter((q) => !cfg.qwords?.length || cfg.qwords.includes(q.word));
+  for (let floor = cfg.minLevel ?? 1; floor > 1; floor--) {
+    const atLevel = words.filter((q) => q.level >= floor);
+    if (atLevel.length >= 6) return atLevel;
+  }
+  return words;
 }
 
 const genQWord: Gen = (cfg, rand, used) => {
@@ -835,6 +844,42 @@ const genListen: Gen = (cfg, rand, used) => {
   });
 };
 
+/* ------------------------------------------------------------------ drills */
+
+/** The drill sets a round draws from: the lesson's or chosen ones, else (or if they're gone) all of them. */
+function drillSets(cfg: GrammarConfig): DrillSet[] {
+  const chosen = cfg.drills?.length ? DRILL_SETS.filter((d) => cfg.drills!.includes(d.id)) : [];
+  return chosen.length ? chosen : DRILL_SETS;
+}
+
+/** One hand-written gap sentence: pick the filler while the structure is new, type it once it's known. */
+const genDrill: Gen = (cfg, rand, used) => {
+  const fresh = (d: DrillSet) => d.items.filter((it) => !used.has(`dr:${d.id}:${it.id}`));
+  const set = pickWeighted(
+    drillSets(cfg).filter((d) => fresh(d).length),
+    (d) => skillWeight(cfg.skills, `g:dr:${d.id}`),
+    rand,
+  );
+  if (!set) return null;
+  const item = pick(fresh(set), rand);
+  used.add(`dr:${set.id}:${item.id}`);
+  const skill = `g:dr:${set.id}`;
+  const mode = answerMode(cfg, skill, rand) === 'type' ? 'type' : 'choice';
+  return question({
+    kind: 'drill',
+    skill,
+    title: `${set.title} · ${set.en}`,
+    prompt: item.fr,
+    chips: item.cue ? [item.cue] : undefined,
+    mode,
+    options: mode === 'choice' ? optionsFrom(item.answer, item.wrong, rand, wrongCount(cfg), item.accept ?? []) : undefined,
+    answer: item.answer,
+    accept: uniq([item.answer, ...(item.accept ?? [])]),
+    reveal: { fr: item.fr.replace('____', item.answer), en: item.en },
+    note: item.why,
+  });
+};
+
 const GENERATORS: Record<GrammarType, Gen> = {
   conj: genConj,
   cloze: genCloze,
@@ -846,6 +891,7 @@ const GENERATORS: Record<GrammarType, Gen> = {
   qmatch: genQMatch,
   gtranslate: genTranslate,
   glisten: genListen,
+  drill: genDrill,
 };
 
 const KIND_WEIGHT: Record<GrammarType, number> = {
@@ -859,6 +905,7 @@ const KIND_WEIGHT: Record<GrammarType, number> = {
   qmatch: 2,
   gtranslate: 3,
   glisten: 2,
+  drill: 4,
 };
 
 /** Build a round of grammar questions; never repeats a frame or question item. */
@@ -899,12 +946,14 @@ export function mergePractice(list: Lesson['practice'][]): Lesson['practice'] | 
     negations: union((p) => p.negations),
     qforms: union((p) => p.qforms),
     qwords: union((p) => p.qwords),
+    drills: union((p) => p.drills),
   };
 }
 
 /** Skills a lesson trains, for its mastery ring. */
-export function lessonSkillIds(practice: { kinds: GrammarType[]; tenses?: Tense[]; negations?: Negation[]; qforms?: QForm[]; qwords?: QWord[] }): string[] {
+export function lessonSkillIds(practice: { kinds: GrammarType[]; tenses?: Tense[]; negations?: Negation[]; qforms?: QForm[]; qwords?: QWord[]; drills?: string[] }): string[] {
   const ids: string[] = [];
+  for (const d of practice.drills ?? []) ids.push(`g:dr:${d}`);
   for (const t of practice.tenses ?? []) ids.push(`g:conj:${t}`, `g:tense:${t}`, `g:id:${t}`);
   for (const n of practice.negations ?? []) ids.push(`g:neg:${n}`);
   for (const f of practice.qforms ?? []) ids.push(`g:qf:${f}`);

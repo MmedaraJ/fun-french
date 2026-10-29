@@ -1,9 +1,10 @@
 import { expect, type Page } from '@playwright/test';
 
+/** A set-up profile. The level floor defaults to everything, so every game has words to use. */
 export async function onboarded(page: Page, extra: Record<string, unknown> = {}) {
   await page.goto('/');
   await page.evaluate((extra) => {
-    localStorage.setItem('bonbon-settings', JSON.stringify({ state: { onboarded: true, name: 'Test', sound: false, ...extra }, version: 2 }));
+    localStorage.setItem('bonbon-settings', JSON.stringify({ state: { onboarded: true, name: 'Test', sound: false, minLevel: 1, ...extra }, version: 5 }));
   }, extra);
   await page.goto('/');
   await expect(page.getByText('Révision du jour')).toBeVisible({ timeout: 20_000 });
@@ -156,20 +157,22 @@ export async function answerCurrent(page: Page, opts: { wrong?: boolean } = {}):
   return type;
 }
 
-/** Plays a whole round until the results screen. */
-export async function playRound(page: Page, opts: { wrongEvery?: number } = {}) {
+/** Plays a whole round until the results screen; returns the question types it answered. */
+export async function playRound(page: Page, opts: { wrongEvery?: number } = {}): Promise<string[]> {
+  const types: string[] = [];
   for (let i = 0; i < 60; i++) {
-    if (await page.locator('.results').isVisible().catch(() => false)) return;
+    if (await page.locator('.results').isVisible().catch(() => false)) return types;
     const onQuestion = await page.locator('[data-qtype], button:has-text("Compris !"), button:has-text("D’accord !")').first().isVisible().catch(() => false);
     if (!onQuestion) {
       await page.waitForTimeout(200);
       continue;
     }
-    await answerCurrent(page, { wrong: !!opts.wrongEvery && i % opts.wrongEvery === opts.wrongEvery - 1 });
+    types.push(await answerCurrent(page, { wrong: !!opts.wrongEvery && i % opts.wrongEvery === opts.wrongEvery - 1 }));
     await page.locator('.feedback').waitFor({ state: 'visible', timeout: 8_000 });
     const cont = page.getByRole('button', { name: /Continuer|Voir mon score/ });
     if (await cont.isVisible().catch(() => false)) await cont.click();
     await page.locator('.feedback').waitFor({ state: 'hidden', timeout: 8_000 });
   }
   await expect(page.locator('.results')).toBeVisible();
+  return types;
 }

@@ -11,7 +11,7 @@ import { PERSONS, TENSE_BY_ID, type Tense } from '../../lib/grammar/types';
 import { VERB_BY_INF } from '../../lib/grammar/verb-list';
 import { sfx } from '../../lib/sound';
 import { speak } from '../../lib/speech';
-import { UNIT_INFO, useBookLessons, useLessonsDone, useVisibleLessons } from './Grammar';
+import { LESSON_LEVEL, UNIT_INFO, useBookLessons, useLessonsDone, useVisibleLessons } from './Grammar';
 
 /** **bold** and line breaks, nothing more. */
 export function RichText({ text }: { text: string }): ReactNode {
@@ -85,7 +85,7 @@ export function LessonView() {
         <span className="badge" style={{ background: unit.color, color: '#fff' }}>
           <Emoji e={unit.emoji} size={16} /> {unit.fr}
         </span>
-        <span className={'badge gr-level l' + lesson.level}>{['', 'A1', 'A2', 'B1'][lesson.level]}</span>
+        <span className={'badge gr-level l' + lesson.level}>{LESSON_LEVEL[lesson.level]}</span>
         {done.has(lesson.id) && <span className="badge lesson-done">✓ Réussie · Done</span>}
         {book.has(lesson.id) && <span className="badge lesson-in-book">📗 Dans ton livre</span>}
       </div>

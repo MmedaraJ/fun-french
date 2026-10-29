@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { GrammarType } from '../../types';
 import { normalizeAnswer } from '../french';
+import { DRILL_SETS } from '../../data/grammar/drills';
 import { LESSONS } from '../../data/grammar/lessons';
 import { QUESTIONS } from '../../data/grammar/questions';
 import { buildGrammarQuestions } from './exercises';
@@ -130,6 +131,43 @@ describe('grammar exercises', () => {
         }
       }
     }
+  });
+
+  it('a Structures round fills up with gap sentences, never the same one twice', () => {
+    expect(DRILL_SETS.length).toBeGreaterThan(10);
+    for (const seed of [1, 2, 3]) {
+      const qs = buildGrammarQuestions({ kinds: ['drill'], length: 20, skills: new Map(), level: 3, minLevel: 3 }, seeded(seed));
+      expect(qs).toHaveLength(20);
+      expect(new Set(qs.map((q) => q.g!.prompt)).size).toBe(20);
+      for (const q of qs) {
+        const g = q.g!;
+        expect(g.kind).toBe('drill');
+        expect(g.skill).toMatch(/^g:dr:/);
+        expect(g.prompt).toContain('____');
+        expect(g.reveal.fr).not.toContain('____');
+        expect(g.mode).toBe('choice');
+        // the answer is offered exactly once, with wrong options around it
+        expect(g.options!.filter((o) => normalizeAnswer(o) === normalizeAnswer(g.answer))).toHaveLength(1);
+        expect(g.options!.length).toBeGreaterThanOrEqual(3);
+      }
+    }
+  });
+
+  it('a lesson drills its own structure; a chosen set that is gone falls back to all of them', () => {
+    for (const lesson of LESSONS.filter((l) => l.practice.drills?.length)) {
+      const qs = buildGrammarQuestions({ kinds: ['drill'], drills: lesson.practice.drills, length: 8, skills: new Map(), level: 3, minLevel: 3 }, seeded(2));
+      expect(qs.length, lesson.id).toBe(8);
+      for (const q of qs) expect(lesson.practice.drills!.map((d) => `g:dr:${d}`), lesson.id).toContain(q.g!.skill);
+    }
+    expect(buildGrammarQuestions({ kinds: ['drill'], drills: ['gone'], length: 5, skills: new Map(), level: 3 }, seeded(1))).toHaveLength(5);
+  });
+
+  it('once a structure is known, Difficile mostly asks her to type it', () => {
+    const set = DRILL_SETS[0];
+    const known = new Map([[`g:dr:${set.id}`, { cardId: `g:dr:${set.id}`, box: 2, due: Date.now() + 1e9, seen: 6, correct: 6, wrong: 0, lapses: 0, streak: 6, firstSeen: 1, lastSeen: 1 }]]);
+    const qs = buildGrammarQuestions({ kinds: ['drill'], drills: [set.id], length: 12, skills: known, level: 3 }, seeded(4));
+    expect(qs.filter((q) => q.g!.mode === 'type').length).toBeGreaterThanOrEqual(6);
+    for (const q of qs.filter((q) => q.g!.mode === 'type')) expect(q.g!.accept).toContain(q.g!.answer);
   });
 
   it('a lesson that names an A1 tense still gets it above the floor', () => {

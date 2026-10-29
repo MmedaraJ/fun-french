@@ -16,7 +16,7 @@ export interface ModeInfo {
 
 export const MIX_TYPES: QuestionType[] = ['pick-image', 'pick-word', 'listen', 'spell', 'gender', 'build', 'type', 'dictation'];
 
-export const GRAMMAR_TYPES: GrammarType[] = ['conj', 'cloze', 'tense-id', 'transform', 'negate', 'qform', 'qword', 'qmatch', 'gtranslate', 'glisten'];
+export const GRAMMAR_TYPES: GrammarType[] = ['conj', 'cloze', 'tense-id', 'transform', 'negate', 'qform', 'qword', 'qmatch', 'gtranslate', 'glisten', 'drill'];
 
 export const MODES: ModeInfo[] = [
   { id: 'pick-image', num: 1, name: 'Images', en: 'Find the picture', blurb: 'Hear a French word and tap its picture.', emoji: '🖼️', color: 'berry', types: ['pick-image'], section: 'vocab' },
@@ -34,7 +34,8 @@ export const MODES: ModeInfo[] = [
   { id: 'conjugaison', num: 1, name: 'Conjugaison', en: 'Verb forms', blurb: 'Every tense, every person: type or pick the right form.', emoji: '🔁', color: 'sky', types: ['conj', 'cloze'], section: 'grammar' },
   { id: 'temps', num: 2, name: 'Les temps', en: 'Tenses in context', blurb: 'Past, present, future: spot, change and build the right tense.', emoji: '⏳', color: 'grape', types: ['cloze', 'tense-id', 'transform', 'negate', 'gtranslate', 'glisten'], section: 'grammar' },
   { id: 'questions', num: 3, name: 'Questions', en: 'Asking questions', blurb: 'Où, quand, pourquoi… and three ways to ask.', emoji: '❓', color: 'tangerine', types: ['qword', 'qform', 'qmatch'], section: 'grammar' },
-  { id: 'grammaire', num: 4, name: 'Leçons', en: 'Grammar lessons', blurb: 'Short lessons with tables and examples, then practice.', emoji: '📘', color: 'leaf', types: GRAMMAR_TYPES, section: 'grammar' },
+  { id: 'structures', num: 4, name: 'Structures', en: 'Advanced structures', blurb: 'Dont, lequel, le lui, si j’avais su, bien qu’il soit… complete real sentences.', emoji: '🏗️', color: 'plum', types: ['drill'], section: 'grammar' },
+  { id: 'grammaire', num: 5, name: 'Leçons', en: 'Grammar lessons', blurb: 'Short lessons with tables and examples, then practice.', emoji: '📘', color: 'leaf', types: GRAMMAR_TYPES, section: 'grammar' },
 ];
 
 export const MODE_BY_ID = Object.fromEntries(MODES.map((m) => [m.id, m])) as Record<GameMode, ModeInfo>;
@@ -61,6 +62,7 @@ export const TYPE_LABEL: Record<QuestionType, string> = {
   qmatch: 'Question & answer',
   gtranslate: 'Translate',
   glisten: 'Listening (grammar)',
+  drill: 'Structures',
 };
 
 export function recognitionSupported(): boolean {

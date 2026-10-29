@@ -198,12 +198,20 @@
 
 @media (min-width: 640px) {
   .mode-grid--grammar {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
   }
 }
 
 .mode-grid--grammar .mode-tile {
   aspect-ratio: 1.35 / 1;
+}
+
+/* an odd tile out (five grammar games) runs the full width on phones */
+@media (max-width: 639px) {
+  .mode-grid--grammar .mode-tile:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+    aspect-ratio: 2.9 / 1;
+  }
 }
 
 .mode-tile {

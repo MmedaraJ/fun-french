@@ -40,6 +40,23 @@ export function GameSetup({ mode, onClose }: Props) {
     const cur = opts.tenses ?? [];
     setOpts({ tenses: cur.includes(id) ? cur.filter((t) => t !== id) : [...cur, id] });
   };
+  // the Structures game picks drill sets, named after the lesson that teaches them (loaded on demand)
+  const [drillTopics, setDrillTopics] = useState<{ id: string; label: string }[]>([]);
+  useEffect(() => {
+    if (mode?.id !== 'structures' || drillTopics.length) return;
+    let alive = true;
+    void Promise.all([import('../data/grammar/drills'), import('../data/grammar/lessons')]).then(([{ DRILL_SETS }, { LESSONS }]) => {
+      const lessonTitle = new Map(LESSONS.flatMap((l) => (l.practice.drills ?? []).map((d) => [d, l.title] as const)));
+      if (alive) setDrillTopics(DRILL_SETS.map((d) => ({ id: d.id, label: lessonTitle.get(d.id) ?? d.en })));
+    });
+    return () => {
+      alive = false;
+    };
+  }, [mode?.id, drillTopics.length]);
+  const toggleDrill = (id: string) => {
+    const cur = opts.drills ?? [];
+    setOpts({ drills: cur.includes(id) ? cur.filter((d) => d !== id) : [...cur, id] });
+  };
 
   const setOpts = (patch: Partial<ModeOptions>) => {
     if (!mode) return;
@@ -61,6 +78,7 @@ export function GameSetup({ mode, onClose }: Props) {
       const tenses = (opts.tenses ?? []).filter((t) => atLevel.includes(t as never));
       if (tenses.length) params.set('tenses', tenses.join(','));
       if (mode.id === 'conjugaison' && opts.verbSet && opts.verbSet !== 'all') params.set('verbset', opts.verbSet);
+      if (mode.id === 'structures' && opts.drills?.length) params.set('drills', opts.drills.join(','));
     } else {
       if (opts.deckIds.length) params.set('decks', opts.deckIds.join(','));
       if (opts.focus) params.set('focus', '1');
@@ -100,7 +118,22 @@ export function GameSetup({ mode, onClose }: Props) {
 
           {grammar ? (
             <>
-              {mode.id !== 'questions' && (
+              {mode.id === 'structures' && (
+                <>
+                  <div className="field-label">Structures</div>
+                  <div className="row row--wrap setup-decks">
+                    <button className="chip" aria-pressed={!opts.drills?.length} onClick={() => setOpts({ drills: [] })}>
+                      <Emoji e="🌈" size={18} /> All of them
+                    </button>
+                    {drillTopics.map((t) => (
+                      <button key={t.id} className="chip" aria-pressed={!!opts.drills?.includes(t.id)} onClick={() => toggleDrill(t.id)}>
+                        {t.label}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+              {mode.id !== 'questions' && mode.id !== 'structures' && (
                 <>
                   <div className="field-label">Tenses</div>
                   <div className="row row--wrap setup-decks">

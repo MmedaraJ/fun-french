@@ -57,7 +57,7 @@ test('a "new word" card is never followed straight away by its own question', as
 });
 
 test.describe('grammar games', () => {
-  for (const mode of ['conjugaison', 'temps', 'questions', 'grammaire']) {
+  for (const mode of ['conjugaison', 'temps', 'questions', 'structures', 'grammaire']) {
     test(mode, async ({ page }) => {
       const errors: string[] = [];
       page.on('pageerror', (e) => errors.push(String(e)));
@@ -117,4 +117,41 @@ test.describe('grammar games', () => {
     const grammar = ['conj', 'cloze', 'tense-id', 'transform', 'negate', 'qform', 'qword', 'qmatch', 'gtranslate', 'glisten'];
     expect([...kinds].some((k) => grammar.includes(k))).toBe(true);
   });
+});
+
+test('Avancé: nothing for beginners, advanced structures in the daily practice', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('pageerror', (e) => errors.push(String(e)));
+  await onboarded(page, { minLevel: 3 });
+
+  // no picture-tapping or flip-card games; the Structures game is there
+  const games = await page.locator('.mode-grid .mode-name').allTextContents();
+  for (const basic of ['Images', 'Mots', 'Paires', 'Cartes']) expect(games).not.toContain(basic);
+  expect(games).toContain('Structures');
+
+  // the word list has the advanced themes only: no A1/A2 theme, not the textbook's -er verbs
+  const decks = await page.evaluate(async () => {
+    const w = window as unknown as { __bonbon: { db: { decks: { toArray: () => Promise<{ name: string; level: number; builtin: boolean }[]> } } } };
+    const all = await w.__bonbon.db.decks.toArray();
+    return { basic: all.filter((d) => d.builtin && d.level < 3).map((d) => d.name), advanced: all.filter((d) => d.builtin && d.level >= 3).map((d) => d.name) };
+  });
+  expect(decks.advanced.length).toBeGreaterThanOrEqual(10);
+  await page.goto('/#/words');
+  const chips = page.locator('.words-decks .chip');
+  await expect(chips.filter({ hasText: decks.advanced[0] }).first()).toBeVisible();
+  const shown = (await chips.allTextContents()).map((t) => t.trim());
+  for (const name of decks.basic) expect(shown).not.toContain(name);
+
+  // the lesson path: the hardest tenses and the advanced units, none of the basics
+  await page.goto('/#/grammaire');
+  await expect(page.locator('.gr-unit h2', { hasText: 'Les pronoms' })).toBeVisible();
+  await expect(page.locator('.gr-unit h2', { hasText: 'Les bases' })).toHaveCount(0);
+  await expect(page.locator('.gr-level.l1, .gr-level.l2')).toHaveCount(0);
+
+  // the daily practice: no picture tapping, advanced structures mixed in
+  await page.goto('/#/play/mix?daily=1');
+  const types = await playRound(page);
+  expect(types.filter((t) => t === 'pick-image' || t === 'pick-word')).toEqual([]);
+  expect(types).toContain('drill');
+  expect(errors).toEqual([]);
 });

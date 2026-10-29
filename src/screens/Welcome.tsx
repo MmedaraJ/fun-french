@@ -14,17 +14,19 @@ import { speak } from '../lib/speech';
 import type { Deck, PaletteKey } from '../types';
 import './Welcome.css';
 
-type Level = 0 | 1 | 2;
+type Level = 0 | 1 | 2 | 3;
 
 const STEP_COLORS: PaletteKey[] = ['berry', 'sky', 'tangerine', 'leaf', 'grape', 'lagoon', 'berry'];
 const STEP_MOODS: MascotMood[] = ['excited', 'happy', 'thinking', 'happy', 'love', 'excited', 'love'];
 const LAST = STEP_COLORS.length - 1;
 
-const LEVELS: { emoji: string; fr: string; en: string; perRound: number; minLevel: 1 | 2 }[] = [
+const LEVELS: { emoji: string; fr: string; en: string; perRound: number; minLevel: 1 | 2 | 3 }[] = [
   { emoji: '🌱', fr: 'Je débute', en: 'I’m a total beginner', perRound: 3, minLevel: 1 },
   { emoji: '🌿', fr: 'Je connais quelques mots', en: 'I know a few words', perRound: 4, minLevel: 1 },
   // getting by: the A1 basics are left out (Réglages → Niveau brings them back)
   { emoji: '🌳', fr: 'Je me débrouille', en: 'I can get by', perRound: 5, minLevel: 2 },
+  // advanced: nothing for beginners at all
+  { emoji: '🎓', fr: 'Niveau avancé', en: 'I’m an advanced learner', perRound: 5, minLevel: 3 },
 ];
 
 const BEGINNER = ['animals', 'food', 'home', 'colors', 'numbers', 'phrases', 'love', 'verbs-er'];
@@ -42,6 +44,7 @@ function suggestedDecks(decks: Deck[], level: Level): string[] {
     return picks.length ? picks : decks.filter((d) => d.level <= 1).slice(0, 7).map((d) => d.id);
   }
   if (level === 1) return decks.filter((d) => d.level <= 1 || ['love', 'cafe'].includes(d.id)).map((d) => d.id);
+  if (level === 3) return decks.filter((d) => d.level >= 3).map((d) => d.id);
   return decks.filter((d) => d.level <= 2).map((d) => d.id);
 }
 

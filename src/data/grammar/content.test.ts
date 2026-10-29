@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { renderSentence } from '../../lib/grammar/render';
 import { PERSONS, TENSES, type ExerciseKind, type Negation, type Person, type QForm, type QWord, type Tense } from '../../lib/grammar/types';
 import { isPronominal, VERB_BY_INF } from '../../lib/grammar/verb-list';
+import { DRILL_BY_ID, DRILL_SETS } from './drills';
 import { FRAME_TOPICS, FRAMES } from './frames';
 import { LESSONS } from './lessons';
 import { QUESTIONS } from './questions';
@@ -15,8 +16,8 @@ const QWORDS: QWord[] = [
   'qu-est-ce-qui', 'd-ou', 'a-quelle-heure', 'depuis-quand', 'avec-qui',
 ];
 const MAIN_QWORDS: QWord[] = ['qui', 'que', 'ou', 'quand', 'comment', 'pourquoi', 'combien', 'quel'];
-const KINDS: ExerciseKind[] = ['conj', 'cloze', 'tense-id', 'transform', 'negate', 'qform', 'qword', 'qmatch', 'gtranslate', 'glisten'];
-const UNITS = ['present', 'passe', 'futur', 'conditionnel', 'subjonctif', 'imperatif', 'negation', 'questions', 'bases'];
+const KINDS: ExerciseKind[] = ['conj', 'cloze', 'tense-id', 'transform', 'negate', 'qform', 'qword', 'qmatch', 'gtranslate', 'glisten', 'drill'];
+const UNITS = ['present', 'passe', 'futur', 'conditionnel', 'subjonctif', 'imperatif', 'negation', 'questions', 'bases', 'pronoms', 'subordonnees', 'discours', 'formes', 'relations', 'style'];
 const TOPICS = FRAME_TOPICS.map((t) => t.id);
 const IMPERATIVE_PERSONS: Person[] = ['2s', '1p', '2p'];
 const SLUG = /^[a-z0-9]+(-[a-z0-9]+)*$/;
@@ -34,6 +35,14 @@ function frenchStrings(): [string, string][] {
   for (const q of QUESTIONS) {
     out.push([`question ${q.id} wordFr`, q.wordFr], [`question ${q.id} answer`, q.answer.fr]);
     for (const [k, v] of Object.entries(q.forms)) if (v !== undefined) out.push([`question ${q.id} ${k}`, v]);
+  }
+  for (const d of DRILL_SETS) {
+    out.push([`drill ${d.id} title`, d.title]);
+    for (const it of d.items) {
+      out.push([`drill ${d.id}/${it.id}`, it.fr], [`drill ${d.id}/${it.id} answer`, it.answer]);
+      for (const w of [...it.wrong, ...(it.accept ?? [])]) out.push([`drill ${d.id}/${it.id} option`, w]);
+      if (it.cue) out.push([`drill ${d.id}/${it.id} cue`, it.cue]);
+    }
   }
   for (const l of LESSONS) {
     out.push([`lesson ${l.id} title`, l.title]);
@@ -54,6 +63,10 @@ function englishStrings(): [string, string][] {
     if (f.enVerb !== undefined) out.push([`frame ${f.id} enVerb`, f.enVerb]);
   }
   for (const q of QUESTIONS) out.push([`question ${q.id} en`, q.en], [`question ${q.id} answer en`, q.answer.en]);
+  for (const d of DRILL_SETS) {
+    out.push([`drill ${d.id} en`, d.en]);
+    for (const it of d.items) out.push([`drill ${d.id}/${it.id} en`, it.en], [`drill ${d.id}/${it.id} why`, it.why]);
+  }
   for (const l of LESSONS) {
     out.push([`lesson ${l.id} en`, l.en], [`lesson ${l.id} intro`, l.intro]);
     for (const t of l.tips ?? []) out.push([`lesson ${l.id} tip`, t]);
@@ -185,7 +198,7 @@ describe('grammar content: lessons', () => {
   it('are well formed', () => {
     for (const l of LESSONS) {
       expect(UNITS, `${l.id} unit`).toContain(l.unit);
-      expect([1, 2, 3], `${l.id} level`).toContain(l.level);
+      expect([1, 2, 3, 4], `${l.id} level`).toContain(l.level);
       expect(l.title.trim() && l.en.trim() && l.intro.trim(), `${l.id} text`).toBeTruthy();
       expect(l.sections.length, `${l.id} sections`).toBeGreaterThanOrEqual(2);
       expect(l.sections.length, `${l.id} sections`).toBeLessThanOrEqual(5);
@@ -212,7 +225,15 @@ describe('grammar content: lessons', () => {
       for (const n of p.negations ?? []) expect(NEGATIONS, `${l.id} negation`).toContain(n);
       for (const f of p.qforms ?? []) expect(QFORMS, `${l.id} qform`).toContain(f);
       for (const w of p.qwords ?? []) expect(QWORDS, `${l.id} qword`).toContain(w);
+      for (const d of p.drills ?? []) expect(DRILL_BY_ID[d], `${l.id} drill ${d}`).toBeDefined();
+      // a drill lesson drills, and drill sets only come with the drill kind
+      expect(p.kinds.includes('drill'), `${l.id} drill kind`).toBe(!!p.drills?.length);
     }
+  });
+
+  it('practise every drill set somewhere', () => {
+    const used = new Set(LESSONS.flatMap((l) => l.practice.drills ?? []));
+    expect(DRILL_SETS.map((d) => d.id).filter((id) => !used.has(id))).toEqual([]);
   });
 
   it('cover every tense', () => {

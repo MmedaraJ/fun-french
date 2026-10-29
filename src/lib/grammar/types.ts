@@ -185,16 +185,69 @@ export type ExerciseKind =
   | 'qword'
   | 'qmatch'
   | 'gtranslate'
-  | 'glisten';
+  | 'glisten'
+  | 'drill';
+
+/**
+ * A hand-written sentence with one gap, for the structures the sentence frames can't build:
+ * relative and double pronouns, si-clauses, subjunctive after conjunctions, reported speech…
+ */
+export interface DrillItem {
+  /** Slug, unique within its set. */
+  id: string;
+  /** The French sentence with exactly one gap, written "____" (four underscores). */
+  fr: string;
+  /** What fills the gap, as it appears in the sentence. */
+  answer: string;
+  /** Other fillers that are just as right (never also listed in `wrong`). */
+  accept?: string[];
+  /** Plausible wrong fillers for multiple choice, the classic mistakes first (at least 2). */
+  wrong: string[];
+  /** English translation of the whole sentence. */
+  en: string;
+  /** A hint shown with the sentence: the infinitive to use "(venir)", the words to replace… */
+  cue?: string;
+  /** One line shown after answering: why this is the answer. */
+  why: string;
+}
+
+export interface DrillSet {
+  /** Slug; the spaced-repetition skill is "g:dr:<id>". */
+  id: string;
+  /** Instruction in French, e.g. "Complète avec le bon pronom relatif". */
+  title: string;
+  /** The same instruction in English. */
+  en: string;
+  /** 3 = B1, 4 = B2 and up. */
+  level: 3 | 4;
+  items: DrillItem[];
+}
 
 export interface Lesson {
   id: string;
-  unit: 'present' | 'passe' | 'futur' | 'conditionnel' | 'subjonctif' | 'imperatif' | 'negation' | 'questions' | 'bases';
+  unit:
+    | 'present'
+    | 'passe'
+    | 'futur'
+    | 'conditionnel'
+    | 'subjonctif'
+    | 'imperatif'
+    | 'negation'
+    | 'questions'
+    | 'bases'
+    // the advanced units
+    | 'pronoms'
+    | 'subordonnees'
+    | 'discours'
+    | 'formes'
+    | 'relations'
+    | 'style';
   /** French title: "Le passé composé avec être". */
   title: string;
   /** English title. */
   en: string;
-  level: 1 | 2 | 3;
+  /** 1 = A1, 2 = A2, 3 = B1, 4 = B2 and up. */
+  level: 1 | 2 | 3 | 4;
   /** One or two sentences: what this is and when to use it. */
   intro: string;
   sections: LessonSection[];
@@ -207,5 +260,7 @@ export interface Lesson {
     negations?: Negation[];
     qforms?: QForm[];
     qwords?: QWord[];
+    /** Drill sets (by id) for the 'drill' kind. */
+    drills?: string[];
   };
 }

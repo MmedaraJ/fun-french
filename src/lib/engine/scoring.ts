@@ -23,6 +23,7 @@ const SPEED: Record<QuestionType, [number, number]> = {
   qmatch: [4000, 15000],
   gtranslate: [6000, 25000],
   glisten: [3000, 12000],
+  drill: [4000, 18000],
 };
 
 export const BASE_POINTS = 100;
@@ -72,8 +73,9 @@ export function levelFromXp(xp: number): { level: number; into: number; span: nu
   return { level, into: xp - start, span, progress: (xp - start) / span };
 }
 
+// no "Débutant": she isn't one, and the first rank shouldn't say so
 const LEVEL_NAMES = [
-  'Débutant',
+  'Voyageur',
   'Curieux',
   'Apprenti',
   'Bavard',
@@ -86,11 +88,11 @@ const LEVEL_NAMES = [
   'Légende',
 ];
 const LEVEL_NAMES_F = [
-  'Débutante',
+  'Voyageuse',
   'Curieuse',
   'Apprentie',
   'Bavarde',
-  'Gourmette',
+  'Gourmande',
   'Flâneuse',
   'Parisienne',
   'Poétesse',

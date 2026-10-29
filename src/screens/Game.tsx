@@ -231,6 +231,7 @@ export default function Game() {
         negations: practice?.negations,
         qforms: practice?.qforms,
         qwords: practice?.qwords,
+        drills: practice?.drills ?? list('drills'),
         skills: new Map(skillRows.map((p) => [p.cardId, p])),
         level: cfg.difficulty ?? 2,
         minLevel: cfg.minLevel,
@@ -255,15 +256,19 @@ export default function Game() {
         const pool = await loadPool(cfg);
         poolRef.current = pool;
         qs = buildQuestions(cfg, pool);
-        // Daily practice also works on grammar: about a third of the questions, mostly from
-        // the grammar her book teaches once she has imported one.
+        // Daily practice also works on grammar: about a third of the questions (two fifths at
+        // Avancé, half of them advanced structures), mostly from the grammar her book teaches
+        // once she has imported one.
         if (search.get('daily') === '1' && qs.length) {
-          const n = Math.max(2, Math.round(cfg.length * 0.3));
+          const advanced = (cfg.minLevel ?? 1) >= 3;
+          const n = Math.max(2, Math.round(cfg.length * (advanced ? 0.4 : 0.3)));
           const { getBookGrammar } = await import('../lib/book');
           const fromBook = (await getBookGrammar()).lessonIds.length ? await grammarRound(Math.ceil(n * 0.6), undefined, true) : [];
+          const structures = advanced ? await grammarRound(Math.ceil((n - fromBook.length) / 2), ['drill'], false) : [];
           const extra = [
             ...fromBook,
-            ...(await grammarRound(n - fromBook.length, ['cloze', 'conj', 'qword', 'tense-id', 'glisten', 'negate', 'gtranslate'], false)),
+            ...structures,
+            ...(await grammarRound(n - fromBook.length - structures.length, ['cloze', 'conj', 'qword', 'tense-id', 'glisten', 'negate', 'gtranslate'], false)),
           ];
           const merged = [...qs.slice(0, Math.max(0, qs.length - extra.length))];
           extra.forEach((g, i) => merged.splice(Math.min(merged.length, 2 + i * 3), 0, g));

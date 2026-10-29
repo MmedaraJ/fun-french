@@ -105,13 +105,14 @@ export type GrammarType =
   | 'qword'
   | 'qmatch'
   | 'gtranslate'
-  | 'glisten';
+  | 'glisten'
+  | 'drill';
 
 /** A question type is what a single question actually asks. */
 export type QuestionType = VocabType | GrammarType;
 
 /** A game: one vocabulary type, the vocabulary mix, or a grammar game. */
-export type GameMode = VocabType | 'mix' | 'conjugaison' | 'temps' | 'questions' | 'grammaire';
+export type GameMode = VocabType | 'mix' | 'conjugaison' | 'temps' | 'questions' | 'structures' | 'grammaire';
 
 /** One answered question, stored for statistics. */
 export interface AnswerEvent {

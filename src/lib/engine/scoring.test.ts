@@ -34,7 +34,7 @@ describe('scoring', () => {
     expect(l.level).toBe(3);
     expect(l.into).toBe(150);
     expect(l.span).toBe(300);
-    expect(levelName(1, 'f')).toBe('Débutante');
-    expect(levelName(1, 'm')).toBe('Débutant');
+    expect(levelName(1, 'f')).toBe('Voyageuse');
+    expect(levelName(1, 'm')).toBe('Voyageur');
   });
 });

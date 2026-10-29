@@ -701,6 +701,28 @@ const GRAMMAR: [string, RegExp][] = [
   ['subjonctif-emplois', /(?:emplois?|utilisations?|quand (?:utiliser|employer)).{0,30}subjonctif|subjonctif.{0,30}(?:emplois?|apres)/],
   ['subjonctif-passe', /subjonctif passe|past subjunctive/],
   ['passe-simple', /passe simple|past historic/],
+  // the advanced lessons
+  ['relatifs-dont-ou', /pronoms? relatifs?(?! composes)|relative pronouns?/],
+  ['relatifs-composes', /pronoms? relatifs? composes|\bauquel\b|\bduquel\b|\blequel\b.{0,20}\blaquelle\b.{0,20}\blesquel/],
+  ['doubles-pronoms', /doubles? pronoms?|pronoms? doubles|double (?:object )?pronouns?|(?:place|ordre) des pronoms/],
+  ['pronoms-y-en', /pronoms? (?:y et en|en et y)\b|\ble pronom (?:y|en)\b|pronouns? (?:y and en|en and y)\b/],
+  ['subjonctif-conjonctions', /subjonctif.{0,40}conjonctions?|conjonctions?.{0,40}subjonctif|subjunctive.{0,30}conjunctions?/],
+  ['subjonctif-ou-indicatif', /subjonctif ou (?:l')?indicatif|indicatif ou (?:le )?subjonctif|subjunctive (?:or|vs\.?|versus) (?:the )?indicative/],
+  ['hypotheses-si', /\bhypotheses?\b|phrases? (?:avec si|conditionnelles|hypothetiques)|si \+ (?:le )?plus[- ]que[- ]parfait|if[- ]clauses?|conditional sentences?/],
+  ['discours-indirect', /discours (?:indirect|rapporte)|style indirect|reported speech|indirect speech/],
+  ['concordance-des-temps', /concordance des temps|sequence of tenses/],
+  ['interrogation-indirecte', /interrogation indirecte|questions? indirectes?|indirect questions?/],
+  ['voix-passive', /voix passive|forme passive|passive voice|\ble passif\b/],
+  ['gerondif-participe', /gerondif|participe present|adjectif verbal|\bgerund\b|present participle/],
+  ['infinitif-passe', /infinitif passe|past infinitive/],
+  ['accord-pp-avance', /accord du participe passe (?:avec (?:l'auxiliaire )?avoir|des verbes pronominaux)|participe passe des verbes pronominaux/],
+  ['cause-consequence', /(?:expression|exprimer) (?:de )?la (?:cause|consequence)|la cause et la consequence|cause and (?:effect|consequence)/],
+  ['but', /(?:expression|exprimer) (?:du|le) but\b|expressing purpose/],
+  ['concession-opposition', /(?:expression|exprimer) (?:de )?(?:la )?(?:concession|opposition)|concession et (?:l')?opposition|\bavoir beau\b/],
+  ['mise-en-relief', /mise en relief|mettre en relief|phrases? clivees?|cleft sentences?/],
+  ['place-adjectifs', /(?:place|position) (?:de l'|des )adjectifs?|adjective (?:position|placement)/],
+  ['prepositions-verbes', /verbes? (?:suivis? )?(?:d'une|de|des) prepositions?|verbes? (?:\+|et) prepositions?|verbs? (?:\+|and|with|followed by) prepositions?/],
+  ['negation-soutenue', /\bne\s*(?:\.{2,}|…|\+\s*verbe\s*\+)\s*(?:guere|point|nullement|aucun|nulle part)\b|ne expletif|negation (?:complexe|litteraire|soutenue)/],
 ];
 
 const LESSON_ORDER = new Map(LESSONS.map((l, i) => [l.id, i]));

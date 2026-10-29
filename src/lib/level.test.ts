@@ -9,10 +9,14 @@ const deck = (id: string, level: number, builtin = true): Deck => ({ id, name: i
 const card = (id: string, deckId: string): Card => ({ id, deckId, kind: 'word', fr: id, en: id, source: 'starter', order: 0, createdAt: 1, updatedAt: 1 });
 
 describe('deckShown', () => {
-  it('hides built-in themes below the floor, never hers or her textbook verbs', () => {
+  it('hides built-in themes below the floor, never hers', () => {
     expect(deckShown(deck('animals', 1), 2)).toBe(false);
     expect(deckShown(deck('cafe', 2), 2)).toBe(true);
     expect(deckShown(deck('verbs-er', 1), 2)).toBe(true);
+    // at Avancé her textbook's -er verbs are beginner words too
+    expect(deckShown(deck('verbs-er', 1), 3)).toBe(false);
+    expect(deckShown(deck('connecteurs', 3), 3)).toBe(true);
+    expect(deckShown(deck('cafe', 2), 3)).toBe(false);
     expect(deckShown(deck('unite-4', 1, false), 3)).toBe(true);
     expect(deckShown(deck('animals', 1), 1)).toBe(true);
   });

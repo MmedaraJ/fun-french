@@ -33,7 +33,7 @@ const own = (c: AchCtx) => c.cards.filter((x) => x.source !== 'starter').length;
 const streakBest = (c: AchCtx) => computeStreak(c.daily).best;
 const perfect = (s?: Session, min = 5) => !!s && !s.survival && s.total >= min && s.correct === s.total;
 const hourOf = (s?: Session) => (s ? new Date(s.endedAt).getHours() : -1);
-const GRAMMAR_MODES = ['conjugaison', 'temps', 'questions', 'grammaire'];
+const GRAMMAR_MODES = ['conjugaison', 'temps', 'questions', 'structures', 'grammaire'];
 const rightIn = (c: AchCtx, mode: string) => c.sessions.filter((s) => s.mode === mode).reduce((a, s) => a + s.correct, 0);
 const tenseDone = (c: AchCtx, t: string) => c.skills.some((p) => p.correct > 0 && (p.cardId === `g:conj:${t}` || p.cardId === `g:tense:${t}` || p.cardId === `g:id:${t}` || p.cardId === `g:listen:${t}`));
 const ALL_TENSES = ['present', 'passe_compose', 'imparfait', 'plus_que_parfait', 'passe_simple', 'futur_simple', 'futur_anterieur', 'futur_proche', 'passe_recent', 'conditionnel_present', 'conditionnel_passe', 'subjonctif_present', 'subjonctif_passe', 'imperatif'];
