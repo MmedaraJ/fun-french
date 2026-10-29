@@ -335,6 +335,7 @@ export const T_FUTUR: Chapter = {
           en: "Call me when you get back to the hotel, even if it's late.",
           why: 'After quand, an action still to come takes the futur simple (English uses the present).',
         },
+        // @@MORE-A@@
       ],
     },
     {
@@ -496,6 +497,7 @@ export const T_FUTUR: Chapter = {
           en: "I'm not going to tell him.",
           why: 'The negation goes around aller; the pronouns go before the infinitive, le before lui.',
         },
+        // @@MORE-B@@
       ],
     },
     {
@@ -678,6 +680,7 @@ export const T_FUTUR: Chapter = {
           en: 'You will hand in the report on Monday, without fail.',
           why: 'The futur simple can give firm instructions: vous rendrez (rendre drops its final e).',
         },
+        // @@MORE-C@@
       ],
     },
     {
@@ -772,6 +775,7 @@ export const T_FUTUR: Chapter = {
           en: "They'll remember this trip all their lives.",
           why: 'Se souvenir follows venir: ils se souviendront.',
         },
+        // @@MORE-D@@
       ],
     },
   ],

@@ -260,6 +260,7 @@ export const T_FUTUR_ANTERIEUR: Chapter = {
           en: "Until she's made a decision, we'll be left in the dark.",
           why: 'Tant que… ne… pas + futur antérieur: until she has made it.',
         },
+        // @@MORE-A@@
       ],
     },
     {
@@ -427,6 +428,7 @@ export const T_FUTUR_ANTERIEUR: Chapter = {
           en: "As soon as you're home, send me a text.",
           why: 'Dès que + futur antérieur; rentrer takes être and agrees with tu (a woman here).',
         },
+        // @@MORE-B@@
       ],
     },
     {
@@ -613,6 +615,7 @@ export const T_FUTUR_ANTERIEUR: Chapter = {
           en: "She'll have changed her mind by then.",
           why: "By then = d'ici là: futur antérieur; changer d'avis takes avoir.",
         },
+        // @@MORE-C@@
       ],
     },
     {
@@ -730,6 +733,7 @@ export const T_FUTUR_ANTERIEUR: Chapter = {
           en: "I promise: by noon tomorrow, I'll have handed in my dissertation.",
           why: "A promise about the future: futur antérieur, j'aurai rendu (-ai), not the conditional.",
         },
+        // @@MORE-D@@
       ],
     },
   ],

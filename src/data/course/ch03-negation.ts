@@ -243,6 +243,7 @@ export const CH_NEGATION: Chapter = {
           en: "That secret, I didn't tell him: he found out by himself.",
           why: 'Ne goes in front of the pronouns (le before lui), pas right after the auxiliary.',
         },
+        // @@MORE-NEG-A@@
       ],
     },
     {
@@ -377,6 +378,7 @@ export const CH_NEGATION: Chapter = {
           en: 'Not a single customer complained about the change.',
           why: 'Pas un as the subject means not a single; ne is still needed, but no second pas.',
         },
+        // @@MORE-NEG-B@@
       ],
     },
     {
@@ -507,6 +509,7 @@ export const CH_NEGATION: Chapter = {
           en: 'She only talks to me when she needs something.',
           why: 'Ne… que (only) frames the verb; que goes right before what it restricts.',
         },
+        // @@MORE-NEG-C@@
       ],
     },
     {
@@ -596,6 +599,7 @@ export const CH_NEGATION: Chapter = {
           en: "It's not a good idea to leave now.",
           why: "After être, the article doesn't change: ce n'est pas une…",
         },
+        // @@MORE-NEG-D@@
       ],
     },
   ],

@@ -334,6 +334,7 @@ export const T_PASSE_COMPOSE: Chapter = {
           en: 'My bank card disappeared during the metro journey.',
           why: "Disparaître takes avoir, so the participle doesn't agree with the subject: elle a disparu.",
         },
+        // @@MORE-A@@
       ],
     },
     {
@@ -479,6 +480,7 @@ export const T_PASSE_COMPOSE: Chapter = {
           en: 'It rained all day.',
           why: 'Pleuvoir: il a plu (the same participle as plaire).',
         },
+        // @@MORE-B@@
       ],
     },
     {
@@ -626,6 +628,7 @@ export const T_PASSE_COMPOSE: Chapter = {
           en: 'The meeting ended at six.',
           why: "Se terminer takes être and agrees with the subject: la réunion s'est terminée.",
         },
+        // @@MORE-C@@
       ],
     },
     {
@@ -716,6 +719,7 @@ export const T_PASSE_COMPOSE: Chapter = {
           en: "After her master's, she became a journalist.",
           why: 'Devenir takes être, and the participle agrees with the subject: elle est devenue.',
         },
+        // @@MORE-D@@
       ],
     },
   ],

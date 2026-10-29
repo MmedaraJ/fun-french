@@ -258,6 +258,7 @@ export const CH_EXCLAMATION: Chapter = {
           en: 'Madam, would you be so kind as to send me the minutes of the meeting?',
           why: "Auriez-vous l'amabilité de: the conditional of avoir, a very formal request.",
         },
+        // @@MORE-EXC-A@@
       ],
     },
     {
@@ -408,6 +409,7 @@ export const CH_EXCLAMATION: Chapter = {
           en: 'Have him call me back before noon!',
           why: 'An order about a third person: que + subjunctive, with the pronoun in front of the verb.',
         },
+        // @@MORE-EXC-B@@
       ],
     },
     {
@@ -581,6 +583,7 @@ export const CH_EXCLAMATION: Chapter = {
           en: 'How kind of you!',
           why: "Comme + normal order: comme c'est gentil; of you is de votre part.",
         },
+        // @@MORE-EXC-C@@
       ],
     },
     {
@@ -673,6 +676,7 @@ export const CH_EXCLAMATION: Chapter = {
           en: 'What a crowd there is tonight!',
           why: 'Que de + noun means so much or so many; comme can never be followed by de.',
         },
+        // @@MORE-EXC-D@@
       ],
     },
   ],

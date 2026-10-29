@@ -165,9 +165,9 @@ export const CH_RACONTER: Chapter = {
           cue: '(éclater)',
           answer: 'a éclaté',
           accept: ['éclata'],
-          wrong: ['éclatait', 'avait éclaté', 'éclate'],
+          wrong: ['éclatait', 'avait éclaté', 'est éclaté'],
           en: 'We were chatting quietly on the terrace when suddenly the storm broke.',
-          why: 'Soudain introduces a one-off event that interrupts the scene: passé composé (or passé simple in writing).',
+          why: 'Soudain introduces a one-off event that interrupts the scene: passé composé, with avoir (or passé simple in writing).',
         },
         {
           id: 'd-habitude-bus',
@@ -276,6 +276,7 @@ export const CH_RACONTER: Chapter = {
           en: 'My first day in Montreal is etched in my memory: that day, it was minus twenty.',
           why: "In a past story, 'that day' is ce jour-là; aujourd'hui only means today.",
         },
+        // @@MORE-RA@@
       ],
     },
     {
@@ -415,7 +416,7 @@ export const CH_RACONTER: Chapter = {
           wrong: [
             'Elle a né à Lyon en 1902 et elle est morte à Paris en 1987.',
             'Elle est née à Lyon en 1902 et elle a mouru à Paris en 1987.',
-            'Elle est née à Lyon en 1902 et elle mourait à Paris en 1987.',
+            'Elle est née à Lyon en 1902 et elle est mort à Paris en 1987.',
           ],
           en: 'She was born in Lyon in 1902 and died in Paris in 1987.',
           why: 'Naquit and mourut are the passé simple of naître and mourir: est née, est morte.',
@@ -490,6 +491,7 @@ export const CH_RACONTER: Chapter = {
           en: 'I was reading quietly on the train; suddenly the lights went out.',
           why: 'Reading is the background (imparfait); soudain brings in the event: se sont éteintes, agreeing with les lumières.',
         },
+        // @@MORE-RB@@
       ],
     },
     {
@@ -618,9 +620,9 @@ export const CH_RACONTER: Chapter = {
             "Elle a appelé le lendemain pour s'excuser.",
             "Elle a téléphoné le lendemain pour s'excuser.",
           ],
-          wrong: ["Demain, elle a appelé pour s'excuser.", "Le lendemain, elle appelait pour s'excuser.", 'Le lendemain, elle a appelé pour excuser.'],
+          wrong: ["Demain, elle a appelé pour s'excuser.", "Le lendemain, elle a appelée pour s'excuser.", 'Le lendemain, elle a appelé pour excuser.'],
           en: 'The next day, she called to apologise.',
-          why: "In a past story, 'the next day' is le lendemain; s'excuser is pronominal.",
+          why: "In a past story, 'the next day' is le lendemain; appeler takes avoir, so appelé doesn't agree; s'excuser is pronominal.",
         },
         {
           id: 'demenage-montreal',
@@ -636,7 +638,7 @@ export const CH_RACONTER: Chapter = {
           wrong: [
             "J'ai déménagé à Montréal depuis trois ans.",
             "J'ai déménagé en Montréal il y a trois ans.",
-            'Je déménageais à Montréal il y a trois ans.',
+            "J'ai déménagé à Montréal dans trois ans.",
           ],
           en: 'I moved to Montreal three years ago.',
           why: "'Ago' = il y a + passé composé; a city takes à.",
@@ -716,12 +718,13 @@ export const CH_RACONTER: Chapter = {
           accept: ['Il avait annulé tous ses rendez-vous la veille.'],
           wrong: [
             'Hier, il avait annulé tous ses rendez-vous.',
-            'La veille, il annulait tous ses rendez-vous.',
+            'La veille, il avait annulés tous ses rendez-vous.',
             'La veille, il avait annulé tout ses rendez-vous.',
           ],
           en: 'The day before, he had cancelled all his appointments.',
-          why: "In a past story, 'the day before' is la veille; 'had cancelled' is a plus-que-parfait.",
+          why: "In a past story, 'the day before' is la veille; 'had cancelled' is a plus-que-parfait, and annulé doesn't agree with an object that comes after it.",
         },
+        // @@MORE-RC@@
       ],
     },
     {
@@ -791,11 +794,11 @@ export const CH_RACONTER: Chapter = {
           ],
           wrong: [
             'Nous sommes arrivés à Naples un vendredi et nous avons visité Pompéi demain.',
-            'Nous sommes arrivés à Naples un vendredi et nous visitions Pompéi le lendemain.',
+            'Nous avons arrivé à Naples un vendredi et nous avons visité Pompéi le lendemain.',
             'Nous sommes arrivés à Naples un vendredi et nous avons visité Pompéi le demain.',
           ],
           en: 'We arrived in Naples on a Friday and visited Pompeii the next day.',
-          why: "In a past story, 'the next day' is le lendemain; demain only works from today.",
+          why: "In a past story, 'the next day' is le lendemain; demain only works from today (and arriver takes être).",
         },
         {
           id: 'partis-tot',
@@ -861,6 +864,7 @@ export const CH_RACONTER: Chapter = {
           en: 'I started learning the piano six months ago.',
           why: "A one-off past event is dated with il y a ('ago'); depuis goes with something still going on.",
         },
+        // @@MORE-RD@@
       ],
     },
   ],

@@ -306,6 +306,7 @@ export const T_IMPARFAIT: Chapter = {
           en: 'We barely knew each other, but we already laughed at the same things.',
           why: 'Nous rions → nous riions: the stem ri- plus the -ions ending.',
         },
+        // @@MORE-A@@
       ],
     },
     {
@@ -449,6 +450,7 @@ export const T_IMPARFAIT: Chapter = {
           en: 'Every summer we used to rent a house by the sea.',
           why: 'A habit in the past: imparfait; on takes the il form (on louait).',
         },
+        // @@MORE-B@@
       ],
     },
     {
@@ -604,6 +606,7 @@ export const T_IMPARFAIT: Chapter = {
           en: 'My grandmother would tell us stories every evening.',
           why: 'Would for a past habit is an imparfait in French, not a conditional: elle racontait.',
         },
+        // @@MORE-C@@
       ],
     },
     {
@@ -694,6 +697,7 @@ export const T_IMPARFAIT: Chapter = {
           en: "Every summer, we went to our grandparents' when we were little.",
           why: 'A past habit takes the imparfait (nous allions), not the conditional.',
         },
+        // @@MORE-D@@
       ],
     },
   ],

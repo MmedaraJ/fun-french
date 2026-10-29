@@ -295,6 +295,7 @@ export const T_PARTICIPE: Chapter = {
           en: 'She left the room, feeling she was being watched.',
           why: 'Participe présent giving a cause; it keeps its pronoun (se) and never agrees.',
         },
+        // @@MORE-PG-A@@
       ],
     },
     {
@@ -480,6 +481,7 @@ export const T_PARTICIPE: Chapter = {
           en: 'I ran into my old teacher as I was coming out of the station.',
           why: 'Same subject (je), same moment: en sortant.',
         },
+        // @@MORE-PG-B@@
       ],
     },
     {
@@ -661,6 +663,7 @@ export const T_PARTICIPE: Chapter = {
           en: 'The weeks leading up to the exam were exhausting.',
           why: "Précédant is a participle (it has an object): invariable, spelled -ant; épuisantes is an adjective and agrees.",
         },
+        // @@MORE-PG-C@@
       ],
     },
     {
@@ -783,6 +786,7 @@ export const T_PARTICIPE: Chapter = {
           en: 'After finishing her studies, she went to live in Canada.',
           why: 'An earlier action: après avoir + participle (or ayant terminé), not the gérondif.',
         },
+        // @@MORE-PG-D@@
       ],
     },
   ],

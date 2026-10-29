@@ -320,6 +320,7 @@ export const T_SUBJONCTIF: Chapter = {
           en: 'The committee would like us to examine all the applications by Friday.',
           why: 'Stem étudi- + -ions: que nous étudiions, with two i\'s.',
         },
+        // @@SUB-A@@
       ],
     },
     {
@@ -484,6 +485,7 @@ export const T_SUBJONCTIF: Chapter = {
           en: 'I hope she gets this job.',
           why: "Obtenir works like venir: ils obtiennent → qu'elle obtienne.",
         },
+        // @@SUB-B@@
       ],
     },
     {
@@ -638,6 +640,7 @@ export const T_SUBJONCTIF: Chapter = {
           en: "I'd like you to send me the contract today.",
           why: 'Envoyer: que vous envoyiez (envoy- + -iez), like the imparfait.',
         },
+        // @@SUB-C@@
       ],
     },
     {
@@ -742,6 +745,7 @@ export const T_SUBJONCTIF: Chapter = {
           en: "It's unlikely that she wants to change jobs.",
           why: "Vouloir: qu'elle veuille (veuill- for je, tu, il and ils).",
         },
+        // @@SUB-D@@
       ],
     },
   ],

@@ -269,6 +269,7 @@ export const CH_DISCOURS: Chapter = {
           en: 'My colleague was surprised that nobody had told her about the room change.',
           why: "S'étonner que expresses a feeling: it takes the subjunctive (qu'on l'ait prévenue).",
         },
+        // @@MORE-11A@@
       ],
     },
     {
@@ -481,6 +482,7 @@ export const CH_DISCOURS: Chapter = {
           en: "'Don't forget your dictionaries,' the teacher told us.",
           why: 'Back to direct speech: de ne pas + infinitive becomes a negative imperative, and nos becomes vos.',
         },
+        // @@MORE-11B@@
       ],
     },
     {
@@ -673,6 +675,7 @@ export const CH_DISCOURS: Chapter = {
           en: "'Where are you going?' he asked me.",
           why: "After a quotation, the reporting verb and its subject are inverted: m'a-t-il demandé.",
         },
+        // @@MORE-11C@@
       ],
     },
     {
@@ -782,6 +785,7 @@ export const CH_DISCOURS: Chapter = {
           en: "'I'll call you tomorrow,' she said to me.",
           why: "In direct speech, the speaker's own words come back: je, the future and demain.",
         },
+        // @@MORE-11D@@
       ],
     },
   ],

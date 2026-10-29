@@ -261,6 +261,7 @@ export const CH_TRANSFORMER: Chapter = {
           en: "I'd like to wrap up this file before going on leave.",
           why: "Same subject: vouloir + infinitive; 'je voudrais que je…' is impossible.",
         },
+        // @@MORE-12A@@
       ],
     },
     {
@@ -462,6 +463,7 @@ export const CH_TRANSFORMER: Chapter = {
           en: 'After finishing her internship, Inès was hired.',
           why: 'Après que + the same subject → après + past infinitive (avoir fini), with no agreement after avoir.',
         },
+        // @@MORE-12B@@
       ],
     },
     {
@@ -661,6 +663,7 @@ export const CH_TRANSFORMER: Chapter = {
           en: "He always thinks he's right.",
           why: "Same subject: croire + infinitive (no de) is lighter than croire qu'il a.",
         },
+        // @@MORE-12C@@
       ],
     },
     {
@@ -794,6 +797,7 @@ export const CH_TRANSFORMER: Chapter = {
           en: 'The new stadium was opened last year.',
           why: 'A finished past event in the passive: passé composé of être (a été inauguré).',
         },
+        // @@MORE-12D@@
       ],
     },
   ],

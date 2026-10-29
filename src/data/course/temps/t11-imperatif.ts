@@ -319,6 +319,7 @@ export const T_IMPERATIF: Chapter = {
           en: "That neighbourhood is badly lit: don't go there alone at night.",
           why: "In the negative, y goes before the verb and va keeps no -s: n'y va pas.",
         },
+        // @@IMP-A@@
       ],
     },
     {
@@ -463,6 +464,7 @@ export const T_IMPERATIF: Chapter = {
           en: 'Lend it to her for the weekend.',
           why: 'Two pronouns after the verb: the direct object first (la), then lui.',
         },
+        // @@IMP-B@@
       ],
     },
     {
@@ -599,6 +601,7 @@ export const T_IMPERATIF: Chapter = {
           en: 'Remember to switch off the light when you leave.',
           why: 'Penser à + infinitive; no -s at the tu form of an -er verb.',
         },
+        // @@IMP-C@@
       ],
     },
     {
@@ -688,6 +691,7 @@ export const T_IMPERATIF: Chapter = {
           en: "Don't talk to me about it, it's a sensitive subject.",
           why: "The -s only comes back in a positive command, right before en; in the negative: ne m'en parle pas.",
         },
+        // @@IMP-D@@
       ],
     },
   ],

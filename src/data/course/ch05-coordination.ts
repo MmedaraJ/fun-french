@@ -233,6 +233,7 @@ export const CH_COORDINATION: Chapter = {
           en: 'He took his jacket and left without saying goodbye.',
           why: 'The subject can go, but partir needs its own auxiliary être.',
         },
+        // @@MORE-A@@
       ],
     },
     {
@@ -383,6 +384,7 @@ export const CH_COORDINATION: Chapter = {
           en: 'She did a law degree; then she turned to journalism.',
           why: 'Ensuite is an adverb and can follow the auxiliary; puis cannot.',
         },
+        // @@MORE-B@@
       ],
     },
     {
@@ -590,6 +592,7 @@ export const CH_COORDINATION: Chapter = {
           en: 'The project is ambitious; however, the budget is limited.',
           why: 'However = cependant or toutefois, adverbs that can open the clause or follow the verb.',
         },
+        // @@MORE-C@@
       ],
     },
     {
@@ -712,6 +715,7 @@ export const CH_COORDINATION: Chapter = {
           en: 'Why are you late? — Because my train was cancelled.',
           why: 'Only parce que answers pourquoi; car can never start a reply.',
         },
+        // @@MORE-D@@
       ],
     },
   ],
