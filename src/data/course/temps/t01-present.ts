@@ -2115,10 +2115,10 @@ export const T_PRESENT: Chapter = {
         },
         {
           id: 'airbus',
-          from: "Il y a dix ans qu'il a travaillé chez Airbus, et il adore toujours son métier.",
-          answer: "Il y a dix ans qu'il travaille chez Airbus, et il adore toujours son métier.",
-          wrong: ["Il y a dix ans qu'il a travaillé chez Airbus, et il adore toujours son métier.", "Il y a dix ans depuis qu'il travaille chez Airbus, et il adore toujours son métier.", 'Il y a dix ans que il travaille chez Airbus, et il adore toujours son métier.'],
-          en: "He's been working at Airbus for ten years, and he still loves his job.",
+          from: "Il y a dix ans qu'il a travaillé chez Airbus, et il compte bien y rester.",
+          answer: "Il y a dix ans qu'il travaille chez Airbus, et il compte bien y rester.",
+          wrong: ["Il y a dix ans qu'il a travaillé chez Airbus, et il compte bien y rester.", "Il y a dix ans depuis qu'il travaille chez Airbus, et il compte bien y rester.", 'Il y a dix ans que il travaille chez Airbus, et il compte bien y rester.'],
+          en: "He's been working at Airbus for ten years, and he fully intends to stay.",
           why: "Il y a … que + présent for something still going on (and que becomes qu' before il).",
         },
         {

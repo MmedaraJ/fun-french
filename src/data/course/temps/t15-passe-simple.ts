@@ -651,7 +651,6 @@ export const T_PASSE_SIMPLE: Chapter = {
           en: 'From the top of the ramparts, the besieged saw the enemy army approaching.',
           why: 'Voir has a short passé simple: il vit, ils virent (not built on the stem voy-).',
         },
-        // @@MORE-PS-A@@
       ],
     },
     {
@@ -1239,18 +1238,18 @@ export const T_PASSE_SIMPLE: Chapter = {
           why: 'Eut compris → a compris (participle compris); appela → a appelé (one l before é).',
         },
         {
-          id: 'a-peine-sortie-courant',
-          from: "À peine fut-elle sortie qu'il se mit à pleuvoir.",
+          id: 'a-peine-montee-courant',
+          from: "À peine fut-elle montée dans le taxi qu'elle fondit en larmes.",
           cue: '→ français courant (plus-que-parfait)',
-          answer: "À peine était-elle sortie qu'il s'est mis à pleuvoir.",
-          accept: ["Elle était à peine sortie qu'il s'est mis à pleuvoir."],
+          answer: "À peine était-elle montée dans le taxi qu'elle a fondu en larmes.",
+          accept: ["Elle était à peine montée dans le taxi qu'elle a fondu en larmes."],
           wrong: [
-            "À peine avait-elle sortie qu'il s'est mis à pleuvoir.",
-            "À peine était-elle sorti qu'il s'est mis à pleuvoir.",
-            "À peine était-elle sortie qu'il s'est mise à pleuvoir.",
+            "À peine avait-elle montée dans le taxi qu'elle a fondu en larmes.",
+            "À peine était-elle monté dans le taxi qu'elle a fondu en larmes.",
+            "À peine était-elle montée dans le taxi qu'elle a fondue en larmes.",
           ],
-          en: 'She had barely gone out when it started to rain.',
-          why: "Sortir takes être: était sortie, agreeing with elle; the main clause goes into the passé composé (il s'est mis, impersonal).",
+          en: 'She had barely got into the taxi when she burst into tears.',
+          why: 'Monter with no object takes être: était montée, agreeing with elle; the main clause goes into the passé composé (a fondu, with avoir).',
         },
         {
           id: 'a-peine-quitte-port-courant',
@@ -1345,7 +1344,6 @@ export const T_PASSE_SIMPLE: Chapter = {
           en: 'The guests had barely sat down when the fuses blew.',
           why: 'In the literary version, à peine takes the passé antérieur with inversion (se furent-ils assis), then the passé simple (sautèrent).',
         },
-        // @@MORE-PS-B@@
       ],
     },
     {
@@ -2015,15 +2013,15 @@ export const T_PASSE_SIMPLE: Chapter = {
         },
         {
           id: 'comprit-pourquoi',
-          from: 'Nobody understood why she had left.',
+          from: 'Nobody ever understood why she had left her husband.',
           cue: '→ récit au passé simple',
-          answer: 'Personne ne comprit pourquoi elle était partie.',
+          answer: 'Personne ne comprit jamais pourquoi elle avait quitté son mari.',
           wrong: [
-            'Personne ne comprena pourquoi elle était partie.',
-            'Personne ne comprendit pourquoi elle était partie.',
-            'Personne ne comprît pourquoi elle était partie.',
+            'Personne ne comprena jamais pourquoi elle avait quitté son mari.',
+            'Personne ne comprendit jamais pourquoi elle avait quitté son mari.',
+            'Personne ne comprît jamais pourquoi elle avait quitté son mari.',
           ],
-          en: 'Nobody understood why she had left.',
+          en: 'Nobody ever understood why she had left her husband.',
           why: 'Comprendre, like prendre: il comprit, ils comprirent.',
         },
         {
@@ -2084,7 +2082,6 @@ export const T_PASSE_SIMPLE: Chapter = {
           en: 'She refused to obey and was dismissed.',
           why: 'Refuser is -a type (elle refusa); the passive fut renvoyée has no circumflex and agrees with elle.',
         },
-        // @@MORE-PS-C@@
       ],
     },
     {
@@ -2602,7 +2599,6 @@ export const T_PASSE_SIMPLE: Chapter = {
           en: 'After years of feuding, the two families made peace.',
           why: 'Faire: il fit, ils firent (furent comes from être).',
         },
-        // @@MORE-PS-D@@
       ],
     },
   ],

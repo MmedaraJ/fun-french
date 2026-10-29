@@ -457,6 +457,7 @@ export const CH_HYPOTHESE: Chapter = {
           en: 'You can leave early provided you finish the report.',
           why: 'Same subject: à condition de + infinitive.',
         },
+        // @@MORE-10B@@
       ],
     },
     {
@@ -684,6 +685,7 @@ export const CH_HYPOTHESE: Chapter = {
           en: 'By booking online, you get ten percent off.',
           why: 'En + gérondif can express a condition (= si vous réservez).',
         },
+        // @@MORE-10C@@
       ],
     },
     {
@@ -813,6 +815,7 @@ export const CH_HYPOTHESE: Chapter = {
           en: 'How about going to see this exhibition before it closes?',
           why: 'Et si + imparfait makes a suggestion; never the conditional after si.',
         },
+        // @@MORE-10D@@
       ],
     },
   ],
