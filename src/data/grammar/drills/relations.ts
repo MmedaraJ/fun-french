@@ -193,7 +193,7 @@ export const RELATIONS_DRILLS: DrillSet[] = [
     id: 'but',
     title: 'Exprime le but',
     en: 'Express purpose',
-    level: 4,
+    level: 3,
     items: [
       {
         id: 'pour-que-lien',

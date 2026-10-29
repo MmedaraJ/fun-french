@@ -45,7 +45,7 @@ describe('starter decks', () => {
       expect(deck.name.trim(), deck.id).not.toBe('');
       expect(deck.nameEn.trim(), deck.id).not.toBe('');
       expect(COLORS, deck.id).toContain(deck.color);
-      expect(Number.isInteger(deck.level) && deck.level >= 1 && deck.level <= 3, `${deck.id} level`).toBe(true);
+      expect(Number.isInteger(deck.level) && deck.level >= 1 && deck.level <= 4, `${deck.id} level`).toBe(true);
       expect(KINDS, deck.id).toContain(deck.kind);
       expect(deck.cards.length, deck.id).toBeGreaterThanOrEqual(10);
     }

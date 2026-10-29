@@ -388,7 +388,7 @@ export const PRONOMS_DRILLS: DrillSet[] = [
     id: 'doubles-pronoms',
     title: 'Remplace par deux pronoms, dans le bon ordre',
     en: 'Replace with two pronouns, in the right order',
-    level: 4,
+    level: 3,
     items: [
       {
         id: 'te-le',

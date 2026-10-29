@@ -257,14 +257,15 @@ export default function Game() {
         poolRef.current = pool;
         qs = buildQuestions(cfg, pool);
         // Daily practice also works on grammar: about a third of the questions (two fifths at
-        // Avancé, half of them advanced structures), mostly from the grammar her book teaches
-        // once she has imported one.
+        // Avancé), mostly from the grammar her book teaches once she has imported one.
         if (search.get('daily') === '1' && qs.length) {
-          const advanced = (cfg.minLevel ?? 1) >= 3;
-          const n = Math.max(2, Math.round(cfg.length * (advanced ? 0.4 : 0.3)));
+          const band = cfg.minLevel ?? 1;
+          const n = Math.max(2, Math.round(cfg.length * (band >= 3 ? 0.4 : 0.3)));
           const { getBookGrammar } = await import('../lib/book');
           const fromBook = (await getBookGrammar()).lessonIds.length ? await grammarRound(Math.ceil(n * 0.6), undefined, true) : [];
-          const structures = advanced ? await grammarRound(Math.ceil((n - fromBook.length) / 2), ['drill'], false) : [];
+          // the advanced structures: half the grammar at Avancé, a third at Intermédiaire, none for Débutant
+          const share = band >= 3 ? 1 / 2 : band === 2 ? 1 / 3 : 0;
+          const structures = share ? await grammarRound(Math.ceil((n - fromBook.length) * share), ['drill'], false) : [];
           const extra = [
             ...fromBook,
             ...structures,

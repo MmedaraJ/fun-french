@@ -607,3 +607,67 @@
   gap: 4px;
   font-weight: 600;
 }
+
+/* Mon niveau: three CEFR bands, the current one highlighted */
+.level-cards {
+  display: grid;
+  gap: 10px;
+}
+
+.level-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 20px;
+  background: var(--surface-2);
+  box-shadow: inset 0 0 0 2px var(--line);
+  text-align: left;
+  transition:
+    transform 0.12s,
+    box-shadow 0.2s,
+    background 0.2s;
+}
+
+.level-card:active {
+  transform: scale(0.98);
+}
+
+.level-card.is-on {
+  background: color-mix(in srgb, var(--grape) 12%, var(--surface));
+  box-shadow: inset 0 0 0 3px var(--grape);
+}
+
+.level-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.level-card-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.level-range {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--surface);
+  box-shadow: inset 0 0 0 2px var(--line);
+  font-family: var(--font-body, inherit);
+  font-size: 0.8rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.level-card-help {
+  font-size: 0.86rem;
+  font-weight: 600;
+  opacity: 0.8;
+}

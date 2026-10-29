@@ -133,6 +133,44 @@ describe('grammar exercises', () => {
     }
   });
 
+  it('Débutant: A1 and A2 tenses only, mostly A1, easy question items, no advanced structures', () => {
+    const a1 = ['present', 'passe_compose', 'futur_proche', 'passe_recent', 'imperatif'];
+    const a2 = ['imparfait', 'futur_simple', 'conditionnel_present'];
+    let inA1 = 0;
+    let inA2 = 0;
+    for (const seed of [1, 2, 3, 4, 5, 6]) {
+      const qs = buildGrammarQuestions({ kinds: [...KINDS, 'drill'], length: 30, skills: new Map(), level: 3, minLevel: 1 }, seeded(seed));
+      expect(qs.length).toBe(30);
+      for (const q of qs) {
+        const g = q.g!;
+        expect(g.kind).not.toBe('drill');
+        const tense = /^g:(conj|tense|id|listen):(.+)$/.exec(g.skill)?.[2];
+        if (tense) {
+          expect([...a1, ...a2], g.skill).toContain(tense);
+          if (a1.includes(tense)) inA1++;
+          else inA2++;
+        }
+        if (g.kind === 'qword' || g.kind === 'qmatch') {
+          const asked = g.reveal.fr.split(' — ')[0];
+          const item = QUESTIONS.find((it) => Object.values(it.forms).includes(asked));
+          expect(item!.level, asked).toBeLessThanOrEqual(2);
+        }
+      }
+    }
+    // centred on A1, with A2 to stretch
+    expect(inA1).toBeGreaterThan(inA2);
+    expect(inA2).toBeGreaterThan(0);
+  });
+
+  it('Intermédiaire practises the B1 structures, Avancé all of them', () => {
+    const level = new Map(DRILL_SETS.map((d) => [`g:dr:${d.id}`, d.level]));
+    const b1 = buildGrammarQuestions({ kinds: ['drill'], length: 20, skills: new Map(), level: 3, minLevel: 2 }, seeded(3));
+    expect(b1).toHaveLength(20);
+    for (const q of b1) expect(level.get(q.g!.skill), q.g!.skill).toBe(3);
+    const all = buildGrammarQuestions({ kinds: ['drill'], length: 40, skills: new Map(), level: 3, minLevel: 3 }, seeded(3));
+    expect(new Set(all.map((q) => level.get(q.g!.skill)))).toEqual(new Set([3, 4]));
+  });
+
   it('a Structures round fills up with gap sentences, never the same one twice', () => {
     expect(DRILL_SETS.length).toBeGreaterThan(10);
     for (const seed of [1, 2, 3]) {

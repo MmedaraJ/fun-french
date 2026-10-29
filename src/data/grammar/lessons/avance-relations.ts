@@ -58,7 +58,7 @@ export const AVANCE_RELATIONS: Lesson[] = [
     unit: 'relations',
     title: 'Exprimer le but',
     en: 'Expressing purpose',
-    level: 4,
+    level: 3,
     intro: 'To say what something is for, look at the subjects: **same subject → infinitive** (pour partir), **different subject → que + subjunctive** (pour que tu partes).',
     sections: [
       {

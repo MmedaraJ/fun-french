@@ -26,7 +26,7 @@ export interface Deck {
   builtin: boolean;
   /** Active decks feed new words into daily practice. */
   active: boolean;
-  /** 1 = beginner, 2 = intermediate, 3 = advanced. */
+  /** 1 = A1, 2 = A2, 3 = B1, 4 = B2 and up. */
   level: number;
   order: number;
   createdAt: number;

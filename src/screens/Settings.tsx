@@ -28,6 +28,7 @@ import {
 import { celebrate } from '../lib/confetti';
 import { DAY } from '../lib/date';
 import { db } from '../lib/db';
+import { BANDS } from '../lib/level';
 import { DEFAULT_SETTINGS, useSettings, type Difficulty, type MascotColorPref, type MinLevel, type ThemePref } from '../lib/settings';
 import { sfx } from '../lib/sound';
 import { speak, speechSupported, useFrenchVoices } from '../lib/speech';
@@ -62,10 +63,20 @@ const MASCOT_COLORS: { id: MascotColorPref; label: string }[] = [
   { id: 'caramel', label: 'Caramel' },
 ];
 
-const FLOORS: { id: MinLevel; label: string; emoji: string; help: string }[] = [
-  { id: 1, label: 'Tout', emoji: '🧺', help: 'Everything, from the A1 basics (colours, numbers, the présent) up.' },
-  { id: 2, label: 'A2 +', emoji: '🎒', help: 'The A1 basics are left out: their themes, lessons, tenses and easy questions, and the picture-tapping and flip-card games. Your own words, your book and your PDFs always stay.' },
-  { id: 3, label: 'Avancé', emoji: '🎓', help: 'Advanced only: B2–C1 themes (linking words, idioms, false friends, society, work…), the hardest tenses, and the advanced structures and lessons. Nothing for beginners. Your own words and PDFs always stay.' },
+/** Her level, as three CEFR bands (lib/level). */
+const LEVELS: { id: MinLevel; help: string }[] = [
+  {
+    id: 1,
+    help: 'Centred on A1: everyday words and phrases, the présent, passé composé and futur proche, simple questions and negation, with some A2 (imparfait, futur, conditionnel) to stretch you. Picture games included.',
+  },
+  {
+    id: 2,
+    help: 'No basics: A2 and B1 themes, your textbook verbs, every common tense up to the subjonctif, the B1 lessons and the first advanced structures.',
+  },
+  {
+    id: 3,
+    help: 'Advanced only: B1–C1 themes (linking words, idioms, false friends, society, work…), the hardest tenses, every advanced structure and lesson. Nothing for beginners.',
+  },
 ];
 
 const DIFFICULTIES: { id: Difficulty; label: string; emoji: string; help: string }[] = [
@@ -229,6 +240,36 @@ export default function Settings() {
         </motion.button>
       )}
 
+      <Section emoji="🎓" title="Mon niveau" sub="My level: what you study">
+        <p className="set-help" style={{ marginTop: 0 }}>
+          Themes, lessons, tenses and games follow your level. Your own words, photos and PDFs always stay.
+        </p>
+        <div className="level-cards" role="radiogroup" aria-label="Level">
+          {LEVELS.map((l) => (
+            <button key={l.id} className={'level-card' + (s.minLevel === l.id ? ' is-on' : '')} role="radio" aria-checked={s.minLevel === l.id} onClick={() => set({ minLevel: l.id })}>
+              <Emoji e={BANDS[l.id].emoji} size={30} />
+              <span className="level-card-body">
+                <span className="level-card-title">
+                  {BANDS[l.id].name} <span className="level-range">{BANDS[l.id].range}</span>
+                </span>
+                <span className="level-card-help">{l.help}</span>
+              </span>
+            </button>
+          ))}
+        </div>
+        <div className="field-label" style={{ marginTop: 18 }}>
+          Difficulté · How hard the questions are
+        </div>
+        <div className="seg3">
+          {DIFFICULTIES.map((d) => (
+            <button key={d.id} aria-pressed={s.difficulty === d.id} onClick={() => set({ difficulty: d.id })}>
+              <Emoji e={d.emoji} size={18} /> {d.label}
+            </button>
+          ))}
+        </div>
+        <p className="set-help">{DIFFICULTIES.find((d) => d.id === s.difficulty)?.help}</p>
+      </Section>
+
       <Section emoji="🙋" title="Profil" sub="About you">
         <label className="field">
           <span className="field-label">Prénom · Name</span>
@@ -324,29 +365,7 @@ export default function Settings() {
       </Section>
 
       <Section emoji="🎮" title="Entraînement" sub="Practice">
-        <div className="field-label">Difficulté</div>
-        <div className="seg3">
-          {DIFFICULTIES.map((d) => (
-            <button key={d.id} aria-pressed={s.difficulty === d.id} onClick={() => set({ difficulty: d.id })}>
-              <Emoji e={d.emoji} size={18} /> {d.label}
-            </button>
-          ))}
-        </div>
-        <p className="set-help">{DIFFICULTIES.find((d) => d.id === s.difficulty)?.help}</p>
-        <div className="field-label" style={{ marginTop: 16 }}>
-          Niveau
-        </div>
-        <div className="seg3">
-          {FLOORS.map((f) => (
-            <button key={f.id} aria-pressed={s.minLevel === f.id} onClick={() => set({ minLevel: f.id })}>
-              <Emoji e={f.emoji} size={18} /> {f.label}
-            </button>
-          ))}
-        </div>
-        <p className="set-help">{FLOORS.find((f) => f.id === s.minLevel)?.help}</p>
-        <div className="field-label" style={{ marginTop: 16 }}>
-          Questions par partie
-        </div>
+        <div className="field-label">Questions par partie</div>
         <div className="seg3">
           {[10, 15, 20].map((n) => (
             <button key={n} aria-pressed={s.roundLength === n} onClick={() => set({ roundLength: n })}>

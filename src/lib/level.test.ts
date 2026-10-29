@@ -9,42 +9,60 @@ const deck = (id: string, level: number, builtin = true): Deck => ({ id, name: i
 const card = (id: string, deckId: string): Card => ({ id, deckId, kind: 'word', fr: id, en: id, source: 'starter', order: 0, createdAt: 1, updatedAt: 1 });
 
 describe('deckShown', () => {
-  it('hides built-in themes below the floor, never hers', () => {
+  it('shows the built-in themes of her band only, and always hers', () => {
+    // Débutant: A1 and A2, nothing advanced
+    expect(deckShown(deck('animals', 1), 1)).toBe(true);
+    expect(deckShown(deck('cafe', 2), 1)).toBe(true);
+    expect(deckShown(deck('connecteurs', 3), 1)).toBe(false);
+    expect(deckShown(deck('societe', 4), 1)).toBe(false);
+    // Intermédiaire: A2 and B1
     expect(deckShown(deck('animals', 1), 2)).toBe(false);
     expect(deckShown(deck('cafe', 2), 2)).toBe(true);
-    expect(deckShown(deck('verbs-er', 1), 2)).toBe(true);
-    // at Avancé her textbook's -er verbs are beginner words too
-    expect(deckShown(deck('verbs-er', 1), 3)).toBe(false);
-    expect(deckShown(deck('connecteurs', 3), 3)).toBe(true);
+    expect(deckShown(deck('connecteurs', 3), 2)).toBe(true);
+    expect(deckShown(deck('societe', 4), 2)).toBe(false);
+    // Avancé: B1 to C1
     expect(deckShown(deck('cafe', 2), 3)).toBe(false);
-    expect(deckShown(deck('unite-4', 1, false), 3)).toBe(true);
-    expect(deckShown(deck('animals', 1), 1)).toBe(true);
+    expect(deckShown(deck('connecteurs', 3), 3)).toBe(true);
+    expect(deckShown(deck('societe', 4), 3)).toBe(true);
+    // her textbook's -er verbs up to Intermédiaire; at Avancé they're beginner words too
+    expect(deckShown(deck('verbs-er', 1), 1)).toBe(true);
+    expect(deckShown(deck('verbs-er', 1), 2)).toBe(true);
+    expect(deckShown(deck('verbs-er', 1), 3)).toBe(false);
+    for (const band of [1, 2, 3] as const) expect(deckShown(deck('unite-4', 1, false), band)).toBe(true);
   });
 });
 
 describe('tensesAtLevel', () => {
-  it('A2 drops the A1 tenses but keeps the passé composé', () => {
+  it('Débutant has the A1 and A2 tenses, nothing beyond', () => {
+    const t = tensesAtLevel(1);
+    expect(t).toEqual(expect.arrayContaining(['present', 'passe_compose', 'futur_proche', 'passe_recent', 'imperatif', 'imparfait', 'futur_simple', 'conditionnel_present']));
+    expect(t).not.toContain('plus_que_parfait');
+    expect(t).not.toContain('subjonctif_present');
+  });
+  it('Intermédiaire drops the A1 tenses but keeps the passé composé, and adds B1', () => {
     const t = tensesAtLevel(2);
     expect(t).toContain('passe_compose');
     expect(t).toContain('imparfait');
+    expect(t).toContain('subjonctif_present');
     expect(t).not.toContain('present');
     expect(t).not.toContain('futur_proche');
     expect(t).not.toContain('passe_recent');
     expect(t).not.toContain('imperatif');
   });
-  it('B1 keeps only B1 tenses; A1 keeps them all', () => {
+  it('Avancé keeps only the hardest tenses', () => {
     expect(tensesAtLevel(3)).toEqual(expect.arrayContaining(['subjonctif_present', 'plus_que_parfait']));
     expect(tensesAtLevel(3)).not.toContain('imparfait');
-    expect(tensesAtLevel(1)).toHaveLength(14);
   });
 });
 
 describe('basic games', () => {
-  it('from A2 on, the picture-tapping and flip-card games are hidden and the rest stay', () => {
+  it('from Intermédiaire on, the picture-tapping and flip-card games are hidden and the rest stay', () => {
     for (const id of ['pick-image', 'pick-word', 'pairs', 'flash'] as const) expect(modeShown(MODE_BY_ID[id], 2)).toBe(false);
     for (const id of ['spell', 'listen', 'mix', 'gender', 'build', 'type', 'dictation', 'speak', 'conjugaison', 'temps', 'questions', 'grammaire'] as const)
       expect(modeShown(MODE_BY_ID[id], 2)).toBe(true);
-    expect(MODES.every((m) => modeShown(m, 1))).toBe(true);
+    // Débutant has every game but the advanced structures
+    expect(MODES.filter((m) => !modeShown(m, 1)).map((m) => m.id)).toEqual(['structures']);
+    expect(modeShown(MODE_BY_ID.structures, 2)).toBe(true);
   });
 
   it('a mix leaves out the recognition-only questions; a basic game opened directly still plays', () => {
@@ -56,7 +74,7 @@ describe('basic games', () => {
   });
 });
 
-describe('loadPool with a level floor', () => {
+describe('loadPool with a level', () => {
   beforeEach(async () => {
     await Promise.all(db.tables.map((t) => t.clear()));
     await db.decks.bulkPut([deck('animals', 1), deck('cafe', 2), deck('verbs-er', 1), deck('mine', 1, false)]);
@@ -76,7 +94,7 @@ describe('loadPool with a level floor', () => {
     expect(pool.cards.map((c) => c.id)).not.toContain('le chat');
   });
 
-  it('the A1 floor keeps everything', async () => {
+  it('Débutant keeps the A1 and A2 themes and hers', async () => {
     const pool = await loadPool({ minLevel: 1 });
     expect(pool.cards).toHaveLength(4);
   });

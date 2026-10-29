@@ -6,7 +6,7 @@ export const DISCOURS_DRILLS: DrillSet[] = [
     id: 'discours-indirect',
     title: 'Rapporte les paroles',
     en: 'Report what was said',
-    level: 4,
+    level: 3,
     items: [
       {
         id: 'conseiller-de',

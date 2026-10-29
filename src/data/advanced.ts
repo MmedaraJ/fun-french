@@ -1,4 +1,6 @@
-// Advanced (B2–C1) built-in decks, appended to STARTER_DECKS in ./starter.ts.
+// Advanced built-in decks, appended to STARTER_DECKS in ./starter.ts: level 3 for the B1–B2
+// themes an intermédiaire can take on (linking words, idioms, false friends, informal French,
+// character), level 4 for the B2–C1 ones.
 //
 // Same conventions as starter.ts, plus:
 // - Multiword items that are not nouns (verb + preposition, idioms, connectors) are kind "phrase".
@@ -155,7 +157,7 @@ export const ADVANCED_DECKS: StarterDeck[] = [
     nameEn: "Society & politics",
     emoji: "🏛️",
     color: "lagoon",
-    level: 3,
+    level: 4,
     kind: "word",
     activeByDefault: true,
     cards: [
@@ -202,7 +204,7 @@ export const ADVANCED_DECKS: StarterDeck[] = [
     nameEn: "Environment & climate",
     emoji: "🌍",
     color: "leaf",
-    level: 3,
+    level: 4,
     kind: "word",
     activeByDefault: true,
     cards: [
@@ -246,7 +248,7 @@ export const ADVANCED_DECKS: StarterDeck[] = [
     nameEn: "Work & the economy",
     emoji: "💼",
     color: "tangerine",
-    level: 3,
+    level: 4,
     kind: "word",
     activeByDefault: true,
     cards: [
@@ -293,7 +295,7 @@ export const ADVANCED_DECKS: StarterDeck[] = [
     nameEn: "Media & digital life",
     emoji: "📰",
     color: "sky",
-    level: 3,
+    level: 4,
     kind: "word",
     activeByDefault: true,
     cards: [
@@ -339,7 +341,7 @@ export const ADVANCED_DECKS: StarterDeck[] = [
     nameEn: "Health & science",
     emoji: "🔬",
     color: "berry",
-    level: 3,
+    level: 4,
     kind: "word",
     activeByDefault: true,
     cards: [
@@ -385,7 +387,7 @@ export const ADVANCED_DECKS: StarterDeck[] = [
     nameEn: "Justice & the law",
     emoji: "⚖️",
     color: "grape",
-    level: 3,
+    level: 4,
     kind: "word",
     activeByDefault: true,
     cards: [
@@ -430,7 +432,7 @@ export const ADVANCED_DECKS: StarterDeck[] = [
     nameEn: "Arts & literature",
     emoji: "🎭",
     color: "tangerine",
-    level: 3,
+    level: 4,
     kind: "word",
     activeByDefault: true,
     cards: [
@@ -522,7 +524,7 @@ export const ADVANCED_DECKS: StarterDeck[] = [
     nameEn: "Advanced verbs",
     emoji: "🚀",
     color: "leaf",
-    level: 3,
+    level: 4,
     kind: "phrase",
     activeByDefault: true,
     cards: [
@@ -613,7 +615,7 @@ export const ADVANCED_DECKS: StarterDeck[] = [
     nameEn: "Complex sentences",
     emoji: "🖋️",
     color: "lagoon",
-    level: 3,
+    level: 4,
     kind: "sentence",
     activeByDefault: true,
     cards: [

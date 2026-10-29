@@ -11,7 +11,7 @@ import { Wordmark } from '../components/Wordmark';
 import { MODES, recognitionSupported, type ModeInfo } from '../lib/engine/modes';
 import { levelName } from '../lib/engine/scoring';
 import { useDeckSummaries, useOverview } from '../lib/hooks';
-import { modeShown } from '../lib/level';
+import { BANDS, modeShown } from '../lib/level';
 import { inkOn, paletteColor } from '../lib/palette';
 import { g, useSettings } from '../lib/settings';
 import { sfx } from '../lib/sound';
@@ -47,7 +47,7 @@ export default function Home() {
   const canSpeakIt = recognitionSupported();
   // numbered as shown: from A2 on, the picture-tapping and flip-card games aren't there
   const modes = MODES.filter((m) => m.section === 'vocab' && (m.needs !== 'recognition' || canSpeakIt) && modeShown(m, minLevel)).map((m, i) => ({ ...m, num: i + 1 }));
-  const grammarModes = MODES.filter((m) => m.section === 'grammar');
+  const grammarModes = MODES.filter((m) => m.section === 'grammar' && modeShown(m, minLevel)).map((m, i) => ({ ...m, num: i + 1 }));
 
   const todayXp = overview?.today.xp ?? 0;
   const goalDone = todayXp >= dailyGoal;
@@ -114,6 +114,9 @@ export default function Home() {
             {name ? `, ${name}` : ''} !
           </h1>
           <p className="muted">{goalDone ? 'Objectif du jour atteint ! Bravo !' : pep}</p>
+          <button className="level-chip" onClick={() => navigate('/settings')} aria-label={`Level: ${BANDS[minLevel].name}, ${BANDS[minLevel].range}. Change it in Réglages`}>
+            <Emoji e={BANDS[minLevel].emoji} size={16} /> {BANDS[minLevel].name} · {BANDS[minLevel].range}
+          </button>
         </div>
         <div className="hello-goal" title={`${todayXp} / ${dailyGoal} XP today`}>
           <ProgressRing value={todayXp / dailyGoal} size={74} stroke={9} color={goalDone ? 'var(--leaf)' : 'var(--berry)'}>

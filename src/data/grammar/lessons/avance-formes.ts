@@ -7,7 +7,7 @@ export const AVANCE_FORMES: Lesson[] = [
     unit: 'formes',
     title: 'La voix passive',
     en: 'The passive voice',
-    level: 4,
+    level: 3,
     intro: "The passive puts the person or thing that undergoes the action first: **Le pont a été construit en 1890.** It is built with **être** + past participle, and the participle agrees with the subject.",
     sections: [
       {
@@ -66,7 +66,7 @@ export const AVANCE_FORMES: Lesson[] = [
     unit: 'formes',
     title: 'Le gérondif et le participe présent',
     en: 'The gerund and the present participle',
-    level: 4,
+    level: 3,
     intro: "Both are built on **-ant**. The gérondif (**en travaillant**) describes the circumstances of the main action; the participe présent (**travaillant**) belongs to written French and works like a relative clause or a cause.",
     sections: [
       {

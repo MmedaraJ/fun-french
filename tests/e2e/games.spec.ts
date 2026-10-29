@@ -155,3 +155,43 @@ test('Avancé: nothing for beginners, advanced structures in the daily practice'
   expect(types).toContain('drill');
   expect(errors).toEqual([]);
 });
+
+test('Débutant: A0 to A2 around A1, and the level is the first thing in Réglages', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('pageerror', (e) => errors.push(String(e)));
+  await onboarded(page, { minLevel: 1 });
+
+  // the level shows on the home screen and leads to Réglages, where it comes first
+  await page.locator('.level-chip', { hasText: 'Débutant' }).click();
+  await expect(page).toHaveURL(/#\/settings/);
+  await expect(page.locator('.set-section').first().locator('h2')).toHaveText('Mon niveau');
+  await expect(page.locator('.level-card.is-on')).toContainText('A0 → A2');
+
+  // picture games are there, the advanced structures aren't
+  await page.goto('/#/');
+  await expect(page.locator('.mode-grid .mode-name').first()).toBeVisible();
+  const games = await page.locator('.mode-grid .mode-name').allTextContents();
+  expect(games).toContain('Images');
+  expect(games).not.toContain('Structures');
+
+  // no advanced theme in the word list
+  const advanced = await page.evaluate(async () => {
+    const w = window as unknown as { __bonbon: { db: { decks: { toArray: () => Promise<{ name: string; level: number; builtin: boolean }[]> } } } };
+    return (await w.__bonbon.db.decks.toArray()).filter((d) => d.builtin && d.level >= 3).map((d) => d.name);
+  });
+  await page.goto('/#/words');
+  const shown = (await page.locator('.words-decks .chip').allTextContents()).map((t) => t.trim());
+  for (const name of advanced) expect(shown).not.toContain(name);
+
+  // the lesson path stops at A2
+  await page.goto('/#/grammaire');
+  await expect(page.locator('.gr-unit h2', { hasText: 'Les bases' })).toBeVisible();
+  await expect(page.locator('.gr-level.l3, .gr-level.l4')).toHaveCount(0);
+
+  // switching to Avancé from Réglages takes effect straight away
+  await page.goto('/#/settings');
+  await page.locator('.level-card', { hasText: 'Avancé' }).click();
+  await page.goto('/#/');
+  await expect(page.locator('.level-chip')).toContainText('B1 → C1');
+  expect(errors).toEqual([]);
+});

@@ -128,7 +128,7 @@ export const AVANCE_SUBORDONNEES: Lesson[] = [
     unit: 'subordonnees',
     title: 'Les hypothèses avec si',
     en: 'Conditional sentences with si',
-    level: 4,
+    level: 3,
     intro:
       'In a conditional sentence, the tense after **si** decides the tense of the result. There are three main patterns, a few mixed ones, and one golden rule: never a future or a conditional straight after this si.',
     sections: [

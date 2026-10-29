@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { ModeInfo } from '../lib/engine/modes';
 import { TENSES } from '../lib/grammar/types';
-import { LEVEL_NAMES, tensesAtLevel } from '../lib/level';
+import { BANDS, inBand, tensesAtLevel } from '../lib/level';
 import { useDecks } from '../lib/hooks';
 import { inkOn, paletteColor } from '../lib/palette';
 import { useSettings, type ModeOptions } from '../lib/settings';
@@ -41,18 +41,21 @@ export function GameSetup({ mode, onClose }: Props) {
     setOpts({ tenses: cur.includes(id) ? cur.filter((t) => t !== id) : [...cur, id] });
   };
   // the Structures game picks drill sets, named after the lesson that teaches them (loaded on demand)
-  const [drillTopics, setDrillTopics] = useState<{ id: string; label: string }[]>([]);
+  const [allDrillTopics, setDrillTopics] = useState<{ id: string; label: string; level: number }[]>([]);
+  // the structures of her band (all of them in a band that has none of its own)
+  const inMyBand = allDrillTopics.filter((t) => inBand(t.level, minLevel));
+  const drillTopics = inMyBand.length ? inMyBand : allDrillTopics;
   useEffect(() => {
-    if (mode?.id !== 'structures' || drillTopics.length) return;
+    if (mode?.id !== 'structures' || allDrillTopics.length) return;
     let alive = true;
     void Promise.all([import('../data/grammar/drills'), import('../data/grammar/lessons')]).then(([{ DRILL_SETS }, { LESSONS }]) => {
       const lessonTitle = new Map(LESSONS.flatMap((l) => (l.practice.drills ?? []).map((d) => [d, l.title] as const)));
-      if (alive) setDrillTopics(DRILL_SETS.map((d) => ({ id: d.id, label: lessonTitle.get(d.id) ?? d.en })));
+      if (alive) setDrillTopics(DRILL_SETS.map((d) => ({ id: d.id, label: lessonTitle.get(d.id) ?? d.en, level: d.level })));
     });
     return () => {
       alive = false;
     };
-  }, [mode?.id, drillTopics.length]);
+  }, [mode?.id, allDrillTopics.length]);
   const toggleDrill = (id: string) => {
     const cur = opts.drills ?? [];
     setOpts({ drills: cur.includes(id) ? cur.filter((d) => d !== id) : [...cur, id] });
@@ -78,7 +81,9 @@ export function GameSetup({ mode, onClose }: Props) {
       const tenses = (opts.tenses ?? []).filter((t) => atLevel.includes(t as never));
       if (tenses.length) params.set('tenses', tenses.join(','));
       if (mode.id === 'conjugaison' && opts.verbSet && opts.verbSet !== 'all') params.set('verbset', opts.verbSet);
-      if (mode.id === 'structures' && opts.drills?.length) params.set('drills', opts.drills.join(','));
+      // a structure chosen in another band is dropped
+      const drills = (opts.drills ?? []).filter((id) => drillTopics.some((t) => t.id === id));
+      if (mode.id === 'structures' && drills.length) params.set('drills', drills.join(','));
     } else {
       if (opts.deckIds.length) params.set('decks', opts.deckIds.join(','));
       if (opts.focus) params.set('focus', '1');
@@ -138,7 +143,7 @@ export function GameSetup({ mode, onClose }: Props) {
                   <div className="field-label">Tenses</div>
                   <div className="row row--wrap setup-decks">
                     <button className="chip" aria-pressed={!opts.tenses?.length} onClick={() => setOpts({ tenses: [] })}>
-                      <Emoji e="🌈" size={18} /> All tenses{minLevel > 1 ? ` (${LEVEL_NAMES[minLevel]}+)` : ''}
+                      <Emoji e="🌈" size={18} /> All tenses ({BANDS[minLevel].range})
                     </button>
                     {tenseChoices.map((t) => (
                       <button key={t.id} className="chip" aria-pressed={!!opts.tenses?.includes(t.id)} onClick={() => toggleTense(t.id)}>

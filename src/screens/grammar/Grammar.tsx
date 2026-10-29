@@ -12,6 +12,7 @@ import { LESSONS } from '../../data/grammar/lessons';
 import { getBookGrammar } from '../../lib/book';
 import { db } from '../../lib/db';
 import { MODES, type ModeInfo } from '../../lib/engine/modes';
+import { inBand, modeShown } from '../../lib/level';
 import { lessonSkillIds } from '../../lib/grammar/exercises';
 import type { Lesson } from '../../lib/grammar/types';
 import { inkOn, paletteColor } from '../../lib/palette';
@@ -54,11 +55,11 @@ export function useLessonsDone(): Set<string> {
   return useLiveQuery(async () => lessonsDone(await db.sessions.filter((s) => !!s.lesson).toArray()), []) ?? new Set<string>();
 }
 
-/** Lessons at or above the level floor, plus any her own PDFs teach, in path order. */
+/** Lessons in her band, plus any her own PDFs teach, in path order. */
 export function useVisibleLessons(): Lesson[] {
-  const minLevel = useSettings((s) => s.minLevel);
+  const band = useSettings((s) => s.minLevel);
   const book = useBookLessons();
-  return LESSONS.filter((l) => l.level >= minLevel || book.has(l.id));
+  return LESSONS.filter((l) => inBand(l.level, band) || book.has(l.id));
 }
 
 /** Lesson ids the PDFs she imported teach. */
@@ -88,9 +89,10 @@ export default function Grammar() {
 function GrammarHome() {
   const navigate = useNavigate();
   const mascotColor = useSettings((s) => s.mascotColor);
+  const band = useSettings((s) => s.minLevel);
   const [setupMode, setSetupMode] = useState<ModeInfo | null>(null);
   const skills = useLiveQuery(async () => new Map((await db.skills.toArray()).map((p) => [p.cardId, p])), []) ?? new Map<string, Progress>();
-  const games = MODES.filter((m) => m.section === 'grammar' && m.id !== 'grammaire');
+  const games = MODES.filter((m) => m.section === 'grammar' && m.id !== 'grammaire' && modeShown(m, band));
   const conjRef = useRef<HTMLButtonElement>(null);
   const visible = useVisibleLessons();
 

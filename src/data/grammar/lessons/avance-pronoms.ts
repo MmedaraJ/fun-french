@@ -151,7 +151,7 @@ export const AVANCE_PRONOMS: Lesson[] = [
     unit: 'pronoms',
     title: 'Les doubles pronoms',
     en: 'Double object pronouns',
-    level: 4,
+    level: 3,
     intro:
       'When a verb takes two object pronouns, they come in a fixed order: **Je te le prête. Je le lui ai dit. Il nous en a parlé.** The affirmative imperative has an order of its own: **Donne-le-moi.**',
     sections: [

@@ -435,7 +435,7 @@ export const SUBORDONNEES_DRILLS: DrillSet[] = [
     id: 'hypotheses-si',
     title: 'Mets le verbe au temps qui convient',
     en: 'Put the verb in the right tense',
-    level: 4,
+    level: 3,
     items: [
       {
         id: 'present-futur',

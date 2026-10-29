@@ -79,6 +79,29 @@
   font-weight: 600;
 }
 
+/* her level, one tap from changing it */
+.level-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 4px 10px 4px 8px;
+  border-radius: 999px;
+  background: var(--surface);
+  box-shadow: inset 0 0 0 2px var(--line);
+  color: var(--text);
+  font-size: 0.8rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.level-chip::after {
+  content: '›';
+  opacity: 0.55;
+  font-size: 1rem;
+  line-height: 1;
+}
+
 .goal-inner {
   display: flex;
   flex-direction: column;

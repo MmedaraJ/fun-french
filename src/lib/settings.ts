@@ -5,7 +5,7 @@ import type { GameMode } from '../types';
 export type ThemePref = 'auto' | 'light' | 'dark';
 /** 1 Facile, 2 Normal, 3 Difficile. */
 export type Difficulty = 1 | 2 | 3;
-/** Built-in material below this level (1 A1, 2 A2, 3 B1) is left out. */
+/** Her CEFR band (see lib/level): 1 Débutant A0–A2 (centred on A1), 2 Intermédiaire A2–B1, 3 Avancé B1–C1. */
 export type MinLevel = 1 | 2 | 3;
 export type MascotColorPref = 'pink' | 'pistachio' | 'lemon' | 'lavender' | 'caramel' | 'raspberry';
 

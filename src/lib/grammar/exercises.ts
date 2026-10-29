@@ -26,7 +26,7 @@ import {
   type Subject,
   type Tense,
 } from './types';
-import { tensesAtLevel } from '../level';
+import { BANDS, inBand, tensesAtLevel } from '../level';
 import { VERBS, VERB_BY_INF } from './verb-list';
 
 export interface GrammarPayload {
@@ -74,8 +74,9 @@ export interface GrammarConfig {
   /** 1 beginner, 2 A2, 3 B1 – typing comes earlier at higher levels. */
   level: 1 | 2 | 3;
   /**
-   * Level floor (1 A1, 2 A2, 3 B1): below it, tenses, plain "ne… pas", the easy ways to ask
-   * and the easy question-bank items are left out, unless a lesson asks for them by name.
+   * Her band (1 Débutant A0–A2, 2 Intermédiaire A2–B1, 3 Avancé B1–C1): tenses, question items
+   * and drill sets outside it are left out unless a lesson asks for them by name; from
+   * Intermédiaire on, plain "ne… pas" and the easy ways to ask are too.
    */
   minLevel?: 1 | 2 | 3;
 }
@@ -690,11 +691,14 @@ function caseLike(word: string, sentenceInitial: boolean): string {
 
 /** Pick the question word that fits the answer. */
 /** Question-bank items at the level floor (the bank tops out at A2), or all of them if none fit. */
-/** Question items at the level floor; a lesson about one question word falls back to easier items when it must. */
+/** Question items in her band; a lesson about one question word reaches down to easier items when it must. */
 function questionBank(cfg: GrammarConfig): QAItem[] {
   const words = QUESTIONS.filter((q) => !cfg.qwords?.length || cfg.qwords.includes(q.word));
-  for (let floor = cfg.minLevel ?? 1; floor > 1; floor--) {
-    const atLevel = words.filter((q) => q.level >= floor);
+  if (!cfg.minLevel) return words;
+  const { min, max } = BANDS[cfg.minLevel];
+  // the bank's items go up to level 3 (advanced)
+  for (let lo = Math.min(min, 3); lo >= 1; lo--) {
+    const atLevel = words.filter((q) => q.level >= lo && q.level <= max);
     if (atLevel.length >= 6) return atLevel;
   }
   return words;
@@ -846,10 +850,16 @@ const genListen: Gen = (cfg, rand, used) => {
 
 /* ------------------------------------------------------------------ drills */
 
-/** The drill sets a round draws from: the lesson's or chosen ones, else (or if they're gone) all of them. */
+/** The drill sets a round draws from: the lesson's or chosen ones, else the ones in her band. */
 function drillSets(cfg: GrammarConfig): DrillSet[] {
   const chosen = cfg.drills?.length ? DRILL_SETS.filter((d) => cfg.drills!.includes(d.id)) : [];
-  return chosen.length ? chosen : DRILL_SETS;
+  if (chosen.length) return chosen;
+  if (!cfg.minLevel) return DRILL_SETS;
+  const band = cfg.minLevel;
+  const atLevel = DRILL_SETS.filter((d) => inBand(d.level, band));
+  if (atLevel.length) return atLevel;
+  // the Structures game opened in a band with none of its own (Débutant) still plays
+  return cfg.kinds.length === 1 && cfg.kinds[0] === 'drill' ? DRILL_SETS : [];
 }
 
 /** One hand-written gap sentence: pick the filler while the structure is new, type it once it's known. */

@@ -7,7 +7,7 @@ export const AVANCE_DISCOURS: Lesson[] = [
     unit: 'discours',
     title: 'Le discours indirect',
     en: 'Reported speech',
-    level: 4,
+    level: 3,
     intro:
       "Reported speech retells what someone said without quoting it: **Elle a dit : « Je suis prête. »** → **Elle a dit qu'elle était prête.** Pronouns, possessives, time words and, after a past verb, tenses all shift to the reporter's point of view.",
     sections: [

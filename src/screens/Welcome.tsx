@@ -21,12 +21,11 @@ const STEP_MOODS: MascotMood[] = ['excited', 'happy', 'thinking', 'happy', 'love
 const LAST = STEP_COLORS.length - 1;
 
 const LEVELS: { emoji: string; fr: string; en: string; perRound: number; minLevel: 1 | 2 | 3 }[] = [
-  { emoji: '🌱', fr: 'Je débute', en: 'I’m a total beginner', perRound: 3, minLevel: 1 },
-  { emoji: '🌿', fr: 'Je connais quelques mots', en: 'I know a few words', perRound: 4, minLevel: 1 },
-  // getting by: the A1 basics are left out (Réglages → Niveau brings them back)
-  { emoji: '🌳', fr: 'Je me débrouille', en: 'I can get by', perRound: 5, minLevel: 2 },
-  // advanced: nothing for beginners at all
-  { emoji: '🎓', fr: 'Niveau avancé', en: 'I’m an advanced learner', perRound: 5, minLevel: 3 },
+  // the first two start in Débutant (A0–A2, centred on A1), then Intermédiaire, then Avancé
+  { emoji: '🌱', fr: 'Je débute', en: 'I’m a total beginner (A0)', perRound: 3, minLevel: 1 },
+  { emoji: '🌿', fr: 'Je connais quelques mots', en: 'I know a few words (A1)', perRound: 4, minLevel: 1 },
+  { emoji: '🌳', fr: 'Je me débrouille', en: 'I can get by (A2–B1)', perRound: 5, minLevel: 2 },
+  { emoji: '🎓', fr: 'Niveau avancé', en: 'I’m an advanced learner (B1–C1)', perRound: 5, minLevel: 3 },
 ];
 
 const BEGINNER = ['animals', 'food', 'home', 'colors', 'numbers', 'phrases', 'love', 'verbs-er'];
@@ -44,8 +43,8 @@ function suggestedDecks(decks: Deck[], level: Level): string[] {
     return picks.length ? picks : decks.filter((d) => d.level <= 1).slice(0, 7).map((d) => d.id);
   }
   if (level === 1) return decks.filter((d) => d.level <= 1 || ['love', 'cafe'].includes(d.id)).map((d) => d.id);
-  if (level === 3) return decks.filter((d) => d.level >= 3).map((d) => d.id);
-  return decks.filter((d) => d.level <= 2).map((d) => d.id);
+  // getting by or advanced: every theme of the band
+  return decks.map((d) => d.id);
 }
 
 export default function Welcome() {

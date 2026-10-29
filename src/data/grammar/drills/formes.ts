@@ -6,7 +6,7 @@ export const FORMES_DRILLS: DrillSet[] = [
     id: 'voix-passive',
     title: 'Complète avec le passif ou une tournure équivalente',
     en: 'Complete with the passive or an equivalent structure',
-    level: 4,
+    level: 3,
     items: [
       {
         id: 'pont-construit',
@@ -208,7 +208,7 @@ export const FORMES_DRILLS: DrillSet[] = [
     id: 'gerondif-participe',
     title: 'Complète avec le gérondif, le participe ou l\'adjectif',
     en: 'Complete with the gerund, the participle or the adjective',
-    level: 4,
+    level: 3,
     items: [
       {
         id: 'en-voyageant',
