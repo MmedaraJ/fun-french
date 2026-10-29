@@ -255,6 +255,7 @@ export const CH_BUT: Chapter = {
           en: "During the interview, don't let anyone in, whoever it is.",
           why: 'Qui que (whoever) + subjunctive: qui que ce soit.',
         },
+        // @@MORE-9A@@
       ],
     },
     {
@@ -502,6 +503,7 @@ export const CH_BUT: Chapter = {
           en: 'This candidate has no experience; yet he was hired.',
           why: 'Pourtant links two independent clauses; in a compound tense it goes after the auxiliary.',
         },
+        // @@MORE-9B@@
       ],
     },
     {
@@ -732,6 +734,7 @@ export const CH_BUT: Chapter = {
           en: "Although she's very young, she already manages a team of twenty.",
           why: "Bien que + subjunctive (qu'elle soit), and no mais in the main clause.",
         },
+        // @@MORE-9C@@
       ],
     },
     {
@@ -862,6 +865,7 @@ export const CH_BUT: Chapter = {
           en: 'She stayed at home for fear it might rain.',
           why: "De peur que + subjunctive (qu'il pleuve); the ne is optional and not negative.",
         },
+        // @@MORE-9D@@
       ],
     },
   ],
