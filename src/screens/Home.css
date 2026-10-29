@@ -368,13 +368,15 @@
 /* the courses, chapter by chapter */
 .course-cards {
   display: grid;
+  /* minmax(0, …): the next chapter's title is cut with an ellipsis, it doesn't widen the card */
+  grid-template-columns: minmax(0, 1fr);
   gap: 12px;
   margin-bottom: 8px;
 }
 
 @media (min-width: 640px) {
   .course-cards {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 

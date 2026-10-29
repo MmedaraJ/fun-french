@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { GrammarType } from '../../types';
+import type { DrillItem } from './types';
 import { normalizeAnswer } from '../french';
 import { EXERCISES } from '../../data/course';
 import { DRILL_SETS } from '../../data/grammar/drills';
@@ -215,6 +216,40 @@ describe('grammar exercises', () => {
     const qs = buildGrammarQuestions({ kinds: ['drill'], drills: [set.id], length: 12, skills: known, level: 3 }, seeded(4));
     expect(qs.filter((q) => q.g!.mode === 'type').length).toBeGreaterThanOrEqual(6);
     for (const q of qs.filter((q) => q.g!.mode === 'type')) expect(q.g!.accept).toContain(q.g!.answer);
+  });
+
+  it('typing a gap: a word-order filler shows its words scrambled; one she could only guess stays a choice', () => {
+    const words = (s: string) => normalizeAnswer(s).split(/\s+/).sort().join(' ');
+    const reorders = (it: DrillItem) => /\s/.test(it.answer.trim()) && it.wrong.some((w) => words(w) === words(it.answer));
+    const guesswork = (it: DrillItem) => !it.cue && /\s/.test(it.answer.trim()) && !reorders(it);
+    const known = (skill: string) => new Map([[skill, { cardId: skill, box: 3, due: Date.now() + 1e9, seen: 9, correct: 9, wrong: 0, lapses: 0, streak: 9, firstSeen: 1, lastSeen: 1 }]]);
+    let scrambledSeen = 0;
+    let typedSeen = 0;
+    for (const ex of EXERCISES.filter((e) => e.kind === 'gap')) {
+      const items = ex.items as DrillItem[];
+      for (const seed of [1, 2]) {
+        for (const q of buildGrammarQuestions({ kinds: ['compose'], exercises: [ex.id], length: 10, skills: known(`g:ex:${ex.id}`), level: 3 }, seeded(seed))) {
+          const g = q.g!;
+          const item = items.find((it) => it.fr === g.prompt)!;
+          if (guesswork(item)) expect(g.mode, g.prompt).toBe('choice');
+          if (g.mode !== 'type') continue;
+          typedSeen++;
+          const chip = g.chips?.find((c) => c.includes(' / '));
+          if (!reorders(item)) {
+            expect(chip, g.prompt).toBeUndefined();
+            continue;
+          }
+          // the words to put in order, all of them, never already in the right order
+          expect(chip, g.prompt).toBeDefined();
+          const shown = chip!.split(' / ');
+          expect([...shown].sort()).toEqual(g.answer.trim().split(/\s+/).sort());
+          expect(shown.join(' ')).not.toBe(g.answer.trim());
+          scrambledSeen++;
+        }
+      }
+    }
+    expect(typedSeen).toBeGreaterThan(100);
+    expect(scrambledSeen).toBeGreaterThan(10);
   });
 
   it('a lesson that names an A1 tense still gets it above the floor', () => {

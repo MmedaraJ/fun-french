@@ -62,8 +62,15 @@
 
 .course-exercises {
   display: grid;
+  /* the column never grows past the screen to fit a long title or button label */
+  grid-template-columns: minmax(0, 1fr);
   gap: 10px;
   margin-top: 22px;
+}
+
+.course-exercises .lesson-go {
+  white-space: normal;
+  line-height: 1.2;
 }
 
 .course-ex {

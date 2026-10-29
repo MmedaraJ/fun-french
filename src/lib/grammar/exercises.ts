@@ -865,15 +865,37 @@ function drillSets(cfg: GrammarConfig): DrillSet[] {
   return cfg.kinds.length === 1 && cfg.kinds[0] === 'drill' ? DRILL_SETS : [];
 }
 
-/** A hand-written gap sentence: pick the filler while the skill is new, type it once it's known. */
+/** The words of a filler in a fixed order, to tell whether two fillers only differ in word order. */
+const wordSet = (s: string) => normalizeAnswer(s).split(/\s+/).filter(Boolean).sort().join(' ');
+
+/** A filler that tests word order: one of its wrong options has the very same words, differently placed. */
+function testsOrder(item: DrillItem): boolean {
+  return /\s/.test(item.answer.trim()) && item.wrong.some((w) => wordSet(w) === wordSet(item.answer));
+}
+
+/** The filler's words, scrambled (never in the right order), e.g. "personne / vu". */
+function scrambled(answer: string, rand: Rand): string {
+  const words = answer.trim().split(/\s+/);
+  const out = shuffle(words, rand);
+  return (out.join(' ') === words.join(' ') ? [...words.slice(1), words[0]] : out).join(' / ');
+}
+
+/**
+ * A hand-written gap sentence: pick the filler while the skill is new, type it once it's known.
+ * Typing a word-order filler shows its words scrambled: the order is the point, not guessing the words.
+ * A filler of several words with no cue that isn't a reordering would be guesswork to type: it stays a choice.
+ */
 function gapQuestion(kind: GrammarType, skill: string, title: string, item: DrillItem, cfg: GrammarConfig, rand: Rand): Question {
-  const mode = answerMode(cfg, skill, rand) === 'type' ? 'type' : 'choice';
+  const order = testsOrder(item);
+  const typeable = !!item.cue || order || !/\s/.test(item.answer.trim());
+  const mode = answerMode(cfg, skill, rand) === 'type' && typeable ? 'type' : 'choice';
+  const chips = [...(item.cue ? [item.cue] : []), ...(mode === 'type' && order ? [scrambled(item.answer, rand)] : [])];
   return question({
     kind,
     skill,
     title,
     prompt: item.fr,
-    chips: item.cue ? [item.cue] : undefined,
+    chips: chips.length ? chips : undefined,
     mode,
     options: mode === 'choice' ? optionsFrom(item.answer, item.wrong, rand, wrongCount(cfg), item.accept ?? []) : undefined,
     answer: item.answer,
