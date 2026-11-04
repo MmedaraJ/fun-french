@@ -682,7 +682,6 @@ export const T_PRONOMINAUX: Chapter = {
           en: 'We went to the prefecture as soon as it opened, but there was already a queue.',
           why: 'Se rendre (to go somewhere) agrees with the subject: nous nous sommes rendus (unlike se rendre compte, which never agrees).',
         },
-        // @@MORE-A@@
       ],
     },
     {
@@ -1196,7 +1195,6 @@ export const T_PRONOMINAUX: Chapter = {
           en: 'I suddenly remembered the words of that old song.',
           why: "Les paroles is a direct object after the verb (se is indirect), so rappelé doesn't agree, even if the speaker is a woman.",
         },
-        // @@MORE-B@@
       ],
     },
     {
@@ -1844,7 +1842,6 @@ export const T_PRONOMINAUX: Chapter = {
           en: 'We settled in Montpellier three years ago.',
           why: "S'installer: être and agreement with the subject (nous nous sommes installés); il y a (ago) dates a finished event.",
         },
-        // @@MORE-C@@
       ],
     },
     {
@@ -2395,7 +2392,6 @@ export const T_PRONOMINAUX: Chapter = {
           en: 'The two brothers have always looked alike.',
           why: "Ressembler à quelqu'un: se is an indirect object, so ressemblé never agrees.",
         },
-        // @@MORE-D@@
       ],
     },
   ],

@@ -630,7 +630,6 @@ export const T_CONCORDANCE: Chapter = {
           en: 'I was hoping the results would be published before I went on holiday; they came out the following week.',
           why: "Espérer takes the indicative; after a past verb, the future becomes a conditionnel: j'espérais qu'ils seraient publiés.",
         },
-        // @@MORE-A@@
       ],
     },
     {
@@ -1330,7 +1329,6 @@ export const T_CONCORDANCE: Chapter = {
           en: 'It was time for you to pack your bags.',
           why: 'Il était temps que + subjonctif présent: que vous fassiez, not the imparfait faisiez.',
         },
-        // @@MORE-B@@
       ],
     },
     {
@@ -2208,7 +2206,6 @@ export const T_CONCORDANCE: Chapter = {
           en: 'By the time you read this letter, I will have left.',
           why: 'Quand + futur for the future moment (not the present, as this chapter teaches), and a futur antérieur for what will be over by then (je serai parti).',
         },
-        // @@MORE-C@@
       ],
     },
     {
@@ -2852,7 +2849,6 @@ export const T_CONCORDANCE: Chapter = {
           en: 'We were afraid the company would go bankrupt before the end of the year.',
           why: "Craindre que + subjunctive (often with ne), even in the past: que l'entreprise (ne) fasse faillite.",
         },
-        // @@MORE-D@@
       ],
     },
   ],

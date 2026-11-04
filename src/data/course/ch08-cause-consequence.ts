@@ -388,13 +388,13 @@ export const CH_CAUSE: Chapter = {
         },
         {
           id: 'nom-hausse-energie',
-          fr: "Beaucoup de familles renoncent aux vacances à cause de la ____ des prix de l'énergie.",
+          fr: "Beaucoup de familles renoncent aux vacances à cause d'une forte ____ des prix de l'énergie.",
           cue: '(augmenter)',
           answer: 'hausse',
-          accept: ['augmentation', 'flambée', 'montée'],
+          accept: ['augmentation', 'montée'],
           wrong: ['augmenter', 'augmentée', 'haussé'],
-          en: 'Many families are giving up their holidays because of the rise in energy prices.',
-          why: "À cause de needs a noun: augmenter → la hausse (or l'augmentation) des prix.",
+          en: 'Many families are giving up their holidays because of a sharp rise in energy prices.',
+          why: "À cause de needs a noun: augmenter → une hausse (or une augmentation) des prix.",
         },
         {
           id: 'nom-fermeture-maternite',
@@ -445,6 +445,7 @@ export const CH_CAUSE: Chapter = {
           id: 'aussi-inversion-juge',
           fr: "Les preuves étaient insuffisantes ; ____ le juge a-t-il classé l'affaire.",
           answer: 'aussi',
+          accept: ['ainsi'],
           wrong: ['donc', 'alors', "c'est pourquoi"],
           en: 'The evidence was insufficient; the judge therefore dismissed the case.',
           why: "Only aussi (= therefore), at the head of the clause, brings this inversion: aussi le juge a-t-il classé l'affaire.",
@@ -524,11 +525,11 @@ export const CH_CAUSE: Chapter = {
         },
         {
           id: 'tellement-de-choses',
-          fr: "J'avais ____ choses à régler que j'ai complètement oublié ton anniversaire.",
+          fr: "J'avais ____ choses à régler que j'ai oublié de rappeler le plombier.",
           answer: 'tellement de',
           accept: ['tant de'],
           wrong: ['tellement des', 'si', 'tant des', 'tellement'],
-          en: 'I had so many things to sort out that I completely forgot your birthday.',
+          en: 'I had so many things to sort out that I forgot to call the plumber back.',
           why: 'Before a noun: tellement de or tant de, with no article.',
         },
         {
@@ -594,7 +595,6 @@ export const CH_CAUSE: Chapter = {
           en: 'As the heating had been broken since Monday, the pupils kept their coats on in class.',
           why: 'Comme, like every cause conjunction, takes the indicative.',
         },
-        // @@MORE-A@@
       ],
     },
     {
@@ -1298,7 +1298,6 @@ export const CH_CAUSE: Chapter = {
           en: 'The car broke down on the motorway because the engine overheated.',
           why: 'À cause de needs a noun: le moteur a surchauffé → la surchauffe du moteur.',
         },
-        // @@MORE-B@@
       ],
     },
     {
@@ -2282,7 +2281,6 @@ export const CH_CAUSE: Chapter = {
           en: "Since it's free, why not go?",
           why: 'Since giving a reason = puisque, not depuis que; ne pas comes together before y and the infinitive.',
         },
-        // @@MORE-C@@
       ],
     },
     {
@@ -2415,20 +2413,20 @@ export const CH_CAUSE: Chapter = {
         },
         {
           id: 'car-en-tete-ascenseur',
-          from: "Car l'ascenseur était en panne, les déménageurs ont tout monté par l'escalier.",
-          answer: "Comme l'ascenseur était en panne, les déménageurs ont tout monté par l'escalier.",
+          from: "Car l'ascenseur était en panne, les déménageurs ont dû hisser le piano par la fenêtre.",
+          answer: "Comme l'ascenseur était en panne, les déménageurs ont dû hisser le piano par la fenêtre.",
           accept: [
-            "Les déménageurs ont tout monté par l'escalier, car l'ascenseur était en panne.",
-            "Les déménageurs ont tout monté par l'escalier parce que l'ascenseur était en panne.",
-            "Puisque l'ascenseur était en panne, les déménageurs ont tout monté par l'escalier.",
-            "L'ascenseur était en panne, donc les déménageurs ont tout monté par l'escalier.",
+            "Les déménageurs ont dû hisser le piano par la fenêtre, car l'ascenseur était en panne.",
+            "Les déménageurs ont dû hisser le piano par la fenêtre parce que l'ascenseur était en panne.",
+            "Puisque l'ascenseur était en panne, les déménageurs ont dû hisser le piano par la fenêtre.",
+            "L'ascenseur était en panne, donc les déménageurs ont dû hisser le piano par la fenêtre.",
           ],
           wrong: [
-            "Car l'ascenseur était en panne, les déménageurs ont tout monté par l'escalier.",
-            "Comme l'ascenseur était en panne, donc les déménageurs ont tout monté par l'escalier.",
-            "Comme l'ascenseur soit en panne, les déménageurs ont tout monté par l'escalier.",
+            "Car l'ascenseur était en panne, les déménageurs ont dû hisser le piano par la fenêtre.",
+            "Comme l'ascenseur était en panne, donc les déménageurs ont dû hisser le piano par la fenêtre.",
+            "Comme l'ascenseur soit en panne, les déménageurs ont dû hisser le piano par la fenêtre.",
           ],
-          en: 'As the lift was out of order, the removal men carried everything up the stairs.',
+          en: 'As the lift was out of order, the removal men had to hoist the piano up through the window.',
           why: 'Car can never open a sentence: at the head, use comme (or puisque), or put car after the main clause.',
         },
         {
@@ -2596,22 +2594,22 @@ export const CH_CAUSE: Chapter = {
           why: "Faute de already means 'for lack of': no negation after it, and no article.",
         },
         {
-          id: 'en-raison-que-piste',
-          from: 'Le vol est retardé en raison que la piste est enneigée.',
-          answer: 'Le vol est retardé en raison de la neige sur la piste.',
+          id: 'en-raison-que-avalanche',
+          from: "La randonnée est annulée en raison que le risque d'avalanche est élevé.",
+          answer: "La randonnée est annulée en raison du risque élevé d'avalanche.",
           accept: [
-            "Le vol est retardé en raison de l'enneigement de la piste.",
-            'Le vol est retardé à cause de la neige sur la piste.',
-            'Le vol est retardé parce que la piste est enneigée.',
-            'Le vol est retardé, car la piste est enneigée.',
-            'Le vol est retardé du fait que la piste est enneigée.',
+            "La randonnée est annulée en raison du risque d'avalanche élevé.",
+            "La randonnée est annulée à cause du risque élevé d'avalanche.",
+            "La randonnée est annulée parce que le risque d'avalanche est élevé.",
+            "La randonnée est annulée, car le risque d'avalanche est élevé.",
+            "La randonnée est annulée du fait que le risque d'avalanche est élevé.",
           ],
           wrong: [
-            'Le vol est retardé en raison que la piste est enneigée.',
-            'Le vol est retardé en raison de la piste est enneigée.',
-            "Le vol est retardé en raison qu'il y a de la neige sur la piste.",
+            "La randonnée est annulée en raison que le risque d'avalanche est élevé.",
+            "La randonnée est annulée en raison de le risque d'avalanche est élevé.",
+            "La randonnée est annulée grâce au risque élevé d'avalanche.",
           ],
-          en: 'The flight is delayed because of snow on the runway.',
+          en: 'The hike has been cancelled because of the high avalanche risk.',
           why: 'En raison de takes a noun; before a clause, use parce que (or du fait que).',
         },
         {
@@ -3107,7 +3105,6 @@ export const CH_CAUSE: Chapter = {
           en: 'Given the heat, the children are staying indoors.',
           why: 'Étant donné (like vu) is followed directly by the noun, with no de and no que.',
         },
-        // @@MORE-D@@
       ],
     },
   ],

@@ -608,7 +608,6 @@ export const CH_STYLE: Chapter = {
           en: 'The project could be completed by 2027, provided, that is, that the funds are released in time.',
           why: "Encore at the head of a clause (= and even then) takes the inversion: encore faut-il que + subjunctive.",
         },
-        // @@MORE-A@@
       ],
     },
     {
@@ -1445,7 +1444,6 @@ export const CH_STYLE: Chapter = {
           en: 'Never had the city experienced such a drought.',
           why: 'Unlike English, jamais at the start needs no inversion; it keeps its ne in writing and replaces pas.',
         },
-        // @@MORE-B@@
       ],
     },
     {
@@ -2506,7 +2504,6 @@ export const CH_STYLE: Chapter = {
           en: 'Never will I accept such conditions.',
           why: 'Jamais at the start needs no inversion and keeps its ne (no pas); before a plural adjective, des becomes de: de telles conditions.',
         },
-        // @@MORE-C@@
       ],
     },
     {
@@ -3212,7 +3209,6 @@ export const CH_STYLE: Chapter = {
           en: 'And so the festival season comes to an end.',
           why: 'After ainsi, either put the noun after the verb (prend fin la saison) or keep it in front with a pronoun after the verb, never both.',
         },
-        // @@MORE-D@@
       ],
     },
   ],

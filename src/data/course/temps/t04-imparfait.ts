@@ -621,7 +621,6 @@ export const T_IMPARFAIT: Chapter = {
           en: 'Well, what do you know! I was just about to ask you the same question.',
           why: "Aller in the imparfait + infinitive: was (just) about to; j'allais, with -ais for je.",
         },
-        // @@MORE-A@@
       ],
     },
     {
@@ -1139,7 +1138,6 @@ export const T_IMPARFAIT: Chapter = {
           en: 'You could tell it was going to rain.',
           why: 'In the past, aller + infinitive moves to the imparfait: il allait pleuvoir (it was going to rain).',
         },
-        // @@MORE-B@@
       ],
     },
     {
@@ -1882,7 +1880,6 @@ export const T_IMPARFAIT: Chapter = {
           en: "I didn't feel like going out, so I stayed in.",
           why: 'A state of mind (not feeling like it) takes the imparfait; the decision that follows takes the passé composé (je suis resté).',
         },
-        // @@MORE-C@@
       ],
     },
     {
@@ -2416,7 +2413,6 @@ export const T_IMPARFAIT: Chapter = {
           id: 'si-tu-entendais',
           from: 'Si tu entendrais comment il parle à ses employés !',
           answer: 'Si tu entendais comment il parle à ses employés !',
-          accept: ['Si vous entendiez comment il parle à ses employés !'],
           wrong: [
             'Si tu entendrais comment il parle à ses employés !',
             'Si tu entendait comment il parle à ses employés !',
@@ -2442,7 +2438,7 @@ export const T_IMPARFAIT: Chapter = {
           id: 'si-tu-appelais',
           from: 'Et si tu appellerais ta sœur pour lui demander conseil ?',
           answer: 'Et si tu appelais ta sœur pour lui demander conseil ?',
-          accept: ['Et si vous appeliez votre sœur pour lui demander conseil ?', 'Si tu appelais ta sœur pour lui demander conseil ?'],
+          accept: ['Si tu appelais ta sœur pour lui demander conseil ?'],
           wrong: [
             'Et si tu appellerais ta sœur pour lui demander conseil ?',
             'Et si tu appellais ta sœur pour lui demander conseil ?',
@@ -2527,7 +2523,6 @@ export const T_IMPARFAIT: Chapter = {
           en: 'The train was about to leave when a passenger pulled the emergency cord.',
           why: 'Was about to = aller in the imparfait (il allait partir), followed by an infinitive; the interruption takes the passé composé.',
         },
-        // @@MORE-D@@
       ],
     },
   ],
