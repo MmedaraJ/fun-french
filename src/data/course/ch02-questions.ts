@@ -404,7 +404,7 @@ export const CH_QUESTIONS: Chapter = {
           id: 'a-qui-emprunte',
           fr: '____ as-tu emprunté cette somme ? À ta banque ?',
           answer: 'À qui',
-          wrong: ['Qui', 'De qui', 'À quoi'],
+          wrong: ['Qui', 'Dont', 'À quoi'],
           en: 'Who did you borrow that sum from? Your bank?',
           why: "Emprunter quelque chose à quelqu'un: the preposition à comes first, then qui.",
         },

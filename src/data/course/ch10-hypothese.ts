@@ -598,7 +598,6 @@ export const CH_HYPOTHESE: Chapter = {
           en: "If you worked a bit less in the evenings, you'd sleep much better.",
           why: 'En + gérondif can replace si + imparfait when the subject is the same (= si tu travaillais).',
         },
-        // @@MORE-10A@@
       ],
     },
     {
@@ -1020,7 +1019,10 @@ export const CH_HYPOTHESE: Chapter = {
           from: "Si vous ne lisez pas la notice, vous risquez d'abîmer l'appareil.",
           cue: 'sans',
           answer: "Sans lire la notice, vous risquez d'abîmer l'appareil.",
-          accept: ["Sans avoir lu la notice, vous risquez d'abîmer l'appareil."],
+          accept: [
+            "Sans avoir lu la notice, vous risquez d'abîmer l'appareil.",
+            "Vous risquez d'abîmer l'appareil sans lire la notice.",
+          ],
           wrong: [
             "Sans ne pas lire la notice, vous risquez d'abîmer l'appareil.",
             "Sans lisant la notice, vous risquez d'abîmer l'appareil.",
@@ -1079,6 +1081,7 @@ export const CH_HYPOTHESE: Chapter = {
           accept: [
             'Je te prête mon appartement pourvu que tu fasses le ménage avant de partir.',
             'Je te prête mon appartement, à condition que tu fasses le ménage avant de partir.',
+            'À condition que tu fasses le ménage avant de partir, je te prête mon appartement.',
           ],
           wrong: [
             'Je te prête mon appartement à condition que tu fais le ménage avant de partir.',
@@ -1096,6 +1099,7 @@ export const CH_HYPOTHESE: Chapter = {
           accept: [
             'Le festival aura lieu pourvu que toutes les mesures de sécurité soient respectées.',
             'Le festival aura lieu, à condition que toutes les mesures de sécurité soient respectées.',
+            'À condition que toutes les mesures de sécurité soient respectées, le festival aura lieu.',
           ],
           wrong: [
             'Le festival aura lieu à condition que toutes les mesures de sécurité sont respectées.',
@@ -1110,7 +1114,10 @@ export const CH_HYPOTHESE: Chapter = {
           from: 'Tu peux sortir ce soir si tu rentres avant minuit.',
           cue: 'à condition de',
           answer: 'Tu peux sortir ce soir à condition de rentrer avant minuit.',
-          accept: ['Tu peux sortir ce soir, à condition de rentrer avant minuit.'],
+          accept: [
+            'Tu peux sortir ce soir, à condition de rentrer avant minuit.',
+            'À condition de rentrer avant minuit, tu peux sortir ce soir.',
+          ],
           wrong: [
             'Tu peux sortir ce soir à condition de rentres avant minuit.',
             'Tu peux sortir ce soir à condition à rentrer avant minuit.',
@@ -1127,6 +1134,8 @@ export const CH_HYPOTHESE: Chapter = {
           accept: [
             'Nous signerons le contrat jeudi, à moins que la banque revienne sur sa décision.',
             'Nous signerons le contrat jeudi, sauf si la banque revient sur sa décision.',
+            'À moins que la banque ne revienne sur sa décision, nous signerons le contrat jeudi.',
+            'À moins que la banque revienne sur sa décision, nous signerons le contrat jeudi.',
           ],
           wrong: [
             'Nous signerons le contrat jeudi, à moins que la banque ne revient sur sa décision.',
@@ -1141,7 +1150,10 @@ export const CH_HYPOTHESE: Chapter = {
           from: "Tu n'auras pas ton diplôme si tu ne travailles pas davantage.",
           cue: 'à moins de',
           answer: "Tu n'auras pas ton diplôme à moins de travailler davantage.",
-          accept: ["Tu n'auras pas ton diplôme, à moins de travailler davantage."],
+          accept: [
+            "Tu n'auras pas ton diplôme, à moins de travailler davantage.",
+            "À moins de travailler davantage, tu n'auras pas ton diplôme.",
+          ],
           wrong: [
             "Tu n'auras pas ton diplôme à moins de ne pas travailler davantage.",
             "Tu n'auras pas ton diplôme à moins de travailles davantage.",
@@ -1155,7 +1167,11 @@ export const CH_HYPOTHESE: Chapter = {
           from: 'Vous pouvez venir avec votre chien. Il doit être tenu en laisse.',
           cue: 'pourvu que',
           answer: "Vous pouvez venir avec votre chien, pourvu qu'il soit tenu en laisse.",
-          accept: ["Vous pouvez venir avec votre chien pourvu qu'il soit tenu en laisse.", "Vous pouvez venir avec votre chien, à condition qu'il soit tenu en laisse."],
+          accept: [
+            "Vous pouvez venir avec votre chien pourvu qu'il soit tenu en laisse.",
+            "Vous pouvez venir avec votre chien, à condition qu'il soit tenu en laisse.",
+            "Pourvu qu'il soit tenu en laisse, vous pouvez venir avec votre chien.",
+          ],
           wrong: [
             "Vous pouvez venir avec votre chien, pourvu qu'il est tenu en laisse.",
             "Vous pouvez venir avec votre chien, pourvu qu'il sera tenu en laisse.",
@@ -1377,7 +1393,6 @@ export const CH_HYPOTHESE: Chapter = {
           en: "Even if the government increases the benefits, the housing crisis won't be solved.",
           why: 'Même si follows the si patterns: présent after it, futur in the main clause.',
         },
-        // @@MORE-10B@@
       ],
     },
     {
@@ -1626,7 +1641,10 @@ export const CH_HYPOTHESE: Chapter = {
           id: 'karim-cherche',
           from: "If you see Karim, tell him I'm looking for him.",
           answer: 'Si tu vois Karim, dis-lui que je le cherche.',
-          accept: ['Si vous voyez Karim, dites-lui que je le cherche.'],
+          accept: [
+            'Si vous voyez Karim, dites-lui que je le cherche.',
+            'Dis-lui que je le cherche si tu vois Karim.',
+          ],
           wrong: ['Si tu verras Karim, dis-lui que je le cherche.', 'Si tu vois Karim, dis-le que je le cherche.', 'Si tu vois Karim, dis-lui que je lui cherche.'],
           en: "If you see Karim, tell him I'm looking for him.",
           why: "Real condition: si + présent, imperative in the main clause; dire à quelqu'un → lui, chercher quelqu'un → le.",
@@ -1656,6 +1674,7 @@ export const CH_HYPOTHESE: Chapter = {
             'Si nous avions su, nous aurions réservé une plus grande table.',
             'Si on avait su, on aurait réservé une table plus grande.',
             'Si nous avions su, nous aurions réservé une table plus grande.',
+            'On aurait réservé une plus grande table si on avait su.',
           ],
           wrong: [
             'Si on aurait su, on aurait réservé une plus grande table.',
@@ -1690,6 +1709,7 @@ export const CH_HYPOTHESE: Chapter = {
             "S'il était plus patient, il n'aurait pas crié après les enfants.",
             "S'il avait plus de patience, il n'aurait pas crié sur les enfants.",
             "S'il avait été plus patient, il n'aurait pas crié sur les enfants.",
+            "Il n'aurait pas crié sur les enfants s'il était plus patient.",
           ],
           wrong: [
             "S'il serait plus patient, il n'aurait pas crié sur les enfants.",
@@ -1730,6 +1750,7 @@ export const CH_HYPOTHESE: Chapter = {
             'Vous pouvez rester, pourvu que vous ne fassiez pas de bruit.',
             'Tu peux rester, à condition que tu ne fasses pas de bruit.',
             'Vous pouvez rester, à condition que vous ne fassiez pas de bruit.',
+            'À condition de ne pas faire de bruit, tu peux rester.',
           ],
           wrong: [
             'Tu peux rester, à condition de ne faire pas de bruit.',
@@ -1751,6 +1772,8 @@ export const CH_HYPOTHESE: Chapter = {
             "Nous irons à vélo, sauf s'il neige.",
             "On ira en vélo, à moins qu'il ne neige.",
             "On y ira à vélo, à moins qu'il ne neige.",
+            "À moins qu'il ne neige, on ira à vélo.",
+            "À moins qu'il neige, on ira à vélo.",
           ],
           wrong: ["On ira à vélo, à moins qu'il ne neige pas.", "On ira à vélo, à moins qu'il neigera.", "On ira à vélo, à moins qu'il ne neigerait."],
           en: "We'll go by bike, unless it snows.",
@@ -1805,6 +1828,7 @@ export const CH_HYPOTHESE: Chapter = {
             'Si vous achetez en gros, vous paierez moins cher.',
             'Si tu achètes en gros, tu paieras moins cher.',
             'En achetant en grande quantité, vous paierez moins cher.',
+            'Vous paierez moins cher en achetant en gros.',
           ],
           wrong: [
             'En acheter en gros, vous paierez moins cher.',
@@ -1976,6 +2000,7 @@ export const CH_HYPOTHESE: Chapter = {
             "À moins que tu n'aies une meilleure idée, nous resterons à la maison.",
             "À moins que tu n'aies une meilleure idée, on restera à la maison.",
             "À moins que tu n'aies une meilleure idée, on reste à la maison.",
+            "On va rester à la maison, à moins que tu n'aies une meilleure idée.",
           ],
           wrong: [
             'À moins que tu as une meilleure idée, on va rester à la maison.',
@@ -1996,6 +2021,7 @@ export const CH_HYPOTHESE: Chapter = {
             "Tu n'entreras pas, sauf si tu es sur la liste.",
             "Tu n'entreras pas si tu n'es pas sur la liste.",
             "Vous n'entrerez pas si vous n'êtes pas sur la liste.",
+            "À moins d'être sur la liste, tu n'entreras pas.",
           ],
           wrong: [
             "Tu n'entreras pas, à moins de ne pas être sur la liste.",
@@ -2028,7 +2054,11 @@ export const CH_HYPOTHESE: Chapter = {
           id: 'bebe-biberon',
           from: 'If the baby wakes up, give her a bottle.',
           answer: 'Si le bébé se réveille, donne-lui un biberon.',
-          accept: ['Si le bébé se réveille, donnez-lui un biberon.', "Donne un biberon au bébé s'il se réveille."],
+          accept: [
+            'Si le bébé se réveille, donnez-lui un biberon.',
+            "Donne un biberon au bébé s'il se réveille.",
+            'Donne-lui un biberon si le bébé se réveille.',
+          ],
           wrong: ['Si le bébé se réveillera, donne-lui un biberon.', 'Si le bébé se réveille, donne-la un biberon.', 'Si le bébé réveille, donne-lui un biberon.'],
           en: 'If the baby wakes up, give her a bottle.',
           why: "Real condition: si + présent with an imperative; donner à quelqu'un → lui.",
@@ -2062,6 +2092,7 @@ export const CH_HYPOTHESE: Chapter = {
             "Ça m'aiderait vraiment si tu pouvais aller chercher les enfants.",
             "Ça m'aiderait beaucoup si tu pouvais récupérer les enfants.",
             'Ça me rendrait vraiment service si tu pouvais aller chercher les enfants.',
+            "Si tu pouvais aller chercher les enfants, ça m'aiderait beaucoup.",
           ],
           wrong: [
             "Ça m'aiderait beaucoup si tu pourrais aller chercher les enfants.",
@@ -2094,6 +2125,7 @@ export const CH_HYPOTHESE: Chapter = {
             "Si vous pouviez vivre n'importe où, où est-ce que vous iriez ?",
             "Si tu pouvais habiter n'importe où, où irais-tu ?",
             "Si tu pouvais vivre n'importe où, tu irais où ?",
+            "Où est-ce que tu irais si tu pouvais vivre n'importe où ?",
           ],
           wrong: [
             "Si tu pourrais vivre n'importe où, où est-ce que tu irais ?",
@@ -2112,6 +2144,7 @@ export const CH_HYPOTHESE: Chapter = {
             "S'ils avaient écouté les gens du coin, le pont n'aurait jamais été construit à cet endroit.",
             "S'ils avaient écouté les riverains, le pont n'aurait jamais été construit à cet endroit.",
             "Si on avait écouté les habitants, le pont n'aurait jamais été construit à cet endroit.",
+            "Le pont n'aurait jamais été construit à cet endroit s'ils avaient écouté les habitants.",
           ],
           wrong: [
             "S'ils auraient écouté les habitants, le pont n'aurait jamais été construit à cet endroit.",
@@ -2133,6 +2166,7 @@ export const CH_HYPOTHESE: Chapter = {
             "Si jamais vous changez d'avis, prévenez-moi.",
             "Au cas où tu changerais d'avis, dis-le-moi.",
             "Au cas où tu changerais d'avis, fais-moi signe.",
+            "Préviens-moi au cas où tu changerais d'avis.",
           ],
           wrong: ["Au cas où tu changes d'avis, préviens-moi.", "Au cas où tu changeras d'avis, préviens-moi.", "Au cas où tu changerais d'avis, prévenez-moi."],
           en: 'Should you change your mind, let me know.',
@@ -2148,6 +2182,7 @@ export const CH_HYPOTHESE: Chapter = {
             'Sans subventions, la moitié des fermes de la région fermerait.',
             'Sans les subventions, la moitié des exploitations de la région fermeraient.',
             'Sans les aides, la moitié des fermes de la région fermeraient.',
+            'La moitié des fermes de la région fermeraient sans les subventions.',
           ],
           wrong: [
             'Sans des subventions, la moitié des fermes de la région fermeraient.',
@@ -2168,6 +2203,8 @@ export const CH_HYPOTHESE: Chapter = {
             'Avec un loyer moins cher, je pourrais habiter seul.',
             'Avec un loyer moins cher, je pourrais habiter seule.',
             'Avec un loyer plus bas, je pourrais vivre seul.',
+            'Je pourrais vivre seul avec un loyer moins cher.',
+            'Je pourrais vivre seule avec un loyer moins cher.',
           ],
           wrong: [
             'Avec un loyer moins cher, je pourrai vivre seul.',
@@ -2245,6 +2282,8 @@ export const CH_HYPOTHESE: Chapter = {
             "Si je n'étais pas passée à temps partiel, je serais cheffe de service aujourd'hui.",
             "Si je n'étais pas passée à temps partiel, je serais chef de service aujourd'hui.",
             "Si je n'étais pas passé à temps partiel, je serais chef de service maintenant.",
+            "Je serais chef de service aujourd'hui si je n'étais pas passé à temps partiel.",
+            "Aujourd'hui, je serais chef de service si je n'étais pas passé à temps partiel.",
           ],
           wrong: [
             "Si je ne étais pas passé à temps partiel, je serais chef de service aujourd'hui.",
@@ -2290,7 +2329,6 @@ export const CH_HYPOTHESE: Chapter = {
           en: "By taking the motorway, we'd have saved an hour.",
           why: 'The gérondif can carry any condition: the conditionnel passé of the main verb shows an unreal past (= si nous avions pris).',
         },
-        // @@MORE-10C@@
       ],
     },
     {
@@ -2424,6 +2462,9 @@ export const CH_HYPOTHESE: Chapter = {
           id: 'cantines-produits-locaux',
           from: 'Si les cantines serviraient des produits locaux, les agriculteurs du coin en profiteraient.',
           answer: 'Si les cantines servaient des produits locaux, les agriculteurs du coin en profiteraient.',
+          accept: [
+            'Les agriculteurs du coin en profiteraient si les cantines servaient des produits locaux.',
+          ],
           wrong: [
             'Si les cantines serviraient des produits locaux, les agriculteurs du coin en profiteraient.',
             'Si les cantines servaient des produits locaux, les agriculteurs du coin en profiteront.',
@@ -2436,6 +2477,9 @@ export const CH_HYPOTHESE: Chapter = {
           id: 'viens-dossiers',
           from: 'Si tu viendras demain, apporte les dossiers.',
           answer: 'Si tu viens demain, apporte les dossiers.',
+          accept: [
+            'Apporte les dossiers si tu viens demain.',
+          ],
           wrong: ['Si tu viendras demain, apporte les dossiers.', 'Si tu viendrais demain, apporte les dossiers.', 'Si tu viens demain, apportes les dossiers.'],
           en: 'If you come tomorrow, bring the files.',
           why: 'Even about tomorrow, si takes the present; and the imperative of an -er verb has no s (apporte).',
@@ -2444,6 +2488,9 @@ export const CH_HYPOTHESE: Chapter = {
           id: 'visa-quebec',
           from: "S'elle obtient son visa, elle pourra commencer son stage à Québec en mai.",
           answer: 'Si elle obtient son visa, elle pourra commencer son stage à Québec en mai.',
+          accept: [
+            'Elle pourra commencer son stage à Québec en mai si elle obtient son visa.',
+          ],
           wrong: [
             "S'elle obtient son visa, elle pourra commencer son stage à Québec en mai.",
             'Si elle obtiendra son visa, elle pourra commencer son stage à Québec en mai.',
@@ -2456,7 +2503,10 @@ export const CH_HYPOTHESE: Chapter = {
           id: 'conditions-lundi',
           from: 'Si ils acceptent nos conditions, nous signerons dès lundi.',
           answer: "S'ils acceptent nos conditions, nous signerons dès lundi.",
-          accept: ["S'ils acceptent nos conditions, on signera dès lundi."],
+          accept: [
+            "S'ils acceptent nos conditions, on signera dès lundi.",
+            "Nous signerons dès lundi s'ils acceptent nos conditions.",
+          ],
           wrong: ['Si ils acceptent nos conditions, nous signerons dès lundi.', "S'ils accepteront nos conditions, nous signerons dès lundi.", "S'ils acceptent nos conditions, nous signerions dès lundi."],
           en: "If they accept our terms, we'll sign on Monday.",
           why: "Si becomes s' before il and ils (s'ils), with the present after it and the futur in the main clause.",
@@ -2465,7 +2515,11 @@ export const CH_HYPOTHESE: Chapter = {
           id: 'prendrais-avocat',
           from: "Si j'étais à ta place, je prendrai un avocat.",
           answer: "Si j'étais à ta place, je prendrais un avocat.",
-          accept: ['À ta place, je prendrais un avocat.', "Si j'étais toi, je prendrais un avocat."],
+          accept: [
+            'À ta place, je prendrais un avocat.',
+            "Si j'étais toi, je prendrais un avocat.",
+            "Je prendrais un avocat si j'étais à ta place.",
+          ],
           wrong: ["Si j'étais à ta place, je prendrai un avocat.", 'Si je serais à ta place, je prendrais un avocat.', "Si j'étais à ta place, je prends un avocat."],
           en: "If I were in your shoes, I'd get a lawyer.",
           why: "Advice: si j'étais à ta place + conditionnel présent, which ends in -ais (je prendrais), not the future -ai.",
@@ -2474,7 +2528,11 @@ export const CH_HYPOTHESE: Chapter = {
           id: 'su-reste-maison',
           from: 'Si nous aurions su, nous serions restés à la maison.',
           answer: 'Si nous avions su, nous serions restés à la maison.',
-          accept: ['Si nous avions su, nous serions restées à la maison.', 'Si on avait su, on serait restés à la maison.'],
+          accept: [
+            'Si nous avions su, nous serions restées à la maison.',
+            'Si on avait su, on serait restés à la maison.',
+            'Nous serions restés à la maison si nous avions su.',
+          ],
           wrong: [
             'Si nous aurions su, nous serions restés à la maison.',
             'Si nous avions su, nous aurions restés à la maison.',
@@ -2487,6 +2545,9 @@ export const CH_HYPOTHESE: Chapter = {
           id: 'freins-accident',
           from: "S'ils avaient vérifié les freins, l'accident n'aura pas eu lieu.",
           answer: "S'ils avaient vérifié les freins, l'accident n'aurait pas eu lieu.",
+          accept: [
+            "L'accident n'aurait pas eu lieu s'ils avaient vérifié les freins.",
+          ],
           wrong: [
             "S'ils avaient vérifié les freins, l'accident n'aura pas eu lieu.",
             "S'ils auraient vérifié les freins, l'accident n'aurait pas eu lieu.",
@@ -2499,7 +2560,10 @@ export const CH_HYPOTHESE: Chapter = {
           id: 'mange-midi',
           from: "Si tu aurais mangé à midi, tu n'aurais pas faim maintenant.",
           answer: "Si tu avais mangé à midi, tu n'aurais pas faim maintenant.",
-          accept: ["Si tu avais déjeuné, tu n'aurais pas faim maintenant."],
+          accept: [
+            "Si tu avais déjeuné, tu n'aurais pas faim maintenant.",
+            "Tu n'aurais pas faim maintenant si tu avais mangé à midi.",
+          ],
           wrong: [
             "Si tu aurais mangé à midi, tu n'aurais pas faim maintenant.",
             "Si tu avais mangé à midi, tu n'auras pas faim maintenant.",
@@ -2512,7 +2576,10 @@ export const CH_HYPOTHESE: Chapter = {
           id: 'timide-parole',
           from: 'Si elle serait moins timide, elle aurait pris la parole hier.',
           answer: 'Si elle était moins timide, elle aurait pris la parole hier.',
-          accept: ['Si elle avait été moins timide, elle aurait pris la parole hier.'],
+          accept: [
+            'Si elle avait été moins timide, elle aurait pris la parole hier.',
+            'Elle aurait pris la parole hier si elle était moins timide.',
+          ],
           wrong: [
             'Si elle serait moins timide, elle aurait pris la parole hier.',
             'Si elle était moins timide, elle aura pris la parole hier.',
@@ -2525,7 +2592,10 @@ export const CH_HYPOTHESE: Chapter = {
           id: 'president-retenu',
           from: "Au cas où le président est retenu, c'est sa vice-présidente qui ouvrira la séance.",
           answer: "Au cas où le président serait retenu, c'est sa vice-présidente qui ouvrira la séance.",
-          accept: ["Si le président est retenu, c'est sa vice-présidente qui ouvrira la séance."],
+          accept: [
+            "Si le président est retenu, c'est sa vice-présidente qui ouvrira la séance.",
+            "C'est sa vice-présidente qui ouvrira la séance au cas où le président serait retenu.",
+          ],
           wrong: [
             "Au cas où le président est retenu, c'est sa vice-présidente qui ouvrira la séance.",
             "Au cas où le président sera retenu, c'est sa vice-présidente qui ouvrira la séance.",
@@ -2538,6 +2608,9 @@ export const CH_HYPOTHESE: Chapter = {
           id: 'chargeur-batterie',
           from: 'Prends ton chargeur au cas où ta batterie sera à plat.',
           answer: 'Prends ton chargeur au cas où ta batterie serait à plat.',
+          accept: [
+            'Au cas où ta batterie serait à plat, prends ton chargeur.',
+          ],
           wrong: ['Prends ton chargeur au cas où ta batterie sera à plat.', 'Prends ton chargeur au cas où ta batterie soit à plat.', 'Prends ton chargeur au cas où ta batterie est à plat.'],
           en: 'Take your charger in case your battery goes flat.',
           why: 'Au cas où + conditional (serait), never the future, the subjunctive or the present.',
@@ -2546,7 +2619,10 @@ export const CH_HYPOTHESE: Chapter = {
           id: 'permis-construire',
           from: 'Les travaux commenceront en mars à condition que le permis de construire est accordé.',
           answer: 'Les travaux commenceront en mars à condition que le permis de construire soit accordé.',
-          accept: ['Les travaux commenceront en mars pourvu que le permis de construire soit accordé.'],
+          accept: [
+            'Les travaux commenceront en mars pourvu que le permis de construire soit accordé.',
+            'À condition que le permis de construire soit accordé, les travaux commenceront en mars.',
+          ],
           wrong: [
             'Les travaux commenceront en mars à condition que le permis de construire est accordé.',
             'Les travaux commenceront en mars à condition que le permis de construire sera accordé.',
@@ -2559,7 +2635,11 @@ export const CH_HYPOTHESE: Chapter = {
           id: 'remise-comptant',
           from: 'Vous aurez une remise à condition de payez comptant.',
           answer: 'Vous aurez une remise à condition de payer comptant.',
-          accept: ['Vous aurez une remise à condition que vous payiez comptant.', 'Vous aurez une remise si vous payez comptant.'],
+          accept: [
+            'Vous aurez une remise à condition que vous payiez comptant.',
+            'Vous aurez une remise si vous payez comptant.',
+            'À condition de payer comptant, vous aurez une remise.',
+          ],
           wrong: ['Vous aurez une remise à condition de payez comptant.', 'Vous aurez une remise à condition à payer comptant.', 'Vous aurez une remise à condition que payer comptant.'],
           en: "You'll get a discount provided you pay cash.",
           why: 'À condition de + infinitive (payer), with the same subject as the main verb.',
@@ -2568,7 +2648,12 @@ export const CH_HYPOTHESE: Chapter = {
           id: 'terrain-inonde',
           from: 'Le match aura lieu samedi, à moins que le terrain ne soit pas inondé.',
           answer: 'Le match aura lieu samedi, à moins que le terrain ne soit inondé.',
-          accept: ['Le match aura lieu samedi, à moins que le terrain soit inondé.', 'Le match aura lieu samedi, sauf si le terrain est inondé.'],
+          accept: [
+            'Le match aura lieu samedi, à moins que le terrain soit inondé.',
+            'Le match aura lieu samedi, sauf si le terrain est inondé.',
+            'À moins que le terrain ne soit inondé, le match aura lieu samedi.',
+            'À moins que le terrain soit inondé, le match aura lieu samedi.',
+          ],
           wrong: [
             'Le match aura lieu samedi, à moins que le terrain ne soit pas inondé.',
             "Le match aura lieu samedi, à moins que le terrain n'est inondé.",
@@ -2581,7 +2666,11 @@ export const CH_HYPOTHESE: Chapter = {
           id: 'besoin-de-moi',
           from: 'À moins que vous avez besoin de moi, je rentre chez moi.',
           answer: "À moins que vous n'ayez besoin de moi, je rentre chez moi.",
-          accept: ['À moins que vous ayez besoin de moi, je rentre chez moi.', 'Sauf si vous avez besoin de moi, je rentre chez moi.'],
+          accept: [
+            'À moins que vous ayez besoin de moi, je rentre chez moi.',
+            'Sauf si vous avez besoin de moi, je rentre chez moi.',
+            "Je rentre chez moi, à moins que vous n'ayez besoin de moi.",
+          ],
           wrong: [
             'À moins que vous avez besoin de moi, je rentre chez moi.',
             "À moins que vous n'avez besoin de moi, je rentre chez moi.",
@@ -2594,7 +2683,12 @@ export const CH_HYPOTHESE: Chapter = {
           id: 'maigrir-sport',
           from: 'Tu ne maigriras pas, à moins de ne pas faire de sport.',
           answer: 'Tu ne maigriras pas, à moins de faire du sport.',
-          accept: ['Tu ne maigriras pas à moins de faire du sport.', 'Tu ne maigriras pas si tu ne fais pas de sport.', 'Tu ne maigriras pas, sauf si tu fais du sport.'],
+          accept: [
+            'Tu ne maigriras pas à moins de faire du sport.',
+            'Tu ne maigriras pas si tu ne fais pas de sport.',
+            'Tu ne maigriras pas, sauf si tu fais du sport.',
+            'À moins de faire du sport, tu ne maigriras pas.',
+          ],
           wrong: ['Tu ne maigriras pas, à moins de ne pas faire de sport.', 'Tu ne maigriras pas, à moins de faire de sport.', 'Tu ne maigriras pas, à moins que faire du sport.'],
           en: "You won't lose weight unless you exercise.",
           why: "À moins de already means 'if… not': no ne pas after it, and without the negation, de sport becomes du sport.",
@@ -2603,7 +2697,11 @@ export const CH_HYPOTHESE: Chapter = {
           id: 'creme-solaire',
           from: 'Sans pas de crème solaire, tu vas attraper un coup de soleil.',
           answer: 'Sans crème solaire, tu vas attraper un coup de soleil.',
-          accept: ['Sans crème solaire, tu attraperas un coup de soleil.', 'Si tu ne mets pas de crème solaire, tu vas attraper un coup de soleil.'],
+          accept: [
+            'Sans crème solaire, tu attraperas un coup de soleil.',
+            'Si tu ne mets pas de crème solaire, tu vas attraper un coup de soleil.',
+            'Tu vas attraper un coup de soleil sans crème solaire.',
+          ],
           wrong: [
             'Sans pas de crème solaire, tu vas attraper un coup de soleil.',
             'Sans de crème solaire, tu vas attraper un coup de soleil.',
@@ -2616,7 +2714,10 @@ export const CH_HYPOTHESE: Chapter = {
           id: 'conseils-abandonne',
           from: "Sans tes conseils, j'avais abandonné depuis longtemps.",
           answer: "Sans tes conseils, j'aurais abandonné depuis longtemps.",
-          accept: ["Sans tes conseils, j'aurais laissé tomber depuis longtemps."],
+          accept: [
+            "Sans tes conseils, j'aurais laissé tomber depuis longtemps.",
+            "J'aurais abandonné depuis longtemps sans tes conseils.",
+          ],
           wrong: ["Sans tes conseils, j'avais abandonné depuis longtemps.", "Sans tes conseils, j'aurai abandonné depuis longtemps.", "Sans de tes conseils, j'aurais abandonné depuis longtemps."],
           en: "Without your advice, I'd have given up long ago.",
           why: "Sans + noun carries an unreal past (= si tu ne m'avais pas conseillé), so the main verb is in the conditionnel passé.",
@@ -2625,7 +2726,10 @@ export const CH_HYPOTHESE: Chapter = {
           id: 'dossier-pret',
           from: 'Avec un meilleur dossier, vous aviez obtenu le prêt.',
           answer: 'Avec un meilleur dossier, vous auriez obtenu le prêt.',
-          accept: ['Si vous aviez eu un meilleur dossier, vous auriez obtenu le prêt.'],
+          accept: [
+            'Si vous aviez eu un meilleur dossier, vous auriez obtenu le prêt.',
+            'Vous auriez obtenu le prêt avec un meilleur dossier.',
+          ],
           wrong: ['Avec un meilleur dossier, vous aviez obtenu le prêt.', 'Avec un meilleur dossier, vous auriez obtenus le prêt.', 'Si avec un meilleur dossier, vous auriez obtenu le prêt.'],
           en: "With a better application, you'd have got the loan.",
           why: 'Avec + noun stands for si vous aviez eu…, so the main verb is in the conditionnel passé.',
@@ -2634,7 +2738,10 @@ export const CH_HYPOTHESE: Chapter = {
           id: 'levant-courir',
           from: 'En se levant plus tôt, nous éviterions de courir tous les matins.',
           answer: 'En nous levant plus tôt, nous éviterions de courir tous les matins.',
-          accept: ['Si nous nous levions plus tôt, nous éviterions de courir tous les matins.'],
+          accept: [
+            'Si nous nous levions plus tôt, nous éviterions de courir tous les matins.',
+            'Nous éviterions de courir tous les matins en nous levant plus tôt.',
+          ],
           wrong: [
             'En se levant plus tôt, nous éviterions de courir tous les matins.',
             'En nous lever plus tôt, nous éviterions de courir tous les matins.',
@@ -2647,7 +2754,11 @@ export const CH_HYPOTHESE: Chapter = {
           id: 'train-quai',
           from: 'En partant tout de suite, le train sera encore à quai.',
           answer: 'Si nous partons tout de suite, le train sera encore à quai.',
-          accept: ['Si on part tout de suite, le train sera encore à quai.', 'En partant tout de suite, nous trouverons le train encore à quai.'],
+          accept: [
+            'Si on part tout de suite, le train sera encore à quai.',
+            'En partant tout de suite, nous trouverons le train encore à quai.',
+            'Le train sera encore à quai si nous partons tout de suite.',
+          ],
           wrong: [
             'En partant tout de suite, le train sera encore à quai.',
             'Si nous partirons tout de suite, le train sera encore à quai.',
@@ -2757,7 +2868,11 @@ export const CH_HYPOTHESE: Chapter = {
           id: 'notes-lundi',
           from: 'Tu peux emprunter mes notes, pourvu que tu me les rends lundi.',
           answer: 'Tu peux emprunter mes notes, pourvu que tu me les rendes lundi.',
-          accept: ['Tu peux emprunter mes notes, à condition que tu me les rendes lundi.', 'Tu peux emprunter mes notes, à condition de me les rendre lundi.'],
+          accept: [
+            'Tu peux emprunter mes notes, à condition que tu me les rendes lundi.',
+            'Tu peux emprunter mes notes, à condition de me les rendre lundi.',
+            'Pourvu que tu me les rendes lundi, tu peux emprunter mes notes.',
+          ],
           wrong: [
             'Tu peux emprunter mes notes, pourvu que tu me les rends lundi.',
             'Tu peux emprunter mes notes, pourvu que tu me les rendras lundi.',
@@ -2779,6 +2894,9 @@ export const CH_HYPOTHESE: Chapter = {
           id: 'falloir-choisir',
           from: "S'il aurait fallu choisir, j'aurais choisi la montagne.",
           answer: "S'il avait fallu choisir, j'aurais choisi la montagne.",
+          accept: [
+            "J'aurais choisi la montagne s'il avait fallu choisir.",
+          ],
           wrong: ["S'il aurait fallu choisir, j'aurais choisi la montagne.", "S'il avait fallu choisir, j'aurai choisi la montagne.", "S'il faudrait choisir, j'aurais choisi la montagne."],
           en: "If I'd had to choose, I'd have chosen the mountains.",
           why: "Il faut → s'il avait fallu: plus-que-parfait after si, conditionnel passé in the main clause.",
@@ -2787,7 +2905,10 @@ export const CH_HYPOTHESE: Chapter = {
           id: 'parle-malentendu',
           from: 'Si on se serait parlé plus tôt, on aurait évité ce malentendu.',
           answer: "Si on s'était parlé plus tôt, on aurait évité ce malentendu.",
-          accept: ['Si nous nous étions parlé plus tôt, nous aurions évité ce malentendu.'],
+          accept: [
+            'Si nous nous étions parlé plus tôt, nous aurions évité ce malentendu.',
+            "On aurait évité ce malentendu si on s'était parlé plus tôt.",
+          ],
           wrong: [
             'Si on se serait parlé plus tôt, on aurait évité ce malentendu.',
             "Si on s'était parlés plus tôt, on aurait évité ce malentendu.",
@@ -2800,7 +2921,10 @@ export const CH_HYPOTHESE: Chapter = {
           id: 'lyon-travaillerait',
           from: "Si elle n'avait pas déménagé à Lyon, elle travaillera encore avec nous.",
           answer: "Si elle n'avait pas déménagé à Lyon, elle travaillerait encore avec nous.",
-          accept: ["Si elle n'avait pas déménagé à Lyon, elle travaillerait toujours avec nous."],
+          accept: [
+            "Si elle n'avait pas déménagé à Lyon, elle travaillerait toujours avec nous.",
+            "Elle travaillerait encore avec nous si elle n'avait pas déménagé à Lyon.",
+          ],
           wrong: [
             "Si elle n'avait pas déménagé à Lyon, elle travaillera encore avec nous.",
             "Si elle n'aurait pas déménagé à Lyon, elle travaillerait encore avec nous.",
@@ -2813,6 +2937,9 @@ export const CH_HYPOTHESE: Chapter = {
           id: 'appellerai-aide',
           from: "Je t'appellerai si j'aurai besoin d'aide.",
           answer: "Je t'appellerai si j'ai besoin d'aide.",
+          accept: [
+            "Si j'ai besoin d'aide, je t'appellerai.",
+          ],
           wrong: ["Je t'appellerai si j'aurai besoin d'aide.", "Je t'appellerai si j'aurais besoin d'aide.", "Je t'appellerais si j'ai besoin d'aide."],
           en: "I'll call you if I need help.",
           why: 'The si-clause can come second, but it still takes the present: never the future after si.',
@@ -2821,6 +2948,9 @@ export const CH_HYPOTHESE: Chapter = {
           id: 'porte-reviendrais',
           from: 'Je laisse la porte ouverte au cas où tu reviennes.',
           answer: 'Je laisse la porte ouverte au cas où tu reviendrais.',
+          accept: [
+            'Au cas où tu reviendrais, je laisse la porte ouverte.',
+          ],
           wrong: ['Je laisse la porte ouverte au cas où tu reviennes.', 'Je laisse la porte ouverte au cas où tu reviens.', 'Je laisse la porte ouverte au cas où tu reviendras.'],
           en: "I'll leave the door open in case you come back.",
           why: 'Au cas où takes the conditional (tu reviendrais), not the subjunctive.',
@@ -2829,6 +2959,9 @@ export const CH_HYPOTHESE: Chapter = {
           id: 'genoux-refuserais',
           from: 'Même si tu me le demanderais à genoux, je refuserais.',
           answer: 'Même si tu me le demandais à genoux, je refuserais.',
+          accept: [
+            'Je refuserais, même si tu me le demandais à genoux.',
+          ],
           wrong: ['Même si tu me le demanderais à genoux, je refuserais.', 'Même si tu me le demandes à genoux, je refuserais.', 'Même si tu me le demandais à genoux, je refuserai.'],
           en: "Even if you begged me on your knees, I'd refuse.",
           why: 'Même si + imparfait, conditionnel présent in the main clause; never the conditional after si.',
@@ -2837,7 +2970,10 @@ export const CH_HYPOTHESE: Chapter = {
           id: 'caution-fournissiez',
           from: 'Le prêt sera accordé à condition que vous fournirez une caution.',
           answer: 'Le prêt sera accordé à condition que vous fournissiez une caution.',
-          accept: ['Le prêt sera accordé pourvu que vous fournissiez une caution.'],
+          accept: [
+            'Le prêt sera accordé pourvu que vous fournissiez une caution.',
+            'À condition que vous fournissiez une caution, le prêt sera accordé.',
+          ],
           wrong: [
             'Le prêt sera accordé à condition que vous fournirez une caution.',
             'Le prêt sera accordé à condition que vous fournissez une caution.',
@@ -2850,7 +2986,11 @@ export const CH_HYPOTHESE: Chapter = {
           id: 'chiffres-verifier',
           from: 'Sans vérifiant les chiffres, vous risquez de vous tromper.',
           answer: 'Sans vérifier les chiffres, vous risquez de vous tromper.',
-          accept: ['Sans avoir vérifié les chiffres, vous risquez de vous tromper.', 'Si vous ne vérifiez pas les chiffres, vous risquez de vous tromper.'],
+          accept: [
+            'Sans avoir vérifié les chiffres, vous risquez de vous tromper.',
+            'Si vous ne vérifiez pas les chiffres, vous risquez de vous tromper.',
+            'Vous risquez de vous tromper sans vérifier les chiffres.',
+          ],
           wrong: [
             'Sans vérifiant les chiffres, vous risquez de vous tromper.',
             'Sans ne pas vérifier les chiffres, vous risquez de vous tromper.',
@@ -2865,7 +3005,8 @@ export const CH_HYPOTHESE: Chapter = {
           answer: "S'il y a un problème avec la livraison, contactez directement le transporteur.",
           accept: [
             'En cas de problème avec la livraison, contactez directement le transporteur.',
-            "Au cas où il y aurait un problème avec la livraison, contactez directement le transporteur.",
+            'Au cas où il y aurait un problème avec la livraison, contactez directement le transporteur.',
+            "Contactez directement le transporteur s'il y a un problème avec la livraison.",
           ],
           wrong: [
             "S'il y aurait un problème avec la livraison, contactez directement le transporteur.",
@@ -2879,7 +3020,10 @@ export const CH_HYPOTHESE: Chapter = {
           id: 'ordre-du-jour',
           from: "On gagnerait du temps si tu préparerais l'ordre du jour à l'avance.",
           answer: "On gagnerait du temps si tu préparais l'ordre du jour à l'avance.",
-          accept: ["Nous gagnerions du temps si tu préparais l'ordre du jour à l'avance."],
+          accept: [
+            "Nous gagnerions du temps si tu préparais l'ordre du jour à l'avance.",
+            "Si tu préparais l'ordre du jour à l'avance, on gagnerait du temps.",
+          ],
           wrong: [
             "On gagnerait du temps si tu préparerais l'ordre du jour à l'avance.",
             "On gagnera du temps si tu préparais l'ordre du jour à l'avance.",
@@ -2888,7 +3032,6 @@ export const CH_HYPOTHESE: Chapter = {
           en: "We'd save time if you prepared the agenda in advance.",
           why: 'The si-clause can come second, but it still takes the imparfait, never the conditional.',
         },
-        // @@MORE-10D@@
       ],
     },
   ],

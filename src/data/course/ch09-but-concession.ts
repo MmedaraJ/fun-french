@@ -622,7 +622,6 @@ export const CH_BUT: Chapter = {
           en: 'Although the government has announced an emergency plan, hospitals remain overwhelmed.',
           why: "An earlier action after bien que: past subjunctive (qu'il ait annoncé); aie is the first person.",
         },
-        // @@MORE-9A@@
       ],
     },
     {
@@ -1557,7 +1556,6 @@ export const CH_BUT: Chapter = {
           en: 'Your application is complete; processing may, however, take up to three months.',
           why: 'Toutefois (formal) links two independent clauses: at the start with a comma, or after the conjugated verb.',
         },
-        // @@MORE-9B@@
       ],
     },
     {
@@ -1798,6 +1796,7 @@ export const CH_BUT: Chapter = {
             "Je mets de l'argent de côté afin que ma fille puisse étudier à l'étranger.",
             "Je fais des économies pour que ma fille puisse étudier à l'étranger.",
             "J'économise pour que ma fille puisse faire ses études à l'étranger.",
+            "Pour que ma fille puisse étudier à l'étranger, j'économise.",
           ],
           wrong: [
             "J'économise pour que ma fille peut étudier à l'étranger.",
@@ -1819,7 +1818,8 @@ export const CH_BUT: Chapter = {
             "Nous sommes parties à l'aube afin de ne pas rouler en pleine chaleur.",
             "On est partis à l'aube afin de ne pas rouler en pleine chaleur.",
             "Nous sommes partis à l'aube pour ne pas conduire en pleine chaleur.",
-            "Nous sommes partis au lever du jour pour ne pas rouler en pleine chaleur.",
+            'Nous sommes partis au lever du jour pour ne pas rouler en pleine chaleur.',
+            "Pour ne pas rouler en pleine chaleur, nous sommes partis à l'aube.",
           ],
           wrong: [
             "Nous sommes partis à l'aube pour ne rouler pas en pleine chaleur.",
@@ -1838,6 +1838,7 @@ export const CH_BUT: Chapter = {
             "On a abaissé la limitation de vitesse pour qu'il y ait moins d'accidents.",
             "Ils ont baissé la limitation de vitesse pour qu'il y ait moins d'accidents.",
             "Ils ont réduit la limitation de vitesse pour qu'il y ait moins d'accidents.",
+            "Pour qu'il y ait moins d'accidents, ils ont abaissé la limitation de vitesse.",
           ],
           wrong: [
             "Ils ont abaissé la limitation de vitesse pour qu'il y a moins d'accidents.",
@@ -1856,6 +1857,7 @@ export const CH_BUT: Chapter = {
             'La maire a traduit son discours en wolof afin que tout le monde comprenne.',
             'Le maire a traduit son discours en wolof afin que tout le monde comprenne.',
             'La mairesse a traduit son discours en wolof pour que tout le monde comprenne.',
+            'Pour que tout le monde comprenne, la maire a traduit son discours en wolof.',
           ],
           wrong: [
             'La maire a traduit son discours en wolof pour que tout le monde comprend.',
@@ -1918,6 +1920,8 @@ export const CH_BUT: Chapter = {
             "Elles ont caché la nouvelle à leur grand-mère de peur qu'elle ne s'inquiète.",
             "Elles ont caché la nouvelle à leur grand-mère de peur qu'elle s'inquiète.",
             "Ils ont caché la nouvelle à leur grand-mère, de peur qu'elle ne s'inquiète.",
+            "De peur qu'elle ne s'inquiète, ils ont caché la nouvelle à leur grand-mère.",
+            "De peur qu'elle s'inquiète, ils ont caché la nouvelle à leur grand-mère.",
           ],
           wrong: [
             "Ils ont caché la nouvelle à leur grand-mère de peur qu'elle ne s'inquiétera.",
@@ -1939,6 +1943,7 @@ export const CH_BUT: Chapter = {
             "La ministre a démissionné de peur que le scandale s'étende à tout le gouvernement.",
             "La ministre a démissionné de crainte que le scandale ne s'étende à tout le gouvernement.",
             "Le ministre a démissionné de peur que le scandale n'éclabousse tout le gouvernement.",
+            "De peur que le scandale ne s'étende à tout le gouvernement, le ministre a démissionné.",
           ],
           wrong: [
             "Le ministre a démissionné de peur que le scandale ne s'étend à tout le gouvernement.",
@@ -1978,6 +1983,7 @@ export const CH_BUT: Chapter = {
             "Elle a organisé ses révisions afin de finir une semaine avant l'examen.",
             "Elle a organisé ses révisions pour finir une semaine avant l'examen.",
             "Elle a planifié ses révisions de façon à finir une semaine avant l'examen.",
+            "De façon à finir une semaine avant l'examen, elle a organisé ses révisions.",
           ],
           wrong: [
             "Elle a organisé ses révisions de façon qu'elle finisse une semaine avant l'examen.",
@@ -2032,6 +2038,7 @@ export const CH_BUT: Chapter = {
             "Ils ont fondé l'association pour aider les réfugiés à trouver un logement.",
             "Ils ont créé l'association dans le but d'aider les réfugiés à trouver un logement.",
             "Ils ont fondé l'association dans le but d'aider les réfugiés à se loger.",
+            "Dans le but d'aider les réfugiés à trouver un logement, ils ont fondé l'association.",
           ],
           wrong: [
             "Ils ont fondé l'association dans le but de aider les réfugiés à trouver un logement.",
@@ -2050,6 +2057,7 @@ export const CH_BUT: Chapter = {
             'Ma grand-mère se déplace partout à pied, alors que ma mère prend la voiture pour aller chercher le pain.',
             'Ma grand-mère va partout à pied, alors que ma mère prend la voiture pour acheter le pain.',
             'Ma grand-mère va partout à pied, tandis que ma mère prend la voiture pour acheter le pain.',
+            'Alors que ma mère prend la voiture pour aller chercher le pain, ma grand-mère va partout à pied.',
           ],
           wrong: [
             'Ma grand-mère va partout à pied, alors que ma mère prenne la voiture pour aller chercher le pain.',
@@ -2233,6 +2241,8 @@ export const CH_BUT: Chapter = {
             'Bien que fatigué, il a insisté pour conduire.',
             'Quoique fatigué, il a insisté pour conduire.',
             "Bien qu'il soit fatigué, il a insisté pour conduire.",
+            'Il a tenu à conduire bien que fatigué.',
+            'Il a tenu à conduire, bien que fatigué.',
           ],
           wrong: ['Même si fatigué, il a tenu à conduire.', 'Bien que fatigué, mais il a tenu à conduire.', "Bien qu'il est fatigué, il a tenu à conduire."],
           en: 'Although tired, he insisted on driving.',
@@ -2317,10 +2327,10 @@ export const CH_BUT: Chapter = {
           wrong: [
             "Malgré qu'il pleuvait, des milliers de personnes sont venues à la manifestation.",
             'Malgré il pleuvait, des milliers de personnes sont venues à la manifestation.',
-            'Malgré la pluie, des milliers de personnes sont venus à la manifestation.',
+            'Malgré de la pluie, des milliers de personnes sont venues à la manifestation.',
           ],
           en: 'Despite the rain, thousands of people came to the demonstration.',
-          why: 'Malgré + noun (la pluie), never a clause; personnes is feminine, so venues.',
+          why: 'Malgré is followed directly by a noun (malgré la pluie): never a clause, and never malgré de.',
         },
         {
           id: 'decalage-horaire',
@@ -2457,6 +2467,7 @@ export const CH_BUT: Chapter = {
             'Où que vous alliez au Sénégal, on va vous offrir du thé.',
             "Partout où tu iras au Sénégal, on t'offrira du thé.",
             'Partout où vous irez au Sénégal, on vous offrira du thé.',
+            "On t'offrira du thé où que tu ailles au Sénégal.",
           ],
           wrong: ["Où que tu vas au Sénégal, on t'offrira du thé.", "Où que tu iras au Sénégal, on t'offrira du thé.", "Ou que tu ailles au Sénégal, on t'offrira du thé."],
           en: 'Wherever you go in Senegal, people will offer you tea.',
@@ -2540,6 +2551,7 @@ export const CH_BUT: Chapter = {
             'Qui que vous soyez, vous avez le droit à un avocat.',
             'Qui que tu sois, tu as le droit à un avocat.',
             "Qui que vous soyez, vous avez droit à l'assistance d'un avocat.",
+            'Vous avez droit à un avocat, qui que vous soyez.',
           ],
           wrong: ['Qui que vous êtes, vous avez droit à un avocat.', 'Qui vous soyez, vous avez droit à un avocat.', 'Qui que vous serez, vous avez droit à un avocat.'],
           en: 'Whoever you are, you have the right to a lawyer.',
@@ -2575,6 +2587,7 @@ export const CH_BUT: Chapter = {
             "Elle a éteint son portable afin de ne pas être dérangée pendant l'examen.",
             "Elle a coupé son téléphone pour ne pas être dérangée pendant l'examen.",
             "Elle a éteint son cellulaire pour ne pas être dérangée pendant l'examen.",
+            "Pour ne pas être dérangée pendant l'examen, elle a éteint son téléphone.",
           ],
           wrong: [
             "Elle a éteint son téléphone pour qu'elle ne soit pas dérangée pendant l'examen.",
@@ -2592,6 +2605,7 @@ export const CH_BUT: Chapter = {
             "Il se plaint du bruit, alors que c'est lui qui joue de la batterie à minuit.",
             "Il se plaint du bruit alors même que c'est lui qui joue de la batterie à minuit.",
             "Il se plaint du bruit, alors même que c'est lui qui joue de la batterie à minuit.",
+            "Alors que c'est lui qui joue de la batterie à minuit, il se plaint du bruit.",
           ],
           wrong: [
             "Il se plaint du bruit alors que ce soit lui qui joue de la batterie à minuit.",
@@ -2613,6 +2627,7 @@ export const CH_BUT: Chapter = {
             'Même si tu as peut-être raison, je préfère attendre les résultats des analyses.',
             'Bien que vous ayez peut-être raison, je préférerais attendre les résultats des analyses.',
             'Bien que tu aies peut-être raison, je préférerais attendre les résultats des analyses.',
+            'Je préfère attendre les résultats des analyses, bien que vous ayez peut-être raison.',
           ],
           wrong: [
             'Bien que vous avez peut-être raison, je préfère attendre les résultats des analyses.',
@@ -2622,7 +2637,6 @@ export const CH_BUT: Chapter = {
           en: "Although you may be right, I'd rather wait for the test results.",
           why: 'Bien que + subjunctive: que vous ayez (no i), and no mais in the main clause.',
         },
-        // @@MORE-9C@@
       ],
     },
     {
@@ -2757,7 +2771,10 @@ export const CH_BUT: Chapter = {
           id: 'heures-sup-vacances',
           from: 'Je fais des heures supplémentaires pour que je puisse partir en vacances.',
           answer: 'Je fais des heures supplémentaires pour pouvoir partir en vacances.',
-          accept: ['Je fais des heures supplémentaires afin de pouvoir partir en vacances.'],
+          accept: [
+            'Je fais des heures supplémentaires afin de pouvoir partir en vacances.',
+            'Pour pouvoir partir en vacances, je fais des heures supplémentaires.',
+          ],
           wrong: [
             'Je fais des heures supplémentaires pour que je puisse partir en vacances.',
             'Je fais des heures supplémentaires pour que je peux partir en vacances.',
@@ -2770,7 +2787,10 @@ export const CH_BUT: Chapter = {
           id: 'bruit-reveille',
           from: 'Il a fermé la fenêtre pour que le bruit de la rue ne le réveillera pas.',
           answer: 'Il a fermé la fenêtre pour que le bruit de la rue ne le réveille pas.',
-          accept: ['Il a fermé la fenêtre afin que le bruit de la rue ne le réveille pas.'],
+          accept: [
+            'Il a fermé la fenêtre afin que le bruit de la rue ne le réveille pas.',
+            'Pour que le bruit de la rue ne le réveille pas, il a fermé la fenêtre.',
+          ],
           wrong: [
             'Il a fermé la fenêtre pour que le bruit de la rue ne le réveillera pas.',
             'Il a fermé la fenêtre pour que le bruit de la rue ne le réveillait pas.',
@@ -2783,7 +2803,10 @@ export const CH_BUT: Chapter = {
           id: 'bebe-reveiller',
           from: 'Parle moins fort pour ne réveiller pas le bébé.',
           answer: 'Parle moins fort pour ne pas réveiller le bébé.',
-          accept: ['Parle moins fort afin de ne pas réveiller le bébé.'],
+          accept: [
+            'Parle moins fort afin de ne pas réveiller le bébé.',
+            'Pour ne pas réveiller le bébé, parle moins fort.',
+          ],
           wrong: ['Parle moins fort pour ne réveiller pas le bébé.', 'Parle moins fort pour que tu ne réveilles pas le bébé.', 'Parle moins fort pour ne pas réveilles le bébé.'],
           en: "Speak more quietly so you don't wake the baby.",
           why: 'With an infinitive, ne pas goes together in front of it (pour ne pas réveiller); same subject, so no pour que tu.',
@@ -2809,6 +2832,7 @@ export const CH_BUT: Chapter = {
             "Il évite de conduire la nuit de crainte de s'endormir au volant.",
             "Il évite de conduire la nuit par peur de s'endormir au volant.",
             "Il évite de conduire la nuit, de peur de s'endormir au volant.",
+            "De peur de s'endormir au volant, il évite de conduire la nuit.",
           ],
           wrong: [
             "Il évite de conduire la nuit de peur qu'il s'endorme au volant.",
@@ -2844,6 +2868,7 @@ export const CH_BUT: Chapter = {
             'Elle se lève à cinq heures de manière à pouvoir écrire avant le travail.',
             'Elle se lève à cinq heures pour pouvoir écrire avant le travail.',
             'Elle se lève à cinq heures afin de pouvoir écrire avant le travail.',
+            'Pour pouvoir écrire avant le travail, elle se lève à cinq heures.',
           ],
           wrong: [
             "Elle se lève à cinq heures de façon qu'elle puisse écrire avant le travail.",
@@ -2892,7 +2917,11 @@ export const CH_BUT: Chapter = {
           id: 'prix-crise-sociale',
           from: 'Le gouvernement a gelé les prix afin de éviter une crise sociale.',
           answer: "Le gouvernement a gelé les prix afin d'éviter une crise sociale.",
-          accept: ['Le gouvernement a gelé les prix pour éviter une crise sociale.', "Le gouvernement a gelé les prix dans le but d'éviter une crise sociale."],
+          accept: [
+            'Le gouvernement a gelé les prix pour éviter une crise sociale.',
+            "Le gouvernement a gelé les prix dans le but d'éviter une crise sociale.",
+            "Afin d'éviter une crise sociale, le gouvernement a gelé les prix.",
+          ],
           wrong: [
             'Le gouvernement a gelé les prix afin de éviter une crise sociale.',
             "Le gouvernement a gelé les prix afin qu'il évite une crise sociale.",
@@ -2918,7 +2947,10 @@ export const CH_BUT: Chapter = {
           id: 'economies-alors-que',
           from: 'Mon fils dépense sans compter, alors que sa sœur fasse des économies.',
           answer: 'Mon fils dépense sans compter, alors que sa sœur fait des économies.',
-          accept: ['Mon fils dépense sans compter, tandis que sa sœur fait des économies.'],
+          accept: [
+            'Mon fils dépense sans compter, tandis que sa sœur fait des économies.',
+            'Alors que sa sœur fait des économies, mon fils dépense sans compter.',
+          ],
           wrong: [
             'Mon fils dépense sans compter, alors que sa sœur fasse des économies.',
             'Mon fils dépense sans compter, bien que sa sœur fait des économies.',
@@ -2994,7 +3026,11 @@ export const CH_BUT: Chapter = {
           id: 'diner-table',
           from: 'Je prépare le dîner tandis que tu mettes la table.',
           answer: 'Je prépare le dîner tandis que tu mets la table.',
-          accept: ['Je prépare le dîner pendant que tu mets la table.', 'Je prépare le dîner alors que tu mets la table.'],
+          accept: [
+            'Je prépare le dîner pendant que tu mets la table.',
+            'Je prépare le dîner alors que tu mets la table.',
+            'Tandis que tu mets la table, je prépare le dîner.',
+          ],
           wrong: ['Je prépare le dîner tandis que tu mettes la table.', 'Je prépare le dîner tandis que tu met la table.', 'Je prépare le dîner tandis tu mets la table.'],
           en: "I'll make dinner while you set the table.",
           why: 'Tandis que takes the indicative (tu mets, with an s), like pendant que.',
@@ -3057,6 +3093,7 @@ export const CH_BUT: Chapter = {
             'Quoique très timide, elle a accepté de chanter au mariage.',
             'Bien que très timide, elle a accepté de chanter au mariage.',
             'Même si elle est très timide, elle a accepté de chanter au mariage.',
+            "Elle a accepté de chanter au mariage, quoiqu'elle soit très timide.",
           ],
           wrong: [
             "Quoi qu'elle soit très timide, elle a accepté de chanter au mariage.",
@@ -3093,6 +3130,7 @@ export const CH_BUT: Chapter = {
             "Bien que née à Bruxelles, elle n'a jamais appris le néerlandais.",
             "Quoique née à Bruxelles, elle n'a jamais appris le néerlandais.",
             "Même si elle est née à Bruxelles, elle n'a jamais appris le néerlandais.",
+            "Elle n'a jamais appris le néerlandais, bien qu'elle soit née à Bruxelles.",
           ],
           wrong: [
             "Bien qu'elle est née à Bruxelles, elle n'a jamais appris le néerlandais.",
@@ -3313,6 +3351,7 @@ export const CH_BUT: Chapter = {
             'Bien que jeunes, ils dirigent déjà une start-up.',
             'Quoique jeunes, ils dirigent déjà une start-up.',
             "Même s'ils sont jeunes, ils dirigent déjà une start-up.",
+            'Ils dirigent déjà une start-up malgré leur jeunesse.',
           ],
           wrong: ['Malgré être jeunes, ils dirigent déjà une start-up.', 'Malgré ils sont jeunes, ils dirigent déjà une start-up.', 'Malgré de leur jeunesse, ils dirigent déjà une start-up.'],
           en: "Despite their youth, they're already running a start-up.",
@@ -3322,7 +3361,10 @@ export const CH_BUT: Chapter = {
           id: 'raison-taire',
           from: 'Même si tu aies raison, tu aurais dû te taire.',
           answer: 'Même si tu as raison, tu aurais dû te taire.',
-          accept: ['Même si tu avais raison, tu aurais dû te taire.'],
+          accept: [
+            'Même si tu avais raison, tu aurais dû te taire.',
+            'Tu aurais dû te taire, même si tu as raison.',
+          ],
           wrong: ['Même si tu aies raison, tu aurais dû te taire.', 'Même si tu auras raison, tu aurais dû te taire.', 'Même si tu aurais raison, tu aurais dû te taire.'],
           en: "Even if you're right, you should have kept quiet.",
           why: 'Même si takes the indicative, like si: never the subjunctive, the future or the conditional after it.',
@@ -3331,7 +3373,11 @@ export const CH_BUT: Chapter = {
           id: 'marathon-pret',
           from: "Il s'est entraîné tout l'été afin qu'il soit prêt pour le marathon.",
           answer: "Il s'est entraîné tout l'été afin d'être prêt pour le marathon.",
-          accept: ["Il s'est entraîné tout l'été pour être prêt pour le marathon.", "Il s'est entraîné tout l'été afin d'être prêt le jour du marathon."],
+          accept: [
+            "Il s'est entraîné tout l'été pour être prêt pour le marathon.",
+            "Il s'est entraîné tout l'été afin d'être prêt le jour du marathon.",
+            "Afin d'être prêt pour le marathon, il s'est entraîné tout l'été.",
+          ],
           wrong: [
             "Il s'est entraîné tout l'été afin qu'il soit prêt pour le marathon.",
             "Il s'est entraîné tout l'été afin de être prêt pour le marathon.",
@@ -3371,7 +3417,6 @@ export const CH_BUT: Chapter = {
           en: "Even if they'd paid me, I wouldn't have taken that role.",
           why: 'Même si + plus-que-parfait, conditionnel passé in the main clause; never the conditional or the subjunctive after si.',
         },
-        // @@MORE-9D@@
       ],
     },
   ],
