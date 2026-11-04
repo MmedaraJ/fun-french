@@ -1223,6 +1223,7 @@ export const CH_TRANSFORMER: Chapter = {
             'Le nouveau chef a peur de ne être pas à la hauteur.',
             'Le nouveau chef a peur à ne pas être à la hauteur.',
           ],
+          decoys: ['soit', 'hauteurs'],
           en: "The new head chef is afraid he won't be up to the job.",
           why: 'Same subject: avoir peur de + infinitive, and ne pas goes together before the infinitive.',
         },

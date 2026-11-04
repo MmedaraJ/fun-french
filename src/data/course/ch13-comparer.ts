@@ -651,7 +651,6 @@ export const CH_COMPARER: Chapter = {
           en: 'Like many Quebecers of her generation, she left the Gaspé Peninsula to settle in Montreal.',
           why: 'To compare with a noun or a pronoun (like), use comme; que only follows aussi, autant, plus or le même.',
         },
-        // @@MORE-CA@@
       ],
     },
     {
@@ -1682,7 +1681,6 @@ export const CH_COMPARER: Chapter = {
           en: 'The minister, along with her advisers, visited the factory.',
           why: 'Ainsi que (as well as) is a formal et or comme; between commas, it leaves the verb agreeing with the first subject.',
         },
-        // @@MORE-CB@@
       ],
     },
     {
@@ -2639,7 +2637,6 @@ export const CH_COMPARER: Chapter = {
           en: 'The report is almost ready: I just need to proofread the conclusion.',
           why: "Presque (almost) goes before the adjective; à peine prêt would mean 'barely ready'.",
         },
-        // @@MORE-CC@@
       ],
     },
     {
@@ -3405,7 +3402,6 @@ export const CH_COMPARER: Chapter = {
           en: "He's more naive than nasty.",
           why: "To compare two qualities of the same person, 'than' is still que: plus naïf que méchant.",
         },
-        // @@MORE-CD@@
       ],
     },
   ],

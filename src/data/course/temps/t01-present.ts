@@ -660,7 +660,6 @@ export const T_PRESENT: Chapter = {
           en: 'This decision raises a number of ethical questions.',
           why: 'Soulever is conjugated like lever: e becomes è before a silent ending (il soulève, but nous soulevons).',
         },
-        // @@MORE-A@@
       ],
     },
     {
@@ -1196,7 +1195,6 @@ export const T_PRESENT: Chapter = {
           en: "You're sitting next to the director at dinner.",
           why: "S'asseoir: tu t'assieds or tu t'assois (both correct, never t'asseois); te becomes t' before a vowel.",
         },
-        // @@MORE-B@@
       ],
     },
     {
@@ -1908,7 +1906,6 @@ export const T_PRESENT: Chapter = {
           en: 'She arrived in Canada two years ago.',
           why: 'Il y a on its own means ago and dates a finished event, in the passé composé (arriver takes être: elle est arrivée).',
         },
-        // @@MORE-C@@
       ],
     },
     {
@@ -2363,7 +2360,6 @@ export const T_PRESENT: Chapter = {
           en: 'This song moves me every time I hear it.',
           why: 'Émouvoir: il émeut (eu and t in the singular), ils émeuvent, but nous émouvons.',
         },
-        // @@MORE-D@@
       ],
     },
   ],

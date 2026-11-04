@@ -677,7 +677,6 @@ export const T_PC_IMPARFAIT: Chapter = {
           en: 'He had been serving in the army for barely a year when he was sent to Mali.',
           why: 'Depuis in a past story means had been doing: imparfait.',
         },
-        // @@MORE-A@@
       ],
     },
     {
@@ -1361,7 +1360,6 @@ export const T_PC_IMPARFAIT: Chapter = {
           en: 'The sky was clear and you could see Mont Blanc from the balcony.',
           why: 'A description of the scene: imparfait for both verbs.',
         },
-        // @@MORE-B@@
       ],
     },
     {
@@ -2191,7 +2189,6 @@ export const T_PC_IMPARFAIT: Chapter = {
           en: "He wouldn't listen to me.",
           why: "Wouldn't here means refused: ne pas vouloir (imparfait for a lasting refusal, passé composé for one occasion), not the conditional.",
         },
-        // @@MORE-C@@
       ],
     },
     {
@@ -2748,7 +2745,6 @@ export const T_PC_IMPARFAIT: Chapter = {
           en: "In those days, we didn't have a car.",
           why: 'À cette époque-là describes the situation then: avoir in the imparfait.',
         },
-        // @@MORE-D@@
       ],
     },
   ],

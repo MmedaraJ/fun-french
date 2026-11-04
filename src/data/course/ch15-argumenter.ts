@@ -656,7 +656,6 @@ export const CH_ARGUMENTER: Chapter = {
           en: "The co-owners' general meeting is indeed on Thursday, unless I'm mistaken.",
           why: "Sauf erreur de ma part (unless I'm mistaken) is the set phrase that softens a statement or a correction.",
         },
-        // @@MORE-A@@
       ],
     },
     {
@@ -1403,7 +1402,6 @@ export const CH_ARGUMENTER: Chapter = {
           en: 'The mayor will probably stand for re-election.',
           why: 'Il est possible que takes the subjunctive, but il est probable que leans towards certainty: indicative.',
         },
-        // @@MORE-B@@
       ],
     },
     {
@@ -2435,7 +2433,6 @@ export const CH_ARGUMENTER: Chapter = {
           en: 'This is undoubtedly her best novel.',
           why: "Undoubtedly is sans aucun doute; sans doute alone only means 'probably'. Best (adjective) is meilleur.",
         },
-        // @@MORE-C@@
       ],
     },
     {
@@ -3121,7 +3118,6 @@ export const CH_ARGUMENTER: Chapter = {
           en: 'It cannot be ruled out that management will go back on its decision.',
           why: "Il n'est pas exclu que takes the subjunctive (revienne); to go back on a decision is revenir sur.",
         },
-        // @@MORE-D@@
       ],
     },
   ],

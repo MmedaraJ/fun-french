@@ -674,7 +674,6 @@ export const T_CONDITIONNEL: Chapter = {
           en: "With this fog that won't lift, you'd think it was London in November.",
           why: 'On dirait (+ noun or que…) = it looks like, you would think: dire → dir- + -ait.',
         },
-        // @@MORE-9A@@
       ],
     },
     {
@@ -1344,7 +1343,6 @@ export const T_CONDITIONNEL: Chapter = {
           en: "I wouldn't live in Geneva, even if I earned a good living.",
           why: 'Même si works like si: même si je gagnais (imparfait), je ne vivrais pas (conditionnel, stem vivr-).',
         },
-        // @@MORE-9B@@
       ],
     },
     {
@@ -2201,7 +2199,6 @@ export const T_CONDITIONNEL: Chapter = {
           en: 'The train should arrive in about ten minutes.',
           why: 'Should (= will probably) = devrait: the conditional of devoir also says what is expected to happen.',
         },
-        // @@MORE-9C@@
       ],
     },
     {
@@ -2854,7 +2851,6 @@ export const T_CONDITIONNEL: Chapter = {
           en: 'According to a recent study, one employee in four suffers from burnout.',
           why: 'Souffrir keeps its i in the conditional: il souffrirait (souffrir- + -ait), here for an unconfirmed figure.',
         },
-        // @@MORE-9D@@
       ],
     },
   ],

@@ -669,7 +669,6 @@ export const T_PASSE_COMPOSE: Chapter = {
           en: "Why didn't the unions come to the meeting?",
           why: 'A noun subject is picked up by ils after the auxiliary, and ne … pas wraps around both: ne sont-ils pas venus.',
         },
-        // @@MORE-A@@
       ],
     },
     {
@@ -1191,7 +1190,6 @@ export const T_PASSE_COMPOSE: Chapter = {
           en: 'In a single weekend, they sold everything.',
           why: 'Tout as an object goes between the auxiliary and the participle, like rien: ils ont tout vendu.',
         },
-        // @@MORE-B@@
       ],
     },
     {
@@ -1845,7 +1843,6 @@ export const T_PASSE_COMPOSE: Chapter = {
           en: "I've been living in Brussels since 2019.",
           why: "Careful: something still going on takes the présent with depuis, not the passé composé (j'habite … depuis).",
         },
-        // @@MORE-C@@
       ],
     },
     {
@@ -2308,7 +2305,6 @@ export const T_PASSE_COMPOSE: Chapter = {
           en: 'The minister announced her resignation yesterday.',
           why: 'Adverbs of time like hier go after the participle (or at the start), not between the auxiliary and the participle.',
         },
-        // @@MORE-D@@
       ],
     },
   ],

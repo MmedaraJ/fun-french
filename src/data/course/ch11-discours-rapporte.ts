@@ -644,7 +644,6 @@ export const CH_DISCOURS: Chapter = {
           en: "The gendarme ordered us not to move. → 'Don't move!' the gendarme ordered us.",
           why: 'Back to direct speech: de ne pas + infinitive becomes a negative imperative (ne bougez pas).',
         },
-        // @@MORE-11A@@
       ],
     },
     {
@@ -1427,7 +1426,6 @@ export const CH_DISCOURS: Chapter = {
           en: "'I will never leave the club I love,' the player declared.",
           why: 'After the quotation, the reporting verb comes first and its subject after it (a déclaré le joueur); je and mon return.',
         },
-        // @@MORE-11B@@
       ],
     },
     {
@@ -2349,7 +2347,6 @@ export const CH_DISCOURS: Chapter = {
           en: 'The council had promised that the road would have been repaired by the summer.',
           why: 'Would have been → conditionnel passé of the passive (aurait été réparée), agreeing with la route.',
         },
-        // @@MORE-11C@@
       ],
     },
     {
@@ -3019,7 +3016,6 @@ export const CH_DISCOURS: Chapter = {
           en: 'She wanted to know whether I was free on Saturday.',
           why: 'A yes / no question is reported with si, never que.',
         },
-        // @@MORE-11D@@
       ],
     },
   ],

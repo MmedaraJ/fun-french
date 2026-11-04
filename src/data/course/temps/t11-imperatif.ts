@@ -672,7 +672,6 @@ export const T_IMPERATIF: Chapter = {
           en: 'This violin belonged to your great-grandfather: take good care of it.',
           why: 'Prendre soin de → en, placed after the verb with a hyphen: prends-en bien soin.',
         },
-        // @@IMP-A@@
       ],
     },
     {
@@ -1200,7 +1199,6 @@ export const T_IMPERATIF: Chapter = {
           en: 'Go and pick up your sister at the station.',
           why: 'Aller: va, with no -s, even before an infinitive.',
         },
-        // @@IMP-B@@
       ],
     },
     {
@@ -1860,7 +1858,6 @@ export const T_IMPERATIF: Chapter = {
           en: 'Wake me up at 7, please.',
           why: 'No -s for -er verbs at the tu form, and moi after the verb: réveille-moi.',
         },
-        // @@IMP-C@@
       ],
     },
     {
@@ -2350,7 +2347,6 @@ export const T_IMPERATIF: Chapter = {
           en: 'Please accept my apologies for this misunderstanding.',
           why: 'Je vous prie de + infinitive: excuser, not excusez.',
         },
-        // @@IMP-D@@
       ],
     },
   ],

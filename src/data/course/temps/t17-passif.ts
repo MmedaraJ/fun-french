@@ -642,7 +642,6 @@ export const T_PASSIF: Chapter = {
           en: 'People who fail to attend their appointment will be struck off the list of jobseekers.',
           why: 'Future passive: seront + participle, agreeing with les personnes (always feminine).',
         },
-        // @@MORE-A@@
       ],
     },
     {
@@ -1327,7 +1326,6 @@ export const T_PASSIF: Chapter = {
           en: 'In Belgium, MPs are elected by proportional representation.',
           why: 'With on, the passive has no agent: présent → sont élus, agreeing with les députés.',
         },
-        // @@MORE-B@@
       ],
     },
     {
@@ -2102,7 +2100,6 @@ export const T_PASSIF: Chapter = {
           en: 'The lecture will be followed by a drinks reception.',
           why: 'Suivi de for what comes next (a sequence, not an agent), agreeing with la conférence.',
         },
-        // @@MORE-C@@
       ],
     },
     {
@@ -2685,7 +2682,6 @@ export const T_PASSIF: Chapter = {
           en: 'The Romanesque church was built in the 12th century.',
           why: "L' hides the gender, but église is feminine: a été construite.",
         },
-        // @@MORE-D@@
       ],
     },
   ],

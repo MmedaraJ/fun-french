@@ -660,7 +660,6 @@ export const T_FUTUR: Chapter = {
           en: 'Please be so kind as to fill in this questionnaire before your appointment.',
           why: 'The polite future: vous voudrez bien + infinitive is a formal request. Vaudrez comes from valoir.',
         },
-        // @@MORE-A@@
       ],
     },
     {
@@ -1317,7 +1316,6 @@ export const T_FUTUR: Chapter = {
           en: 'The moment the curtain goes up, the audience will fall silent.',
           why: 'Au moment où + futur, like quand: se lever → se lèvera, se taire → se taira.',
         },
-        // @@MORE-B@@
       ],
     },
     {
@@ -2120,7 +2118,6 @@ export const T_FUTUR: Chapter = {
           en: 'In Kinshasa, the conference will bring together ministers from twelve countries.',
           why: 'Réunir is a regular -ir verb: elle réunira, not réunera.',
         },
-        // @@MORE-C@@
       ],
     },
     {
@@ -2691,7 +2688,6 @@ export const T_FUTUR: Chapter = {
           en: "I hope you'll come to my birthday party.",
           why: "Espérer que takes the indicative, here the future: j'espère que tu viendras, not the subjunctive viennes.",
         },
-        // @@MORE-D@@
       ],
     },
   ],

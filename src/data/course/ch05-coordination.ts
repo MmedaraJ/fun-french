@@ -979,6 +979,7 @@ export const CH_COORDINATION: Chapter = {
           cue: 'et (sans répéter le sujet)',
           answer: "La directrice a reçu les parents et leur a présenté le nouveau projet d'école.",
           wrong: ["La directrice a reçu les parents et leur présenté le nouveau projet d'école.", "La directrice a reçu les parents et a leur présenté le nouveau projet d'école.", "La directrice a reçu les parents et les a présenté le nouveau projet d'école."],
+          decoys: ['lui', 'présentés'],
           en: 'The head teacher met the parents and presented the new school plan to them.',
           why: 'The object pronoun comes back with the second verb, and so does the auxiliary: et leur a présenté.',
         },

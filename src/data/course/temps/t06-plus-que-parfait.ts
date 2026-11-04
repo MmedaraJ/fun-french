@@ -147,7 +147,7 @@ export const T_PQP: Chapter = {
           fr: "Ce matin-là, Clara ne s'est pas réveillée à temps : elle ____ très tard la veille.",
           cue: '(se coucher)',
           answer: "s'était couchée",
-          wrong: ["s'est couchée", "s'était couché", 'avait couchée', 'se couchait'],
+          wrong: ["s'est couchée", "s'était couché", 'avait couchée'],
           en: "That morning, Clara didn't wake up in time: she had gone to bed very late the night before.",
           why: 'La veille looks back from that morning: plus-que-parfait. Pronominal verbs take être, and couchée agrees with Clara.',
         },
@@ -175,7 +175,7 @@ export const T_PQP: Chapter = {
           fr: "Lors de la réunion, la directrice a annoncé que l'entreprise ____ un gros contrat la semaine précédente.",
           cue: '(signer)',
           answer: 'avait signé',
-          wrong: ['a signé', 'signait', 'était signée'],
+          wrong: ['a signé', 'avait signée', 'était signée'],
           en: 'At the meeting, the director announced that the company had signed a big contract the week before.',
           why: 'Reported speech after a past verb: « Nous avons signé » becomes avait signé; la semaine précédente confirms it.',
         },
@@ -211,7 +211,7 @@ export const T_PQP: Chapter = {
           fr: 'Quand mes parents ont emménagé à Lyon, ma sœur aînée ____ quelques mois plus tôt.',
           cue: '(naître)',
           answer: 'était née',
-          wrong: ['avait né', 'était né', 'naissait'],
+          wrong: ['avait né', 'était né', 'est née'],
           en: 'When my parents moved to Lyon, my older sister had been born a few months earlier.',
           why: 'Plus tôt looks back from a past moment: plus-que-parfait. Naître takes être; née agrees with ma sœur.',
         },
@@ -280,12 +280,12 @@ export const T_PQP: Chapter = {
         },
         {
           id: 'greve-trains',
-          fr: 'Quand le préavis de grève a été levé, la SNCF ____ déjà la moitié des trains du week-end.',
+          fr: 'Quand le préavis de grève a été levé, la SNCF ____ déjà supprimé la moitié des trains du week-end.',
           cue: '(supprimer)',
-          answer: 'avait supprimé',
-          wrong: ['a supprimé', 'était supprimé', 'avait supprimée'],
+          answer: 'avait',
+          wrong: ['a', 'était', 'avaient'],
           en: "When the strike notice was withdrawn, the SNCF had already cancelled half of the weekend's trains.",
-          why: 'The cancellations came before the notice was withdrawn: plus-que-parfait. The object comes after the verb, so no agreement.',
+          why: 'The cancellations came before the notice was withdrawn: plus-que-parfait, with déjà between avait and supprimé.',
         },
         {
           id: 'dossier-perdu',
@@ -612,7 +612,6 @@ export const T_PQP: Chapter = {
           en: 'When they finally met in Abidjan, they had been writing to each other for two years.',
           why: "Écrire à quelqu'un: se is an indirect object here, so the participle does not agree: ils s'étaient écrit.",
         },
-        // @@PQP-A@@
       ],
     },
     {
@@ -635,7 +634,7 @@ export const T_PQP: Chapter = {
           from: 'Elle est partie très tôt ce matin-là.',
           cue: '→ plus-que-parfait',
           answer: 'Elle était partie très tôt ce matin-là.',
-          wrong: ['Elle avait partie très tôt ce matin-là.', 'Elle était parti très tôt ce matin-là.', 'Elle partait très tôt ce matin-là.'],
+          wrong: ['Elle avait partie très tôt ce matin-là.', 'Elle était parti très tôt ce matin-là.', 'Elle était partit très tôt ce matin-là.'],
           en: 'She had left very early that morning.',
           why: 'Être verbs keep être, now in the imparfait: était partie, agreeing with elle.',
         },
@@ -644,7 +643,7 @@ export const T_PQP: Chapter = {
           from: 'Ils se sont disputés la veille du mariage.',
           cue: '→ plus-que-parfait',
           answer: "Ils s'étaient disputés la veille du mariage.",
-          wrong: ["Ils s'avaient disputés la veille du mariage.", "Ils s'étaient disputé la veille du mariage.", 'Ils se disputaient la veille du mariage.'],
+          wrong: ["Ils s'avaient disputés la veille du mariage.", "Ils s'étaient disputé la veille du mariage.", 'Ils étaient disputés la veille du mariage.'],
           en: 'They had argued the day before the wedding.',
           why: "Pronominal verbs take être: ils s'étaient disputés.",
         },
@@ -1280,7 +1279,6 @@ export const T_PQP: Chapter = {
           en: 'That evening, I finally understood why she had left without a word.',
           why: 'She left before that evening: plus-que-parfait, with être for partir and agreement with elle.',
         },
-        // @@PQP-B@@
       ],
     },
     {
@@ -2088,7 +2086,6 @@ export const T_PQP: Chapter = {
           en: 'The neighbour said she had seen the suspect leave the building.',
           why: 'Reported after a past verb: plus-que-parfait. After voir, the second verb stays in the infinitive: avait vu le suspect sortir.',
         },
-        // @@PQP-C@@
       ],
     },
     {
@@ -2219,16 +2216,12 @@ export const T_PQP: Chapter = {
           why: 'The results came out before I logged on: plus-que-parfait, with être for tomber.',
         },
         {
-          id: 'si-autoroute',
-          from: "Si on aurait pris l'autoroute, on aurait évité les embouteillages.",
-          answer: "Si on avait pris l'autoroute, on aurait évité les embouteillages.",
-          wrong: [
-            "Si on aurait pris l'autoroute, on aurait évité les embouteillages.",
-            "Si on a pris l'autoroute, on aurait évité les embouteillages.",
-            "Si on était pris l'autoroute, on aurait évité les embouteillages.",
-          ],
-          en: 'If we had taken the motorway, we would have avoided the traffic jams.',
-          why: 'Never the conditional after si: si on avait pris, then the conditionnel passé.',
+          id: 'si-relu',
+          from: 'Si tu aurais relu ton mail, tu aurais vu la faute.',
+          answer: 'Si tu avais relu ton mail, tu aurais vu la faute.',
+          wrong: ['Si tu aurais relu ton mail, tu aurais vu la faute.', 'Si tu as relu ton mail, tu aurais vu la faute.', 'Si tu étais relu ton mail, tu aurais vu la faute.'],
+          en: 'If you had reread your email, you would have seen the mistake.',
+          why: 'Never the conditional after si: si tu avais relu, then the conditionnel passé.',
         },
         {
           id: 'mere-hopital',
@@ -2337,10 +2330,10 @@ export const T_PQP: Chapter = {
           wrong: [
             'Mes voisins ? Je les avais prévenu que les travaux commenceraient lundi.',
             'Mes voisins ? Je les étais prévenus que les travaux commenceraient lundi.',
-            'Mes voisins ? Je les avais prévenus que les travaux commenceront lundi.',
+            'Mes voisins ? Je leur avais prévenus que les travaux commenceraient lundi.',
           ],
           en: 'My neighbours? I had warned them that the work would start on Monday.',
-          why: 'Les (= mes voisins) comes before avoir: prévenus agrees. After a past verb, the future becomes a conditional.',
+          why: "Prévenir quelqu'un takes a direct object: les (= mes voisins) comes before avoir, so prévenus agrees.",
         },
         {
           id: 'robe-mariage',
@@ -2504,11 +2497,11 @@ export const T_PQP: Chapter = {
           why: 'Si seulement + plus-que-parfait, never the conditional; rester takes être, agreeing with elle.',
         },
         {
-          id: 'match-plu',
-          from: "S'il aurait plu, le match aurait été annulé.",
-          answer: "S'il avait plu, le match aurait été annulé.",
-          wrong: ["S'il aurait plu, le match aurait été annulé.", "S'il avait plut, le match aurait été annulé.", "S'il était plu, le match aurait été annulé."],
-          en: 'If it had rained, the match would have been cancelled.',
+          id: 'recolte-plu',
+          from: "S'il aurait plu, la récolte aurait été sauvée.",
+          answer: "S'il avait plu, la récolte aurait été sauvée.",
+          wrong: ["S'il aurait plu, la récolte aurait été sauvée.", "S'il avait plut, la récolte aurait été sauvée.", "S'il était plu, la récolte aurait été sauvée."],
+          en: 'If it had rained, the harvest would have been saved.',
           why: 'After si, the plus-que-parfait: il avait plu (the participle of pleuvoir is plu, with avoir).',
         },
         {
@@ -2702,7 +2695,6 @@ export const T_PQP: Chapter = {
           en: "That evening, Lucie wasn't hungry: she had already eaten at a friend's.",
           why: 'She ate before that evening: plus-que-parfait with avoir, and déjà between avait and dîné.',
         },
-        // @@PQP-D@@
       ],
     },
   ],
