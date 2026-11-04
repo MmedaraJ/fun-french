@@ -386,11 +386,11 @@ export const CH_QUESTIONS: Chapter = {
         },
         {
           id: 'qu-est-ce-qui-fait-peur',
-          fr: '____ vous fait peur dans ce projet ?',
+          fr: '____ vous inquiète le plus dans ce projet ?',
           answer: "Qu'est-ce qui",
           wrong: ["Qu'est-ce que", 'Que', 'Quoi'],
-          en: 'What frightens you about this project?',
-          why: "Qu'est-ce qui: a thing is the subject of the verb (fait peur).",
+          en: 'What worries you most about this project?',
+          why: "Qu'est-ce qui: a thing is the subject of the verb (inquiète).",
         },
         {
           id: 'de-quoi-depend',
@@ -1110,7 +1110,6 @@ export const CH_QUESTIONS: Chapter = {
           en: 'How long has your grandmother been living in a care home?',
           why: 'Depuis + present for something still going on; complex inversion vit-elle, with no -t- after a final t.',
         },
-        // @@MORE-B@@
       ],
     },
     {
@@ -1978,7 +1977,6 @@ export const CH_QUESTIONS: Chapter = {
           en: 'Is the Prime Minister going to address the nation tonight?',
           why: 'Complex inversion on aller (le Premier ministre va-t-il); the reflexive pronoun stays with the infinitive.',
         },
-        // @@MORE-C@@
       ],
     },
     {
@@ -2485,7 +2483,6 @@ export const CH_QUESTIONS: Chapter = {
           en: "Did you have a good time at Chloé's party?",
           why: 'Inverting a reflexive verb: te stays in front, then the inverted auxiliary être, with no subject before it.',
         },
-        // @@MORE-D@@
       ],
     },
   ],

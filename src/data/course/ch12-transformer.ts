@@ -611,7 +611,6 @@ export const CH_TRANSFORMER: Chapter = {
           en: "Being a minor, she couldn't sign the contract on her own.",
           why: 'The present participle gives the cause and never agrees: étant mineure.',
         },
-        // @@MORE-12A@@
       ],
     },
     {
@@ -1339,11 +1338,10 @@ export const CH_TRANSFORMER: Chapter = {
           cue: '→ participe absolu',
           answer: 'Les urnes fermées, le dépouillement a commencé.',
           accept: ['Une fois les urnes fermées, le dépouillement a commencé.'],
-          wrong: ['Les urnes fermant, le dépouillement a commencé.', 'Les urnes fermé, le dépouillement a commencé.', 'Les urnes ayant fermé, le dépouillement a commencé.'],
+          wrong: ['Les urnes fermant, le dépouillement a commencé.', 'Les urnes fermé, le dépouillement a commencé.', 'Les urnes fermés, le dépouillement a commencé.'],
           en: 'Once the ballot boxes were closed, the count began.',
           why: 'With a different subject, the absolute participle keeps its own noun and agrees with it: les urnes fermées.',
         },
-        // @@MORE-12B@@
       ],
     },
     {
@@ -2211,15 +2209,13 @@ export const CH_TRANSFORMER: Chapter = {
           why: "'Having been' + participle = ayant été + participle: the compound participle of the passive.",
         },
         {
-          id: 'promis-augmentation',
-          from: 'We were promised a pay rise.',
-          answer: 'On nous a promis une augmentation.',
-          accept: ['On nous a promis une augmentation de salaire.', 'On nous a promis une hausse de salaire.'],
-          wrong: ['Nous avons été promis une augmentation.', 'On nous a été promis une augmentation.', 'On nous a promise une augmentation.'],
-          en: 'We were promised a pay rise.',
-          why: "Promettre à quelqu'un: the person stays an indirect object, so 'we were promised' is on nous a promis.",
+          id: 'envoye-mauvais-formulaire',
+          from: 'We were sent the wrong form.',
+          answer: 'On nous a envoyé le mauvais formulaire.',
+          wrong: ['Nous avons été envoyés le mauvais formulaire.', 'On nous a été envoyé le mauvais formulaire.', 'On nous a envoyés le mauvais formulaire.'],
+          en: 'We were sent the wrong form.',
+          why: "Envoyer quelque chose à quelqu'un: the person stays an indirect object (nous), so 'we were sent' is on nous a envoyé, with no agreement.",
         },
-        // @@MORE-12C@@
       ],
     },
     {
@@ -2909,7 +2905,6 @@ export const CH_TRANSFORMER: Chapter = {
           en: 'While walking in the forest, we caught sight of a deer.',
           why: 'The gérondif is always en + -ant; pendant needs a full clause (pendant que nous marchions).',
         },
-        // @@MORE-12D@@
       ],
     },
   ],
