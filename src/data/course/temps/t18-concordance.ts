@@ -511,7 +511,7 @@ export const T_CONCORDANCE: Chapter = {
           accept: ['obtiendras'],
           wrong: ['aurais obtenu', 'obtiens', 'aies obtenu'],
           en: "As soon as you've passed your theory test, you'll be able to start driving lessons.",
-          why: 'Dès que + futur antérieur for an action completed before the future one (tu auras, without the s of the conditional).',
+          why: 'Dès que + futur antérieur for an action completed before the future one (tu auras, without the s of the conditional); the present obtiens breaks the rule this chapter teaches.',
         },
         {
           id: 'seront-partis-invites',
@@ -521,7 +521,7 @@ export const T_CONCORDANCE: Chapter = {
           accept: ['partiront'],
           wrong: ['auront partis', 'partent', 'seraient partis'],
           en: "Once the guests have left, we'll finally be able to tidy up the room.",
-          why: 'Une fois que + futur antérieur for the earlier action; partir takes être, so seront partis.',
+          why: 'Une fois que + futur antérieur for the earlier action (not the present, as this chapter teaches); partir takes être, so seront partis.',
         },
         {
           id: 'etions-bretagne',
@@ -1892,7 +1892,7 @@ export const T_CONCORDANCE: Chapter = {
             "Je t'appellerais dès que j'aurai parlé à la banque.",
           ],
           en: "I'll call you as soon as I've spoken to the bank.",
-          why: "Dès que + futur antérieur for the earlier action, with a futur in the main clause (j'aurai, with no s).",
+          why: "Dès que + futur antérieur for the earlier action, with a futur in the main clause (j'aurai, with no s); the present je parle breaks the rule this chapter teaches.",
         },
         {
           id: 'une-fois-contrat-signe',
@@ -2206,7 +2206,7 @@ export const T_CONCORDANCE: Chapter = {
           ],
           wrong: ['Quand tu lis cette lettre, je serai parti.', "Quand tu liras cette lettre, j'aurai parti.", 'Quand tu lirais cette lettre, je serai parti.'],
           en: 'By the time you read this letter, I will have left.',
-          why: 'Quand + futur for the future moment, and a futur antérieur for what will be over by then (je serai parti, with être).',
+          why: 'Quand + futur for the future moment (not the present, as this chapter teaches), and a futur antérieur for what will be over by then (je serai parti).',
         },
         // @@MORE-C@@
       ],
@@ -2335,7 +2335,7 @@ export const T_CONCORDANCE: Chapter = {
           accept: ["Si j'avais su que tu étais à Liège, je t'aurais invitée."],
           wrong: [
             "Si j'aurais su que tu étais à Liège, je t'aurais invité.",
-            "Si j'avais su que tu es à Liège, je t'aurais invité.",
+            "Si j'avais su que tu étais à Liège, je t'aurai invité.",
             "Si j'avais su que tu étais à Liège, je t'avais invité.",
           ],
           en: "If I'd known you were in Liège, I would have invited you.",
@@ -2448,7 +2448,7 @@ export const T_CONCORDANCE: Chapter = {
             "Quand j'aurai mon diplôme en juin, je partirais six mois en Asie.",
           ],
           en: "When I get my degree in June, I'll go to Asia for six months.",
-          why: "Quand + futur for an action still to come (j'aurai), with a futur in the main clause.",
+          why: "Quand + futur for an action still to come (j'aurai), with a futur in the main clause: the rule this chapter teaches, even though the present is often heard.",
         },
         {
           id: 'quand-enfants-partis',
@@ -2466,7 +2466,7 @@ export const T_CONCORDANCE: Chapter = {
           accept: ['Dès que je recevrai mon salaire, je te rembourserai.'],
           wrong: ["Dès que j'aurais reçu mon salaire, je te rembourserai.", 'Dès que je reçois mon salaire, je te rembourserai.', "Dès que j'aurai reçu mon salaire, je te rembourserais."],
           en: "As soon as I've been paid, I'll pay you back.",
-          why: "Dès que + futur antérieur (j'aurai reçu, with no s) with a futur in the main clause.",
+          why: "Dès que + futur antérieur (j'aurai reçu, with no s) with a futur in the main clause, as this chapter teaches; the present je reçois is only heard in casual speech.",
         },
         {
           id: 'des-qu-aurait-signe',
