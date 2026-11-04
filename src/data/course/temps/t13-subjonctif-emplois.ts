@@ -559,13 +559,13 @@ export const T_SUBJONCTIF_EMPLOIS: Chapter = {
           why: "Pourvu que (= à condition que) + subjunctive: qu'elle se rende.",
         },
         {
-          id: 'jusqu-a-ce-que-donner',
-          fr: "On ne bougera pas d'ici jusqu'à ce que vous nous ____ une explication.",
-          cue: '(donner)',
-          answer: 'donniez',
-          wrong: ['donnez', 'donnerez', 'donneriez'],
-          en: "We're not moving from here until you give us an explanation.",
-          why: "Jusqu'à ce que + subjunctive, never the future: que vous donniez.",
+          id: 'jusqu-a-ce-que-redevenir',
+          fr: "La mairie maintiendra l'arrêté jusqu'à ce que la qualité de l'eau ____ satisfaisante.",
+          cue: '(redevenir)',
+          answer: 'redevienne',
+          wrong: ['redevient', 'redeviendra', 'redevenait'],
+          en: 'The town hall will keep the order in force until the water quality is satisfactory again.',
+          why: "Jusqu'à ce que + subjunctive, never the future: qu'elle redevienne.",
         },
         {
           id: 'apres-que-rendre',
@@ -665,7 +665,6 @@ export const T_SUBJONCTIF_EMPLOIS: Chapter = {
           en: 'Given the polls, the outgoing mayor will probably be re-elected in the first round.',
           why: 'Il est probable que (likely) takes the indicative: the subjunctive would be wrong here.',
         },
-        // @@a
       ],
     },
     {
@@ -1341,7 +1340,6 @@ export const T_SUBJONCTIF_EMPLOIS: Chapter = {
           en: "There's nobody on the team who knows Japanese.",
           why: "After a negative antecedent (il n'y a personne qui), written French uses the subjunctive; connaît is colloquial.",
         },
-        // @@b
       ],
     },
     {
@@ -2033,12 +2031,18 @@ export const T_SUBJONCTIF_EMPLOIS: Chapter = {
           why: "Jusqu'à ce que + subjunctive (que nous trouvions), never the future.",
         },
         {
-          id: 'for-fear-hurting',
-          from: "He didn't say anything for fear of hurting her.",
-          answer: "Il n'a rien dit de peur de la blesser.",
-          accept: ["Il n'a rien dit de crainte de la blesser.", "Il n'a rien dit par peur de la blesser."],
-          wrong: ["Il n'a rien dit de peur qu'il la blesse.", "Il n'a rien dit de peur de la blesse.", "Il n'a rien dit pour peur de la blesser."],
-          en: "He didn't say anything for fear of hurting her.",
+          id: 'taxi-missing-flight',
+          from: 'She took a taxi for fear of missing her flight.',
+          answer: 'Elle a pris un taxi de peur de rater son avion.',
+          accept: [
+            'Elle a pris un taxi de peur de rater son vol.',
+            'Elle a pris un taxi de peur de manquer son avion.',
+            'Elle a pris un taxi de peur de manquer son vol.',
+            'Elle a pris un taxi de crainte de rater son avion.',
+            'Elle a pris un taxi par peur de rater son avion.',
+          ],
+          wrong: ["Elle a pris un taxi de peur qu'elle rate son avion.", 'Elle a pris un taxi de peur de rate son avion.', 'Elle a pris un taxi pour peur de rater son avion.'],
+          en: 'She took a taxi for fear of missing her flight.',
           why: 'Same subject: de peur de + infinitive, not de peur que + subjunctive.',
         },
         {
@@ -2260,7 +2264,6 @@ export const T_SUBJONCTIF_EMPLOIS: Chapter = {
           en: "It's only fair that everyone pays their share.",
           why: 'Il est juste que (a judgment) + subjunctive: que chacun paie (or paye).',
         },
-        // @@c
       ],
     },
     {
@@ -2376,11 +2379,15 @@ export const T_SUBJONCTIF_EMPLOIS: Chapter = {
           why: "Vouloir que + subjunctive: que vous m'accompagniez (the subjunctive's -iez).",
         },
         {
-          id: 'souhaite-parler',
-          from: 'Je souhaite que je parle au responsable du service.',
-          answer: 'Je souhaite parler au responsable du service.',
-          wrong: ['Je souhaite que je parle au responsable du service.', 'Je souhaite que je parlerai au responsable du service.', 'Je souhaite parle au responsable du service.'],
-          en: "I'd like to speak to the head of department.",
+          id: 'souhaite-etre-recu',
+          from: "Je souhaite que je sois reçu par le directeur de l'agence.",
+          answer: "Je souhaite être reçu par le directeur de l'agence.",
+          wrong: [
+            "Je souhaite que je sois reçu par le directeur de l'agence.",
+            "Je souhaite que je serai reçu par le directeur de l'agence.",
+            "Je souhaite que je suis reçu par le directeur de l'agence.",
+          ],
+          en: "I'd like to be seen by the branch manager.",
           why: 'Same subject: souhaiter + infinitive, never que je + subjunctive.',
         },
         {
@@ -2532,12 +2539,13 @@ export const T_SUBJONCTIF_EMPLOIS: Chapter = {
           why: 'An affirmative opinion (je pense que) takes the indicative: tu as.',
         },
         {
-          id: 'sure-est-arrivee',
-          from: "Je suis sûre qu'elle soit déjà arrivée à la gare.",
-          answer: "Je suis sûre qu'elle est déjà arrivée à la gare.",
-          wrong: ["Je suis sûre qu'elle soit déjà arrivée à la gare.", "Je suis sûre qu'elle sois déjà arrivée à la gare.", "Je suis sûre qu'elle a déjà arrivée à la gare."],
-          en: "I'm sure she's already got to the station.",
-          why: 'Certainty (je suis sûr que) takes the indicative: elle est arrivée.',
+          id: 'certain-greve-tourisme',
+          from: 'Il est certain que la grève ait des conséquences sur le tourisme.',
+          answer: 'Il est certain que la grève aura des conséquences sur le tourisme.',
+          accept: ['Il est certain que la grève va avoir des conséquences sur le tourisme.', 'Il est certain que la grève a des conséquences sur le tourisme.'],
+          wrong: ['Il est certain que la grève ait des conséquences sur le tourisme.', 'Il est certain que la grève aie des conséquences sur le tourisme.'],
+          en: 'The strike will certainly have an impact on tourism.',
+          why: 'Il est certain que states a certainty: indicative (aura), never the subjunctive.',
         },
         {
           id: 'probable-usine-liege',
@@ -2593,16 +2601,16 @@ export const T_SUBJONCTIF_EMPLOIS: Chapter = {
           why: 'Il vaut mieux que + subjunctive: que vous sachiez (sachez is the imperative).',
         },
         {
-          id: 'urgent-agisse',
-          from: 'Il est urgent que le gouvernement agit contre la sécheresse.',
-          answer: 'Il est urgent que le gouvernement agisse contre la sécheresse.',
+          id: 'urgent-recoive-delegues',
+          from: 'Il est urgent que la direction reçoit les délégués du personnel.',
+          answer: 'Il est urgent que la direction reçoive les délégués du personnel.',
           wrong: [
-            'Il est urgent que le gouvernement agit contre la sécheresse.',
-            'Il est urgent que le gouvernement agira contre la sécheresse.',
-            'Il est urgent que le gouvernement agisses contre la sécheresse.',
+            'Il est urgent que la direction reçoit les délégués du personnel.',
+            'Il est urgent que la direction recevra les délégués du personnel.',
+            'Il est urgent que la direction reçoivent les délégués du personnel.',
           ],
-          en: 'The government urgently needs to act against the drought.',
-          why: "Il est urgent que + subjunctive: qu'il agisse (agir → ils agissent).",
+          en: 'Management urgently needs to meet the staff representatives.',
+          why: "Il est urgent que + subjunctive: qu'elle reçoive (recevoir → ils reçoivent).",
         },
         {
           id: 'normal-aient-envie',
@@ -2848,12 +2856,12 @@ export const T_SUBJONCTIF_EMPLOIS: Chapter = {
           why: 'An affirmative opinion (je trouve que) takes the indicative: il est.',
         },
         {
-          id: 'evident-a-pris',
-          from: 'Il est évident que le projet ait pris du retard.',
-          answer: 'Il est évident que le projet a pris du retard.',
-          wrong: ['Il est évident que le projet ait pris du retard.', 'Il est évident que le projet aie pris du retard.'],
-          en: "It's obvious that the project has fallen behind schedule.",
-          why: 'Il est évident que states a certainty: indicative (a pris), never the subjunctive.',
+          id: 'evident-sous-estime',
+          from: "Il est évident que les organisateurs aient sous-estimé l'affluence.",
+          answer: "Il est évident que les organisateurs ont sous-estimé l'affluence.",
+          wrong: ["Il est évident que les organisateurs aient sous-estimé l'affluence.", "Il est évident que les organisateurs ayent sous-estimé l'affluence."],
+          en: 'It is obvious that the organisers underestimated the turnout.',
+          why: 'Il est évident que states a certainty: indicative (ont sous-estimé), never the subjunctive.',
         },
         {
           id: 'faudrait-prennes',
@@ -2879,7 +2887,6 @@ export const T_SUBJONCTIF_EMPLOIS: Chapter = {
           en: "I'd like you to call me back during the day.",
           why: 'Souhaiter que + subjunctive, even after the conditional: que vous me rappeliez (one l before -iez).',
         },
-        // @@d
       ],
     },
   ],
