@@ -1069,7 +1069,7 @@ export const CH_EXCLAMATION: Chapter = {
           from: 'Ne vous asseyez pas sur les marches du musée.',
           cue: 'merci de',
           answer: 'Merci de ne pas vous asseoir sur les marches du musée.',
-          wrong: ['Merci de ne vous pas asseoir sur les marches du musée.', 'Merci de vous ne pas asseoir sur les marches du musée.', 'Merci de ne pas asseyez-vous sur les marches du musée.'],
+          wrong: ['Merci à ne pas vous asseoir sur les marches du musée.', 'Merci de vous ne pas asseoir sur les marches du musée.', 'Merci de ne pas asseyez-vous sur les marches du musée.'],
           en: 'Please do not sit on the museum steps.',
           why: 'Merci de + infinitive: ne pas, then the reflexive pronoun, then the infinitive.',
         },
