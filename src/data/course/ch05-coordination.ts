@@ -587,7 +587,6 @@ export const CH_COORDINATION: Chapter = {
           en: 'She left Paris partly because rents there are exorbitant, and partly because her parents were getting older.',
           why: 'Car can never follow et, so a list of reasons repeats parce que.',
         },
-        // @@MORE-A@@
       ],
     },
     {
@@ -1144,7 +1143,6 @@ export const CH_COORDINATION: Chapter = {
           en: "He must have missed his train, as he still hasn't arrived.",
           why: 'Car justifies what you have just said (how you know it) rather than giving the cause of the fact; it keeps its subject.',
         },
-        // @@MORE-B@@
       ],
     },
     {
@@ -2065,7 +2063,6 @@ export const CH_COORDINATION: Chapter = {
           en: 'She sat down and opened her laptop.',
           why: "S'asseoir takes être and ouvrir takes avoir, so the second auxiliary must be written: et a ouvert.",
         },
-        // @@MORE-C@@
       ],
     },
     {
@@ -2687,7 +2684,6 @@ export const CH_COORDINATION: Chapter = {
           en: 'She resigned because she was underpaid and because her boss was obnoxious.',
           why: 'Car can never follow et, so a second reason repeats parce que, or simply que: parce que… et que…',
         },
-        // @@MORE-D@@
       ],
     },
   ],

@@ -302,7 +302,7 @@ export const CH_RELATIVES: Chapter = {
           id: 'dont-responsable-service',
           fr: "Le service ____ Mme Diallo est responsable compte une trentaine d'agents.",
           answer: 'dont',
-          wrong: ['que', 'duquel', 'auquel', 'où'],
+          wrong: ['que', 'duquel', 'auquel', 'qui'],
           en: 'The department Ms Diallo is in charge of has about thirty staff.',
           why: 'Être responsable de quelque chose: de + noun becomes dont, after an adjective as after a verb.',
         },
@@ -318,7 +318,7 @@ export const CH_RELATIVES: Chapter = {
           id: 'dont-possession-familles',
           fr: "L'association aide des familles ____ les enfants ne sont pas scolarisés.",
           answer: 'dont',
-          wrong: ['que', 'qui', 'desquelles', 'où'],
+          wrong: ['que', 'qui', 'desquelles', 'lesquelles'],
           en: "The charity helps families whose children aren't in school.",
           why: 'Les enfants de ces familles: possession, so dont (whose), followed by les, not leurs.',
         },
@@ -524,7 +524,7 @@ export const CH_RELATIVES: Chapter = {
           id: 'ce-qui-indirect-passerelle',
           fr: "Les enquêteurs ignorent encore ____ a causé l'effondrement de la passerelle.",
           answer: 'ce qui',
-          wrong: ["qu'est-ce qui", 'qui', 'quoi', 'ce dont'],
+          wrong: ["qu'est-ce qui", "ce qu'il", 'quoi', 'ce dont'],
           en: "Investigators still don't know what caused the footbridge to collapse.",
           why: "What as a subject (of a causé) is ce qui; qu'est-ce qui only opens a direct question.",
         },
@@ -601,7 +601,6 @@ export const CH_RELATIVES: Chapter = {
           en: 'My grandmother is the only one in the family who can still speak Breton.',
           why: 'After la seule, the relative often takes the subjunctive (sache); the indicative sait is also correct.',
         },
-        // @@MORE-A@@
       ],
     },
     {
@@ -954,7 +953,7 @@ export const CH_RELATIVES: Chapter = {
           from: "J'ai reçu plusieurs offres d'emploi. Parmi elles, il y en a une à Genève.",
           answer: "J'ai reçu plusieurs offres d'emploi, parmi lesquelles une à Genève.",
           accept: ["J'ai reçu plusieurs offres d'emploi, dont une à Genève."],
-          wrong: ["J'ai reçu plusieurs offres d'emploi, parmi lesquels une à Genève.", "J'ai reçu plusieurs offres d'emploi, parmi qui une à Genève.", "J'ai reçu plusieurs offres d'emploi, parmi elles une à Genève."],
+          wrong: ["J'ai reçu plusieurs offres d'emploi, parmi lesquels une à Genève.", "J'ai reçu plusieurs offres d'emploi, parmi qui une à Genève.", "J'ai reçu plusieurs offres d'emploi, desquelles une à Genève."],
           en: "I've had several job offers, one of them in Geneva.",
           why: 'After parmi, always lesquels / lesquelles, here feminine like offres; dont also works before a number.',
         },
@@ -1075,7 +1074,6 @@ export const CH_RELATIVES: Chapter = {
           en: 'He has written some twenty novels, most of which have been translated into English.',
           why: "Most of which = dont la plupart: dont already means of them, so d'entre eux would say it twice.",
         },
-        // @@MORE-B@@
       ],
     },
     {
@@ -1751,7 +1749,6 @@ export const CH_RELATIVES: Chapter = {
           en: 'Everything that happened is my fault.',
           why: 'Everything that, as a subject = tout ce qui; ce que would need a subject of its own.',
         },
-        // @@MORE-C@@
       ],
     },
     {
@@ -2190,7 +2187,6 @@ export const CH_RELATIVES: Chapter = {
           en: "The classes I've signed up for start on Monday.",
           why: "S'inscrire à: à + lesquels contracts to auxquels; dont only replaces de + noun.",
         },
-        // @@MORE-D@@
       ],
     },
   ],
