@@ -688,7 +688,6 @@ export const T_SUBJONCTIF_PASSE: Chapter = {
           en: 'At the time, it was unthinkable for a woman to get such a position.',
           why: "Il était impensable que + subjonctif présent in modern French. Literary: qu'elle obtînt; obtint is the passé simple.",
         },
-        // @@A@@
       ],
     },
     {
@@ -1075,16 +1074,16 @@ export const T_SUBJONCTIF_PASSE: Chapter = {
         },
         {
           id: 'contente-partie-parents',
-          from: 'Elle est contente : elle est enfin partie de chez ses parents.',
-          cue: '→ Elle est contente de…',
-          answer: "Elle est contente d'être enfin partie de chez ses parents.",
+          from: 'Je suis contente : je suis enfin partie de chez mes parents.',
+          cue: '→ Je suis contente de…',
+          answer: "Je suis contente d'être enfin partie de chez mes parents.",
           wrong: [
-            "Elle est contente qu'elle soit enfin partie de chez ses parents.",
-            "Elle est contente d'avoir enfin partie de chez ses parents.",
-            "Elle est contente d'être enfin parti de chez ses parents.",
+            'Je suis contente que je sois enfin partie de chez mes parents.',
+            "Je suis contente d'avoir enfin partie de chez mes parents.",
+            "Je suis contente d'être enfin parti de chez mes parents.",
           ],
-          en: "She's glad she has finally moved out of her parents' place.",
-          why: 'Same subject: de + infinitif passé; partir takes être, and partie agrees with elle.',
+          en: "I'm glad I've finally moved out of my parents' place.",
+          why: 'Same subject: de + infinitif passé; partir takes être, and partie agrees with the speaker.',
         },
         {
           id: 'desoles-trompes-salle',
@@ -1266,7 +1265,6 @@ export const T_SUBJONCTIF_PASSE: Chapter = {
           en: 'Although the hall was almost empty, the orchestra played to the end.',
           why: 'Fût (imparfait du subjonctif) → soit; joua (passé simple) → a joué. Fut, without a circumflex, is the passé simple.',
         },
-        // @@B@@
       ],
     },
     {
@@ -1784,7 +1782,7 @@ export const T_SUBJONCTIF_PASSE: Chapter = {
             "C'est bizarre qu'il n'ait pas encore téléphoné.",
             "C'est étrange qu'il n'ait pas encore téléphoné.",
           ],
-          wrong: ["C'est bizarre qu'il n'a pas encore appelé.", "C'est bizarre qu'il n'ait pas encore appeler.", "C'est bizarre qu'il ne soit pas encore appelé."],
+          wrong: ["C'est bizarre qu'il n'a pas encore appelé.", "C'est bizarre qu'il n'ait pas encore appeler.", "C'est bizarre qu'il n'aie pas encore appelé."],
           en: "It's strange that he hasn't called yet.",
           why: "C'est bizarre que + subjunctive; 'hasn't called yet' is the subjonctif passé: qu'il n'ait pas appelé.",
         },
@@ -2236,7 +2234,6 @@ export const T_SUBJONCTIF_PASSE: Chapter = {
           en: 'They may have got married in secret.',
           why: 'Il est possible que + subjunctive; se marier takes être and agrees: se soient mariés.',
         },
-        // @@C@@
       ],
     },
     {
@@ -2875,7 +2872,6 @@ export const T_SUBJONCTIF_PASSE: Chapter = {
           en: 'We were afraid he had lost his memory.',
           why: "Eut, without a circumflex, is an indicative. After craindre, the subjonctif passé: qu'il ait perdu (literary: eût perdu).",
         },
-        // @@D@@
       ],
     },
   ],
