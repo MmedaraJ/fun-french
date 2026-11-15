@@ -108,14 +108,27 @@ export async function buildBackup(): Promise<BackupFile> {
     db.meta.toArray(),
     db.images.toArray(),
   ]);
+  // Her picture dictionary's pages and drawings stay out: they come from her copy of the book
+  // and are cut again from it (Mon imagier asks for the PDF after a restore).
+  const fromBook = (id?: string) => !!id && (id.startsWith('ipage-') || id.startsWith('icrop-'));
   const imageRecords: ImageRecord[] = [];
-  for (const img of images) imageRecords.push({ id: img.id, createdAt: img.createdAt, data: await blobToDataUrl(img.blob) });
+  for (const img of images) if (!fromBook(img.id)) imageRecords.push({ id: img.id, createdAt: img.createdAt, data: await blobToDataUrl(img.blob) });
   return {
     format: BACKUP_FORMAT,
     version: BACKUP_VERSION,
     exportedAt: Date.now(),
     settings: portableSettings(),
-    tables: { decks, cards, progress, skills, events, sessions, daily, unlocked, meta },
+    tables: {
+      decks,
+      cards: cards.map((c) => (fromBook(c.imageId) ? { ...c, imageId: undefined } : c)),
+      progress,
+      skills,
+      events,
+      sessions,
+      daily,
+      unlocked,
+      meta: meta.filter((m) => m.key !== 'imagierBook'),
+    },
     images: imageRecords,
   };
 }

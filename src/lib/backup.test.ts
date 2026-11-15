@@ -85,6 +85,22 @@ describe('full backup', () => {
     expect(await dump()).toEqual(before);
   });
 
+  it('leaves her picture dictionary\'s pages and drawings out: they come from her book again', async () => {
+    await seedSample();
+    await db.decks.put(deck('img-01', { book: 'imagier' }));
+    await db.cards.put(card('i01-la-craie', 'img-01', 'la craie', { imageId: 'icrop-i01-la-craie' }));
+    await db.images.bulkPut([
+      { id: 'icrop-i01-la-craie', blob: new Blob(['x']), createdAt: 1 },
+      { id: 'ipage-6', blob: new Blob(['y']), createdAt: 1 },
+    ]);
+    await db.meta.put({ key: 'imagierBook', value: { importedAt: 1, version: 'v', pages: [6], words: 1, bytes: 2 } });
+    const file = await buildBackup();
+    expect(file.images.map((i) => i.id).filter((id) => id.startsWith('icrop-') || id.startsWith('ipage-'))).toEqual([]);
+    expect(file.images.length).toBeGreaterThan(0);
+    expect(file.tables.cards.find((c) => c.id === 'i01-la-craie')?.imageId).toBeUndefined();
+    expect(file.tables.meta.some((m) => m.key === 'imagierBook')).toBe(false);
+  });
+
   it('keeps the API key on the device and restores other settings', async () => {
     await seedSample();
     useSettings.getState().update({ name: 'Amélie', aiKey: 'sk-secret', dailyGoal: 100, onboarded: true });

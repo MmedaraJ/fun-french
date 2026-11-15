@@ -145,6 +145,7 @@ export function BookCard({ book, compact }: { book: BookInfo | null | undefined;
           <div className="book-card-bar">
             <motion.span animate={{ width: `${pct}%` }} transition={{ type: 'spring', stiffness: 80, damping: 20 }} />
           </div>
+          <small className="muted">A minute or three, once. Keep Bonbon open meanwhile.</small>
           <button className="btn btn--ghost btn--sm" onClick={() => abort.current?.abort()}>
             Arrêter
           </button>
