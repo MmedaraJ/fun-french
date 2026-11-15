@@ -84,12 +84,20 @@ export function levenshtein(a: string, b: string): number {
 
 export type AnswerMatch = 'exact' | 'accents' | 'article' | 'typo' | 'wrong';
 
+const NUMBER_WORD = /^(zéro|un|une|deux|trois|quatre|cinq|six|sept|huit|neuf|dix|onze|douze|treize|quatorze|quinze|seize|vingt|vingts|trente|quarante|cinquante|soixante|cent|cents|mille|et)$/;
+
+/** Numbers written out: since the 1990 spelling, "vingt-et-un" is as right as "vingt et un". */
+function sameNumber(a: string, b: string): boolean {
+  const words = b.split(/[\s-]+/);
+  return words.length > 1 && words.every((w) => NUMBER_WORD.test(w)) && a.replace(/-/g, ' ') === b.replace(/-/g, ' ');
+}
+
 /** How close a typed answer is to the target. Everything but 'wrong' counts as correct. */
 export function compareAnswer(input: string, target: string): AnswerMatch {
   const a = normalizeAnswer(input);
   const b = normalizeAnswer(target);
   if (!a) return 'wrong';
-  if (a === b) return 'exact';
+  if (a === b || sameNumber(a, b)) return 'exact';
   const a0 = stripAccents(a);
   const b0 = stripAccents(b);
   if (a0 === b0) return 'accents';

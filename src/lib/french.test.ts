@@ -113,3 +113,14 @@ describe('matchSpoken', () => {
     expect(matchSpoken([], 'Bonjour').ok).toBe(false);
   });
 });
+
+describe('numbers written out', () => {
+  it('takes the 1990 spelling with hyphens as well as the traditional one', () => {
+    expect(compareAnswer('vingt-et-un', 'vingt et un')).toBe('exact');
+    expect(compareAnswer('vingt et un', 'vingt-et-un')).toBe('exact');
+    expect(compareAnswer('quatre vingt dix sept', 'quatre-vingt-dix-sept')).toBe('exact');
+    expect(compareAnswer('dix-mille', 'dix mille')).toBe('exact');
+    // only for numbers: a hyphenated noun still needs its hyphen
+    expect(compareAnswer('porte monnaie', 'porte-monnaie')).not.toBe('exact');
+  });
+});
