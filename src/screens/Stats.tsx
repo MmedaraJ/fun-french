@@ -202,7 +202,8 @@ export default function Stats() {
     s && s.answers ? [`${s.xp} XP`, prettyDay(day), `${s.answers} answers · ${pct(s.correct / s.answers)}`] : ['No practice', prettyDay(day)];
 
   const learnedTotal = view.counts.learned + view.counts.mastered;
-  const deckRows = (decks ?? []).filter((d) => d.total > 0).sort((a, b) => Number(b.active) - Number(a.active) || (b.counts.learned + b.counts.mastered) / b.total - (a.counts.learned + a.counts.mastered) / a.total);
+  // the picture dictionary's chapters only once she has started them (32 of them otherwise)
+  const deckRows = (decks ?? []).filter((d) => d.total > 0 && (!d.book || d.counts.new < d.total)).sort((a, b) => Number(b.active) - Number(a.active) || (b.counts.learned + b.counts.mastered) / b.total - (a.counts.learned + a.counts.mastered) / a.total);
   const anyActive = deckRows.some((d) => d.active);
   const ownTotal = SOURCES.reduce((a, s) => a + (view.bySource.get(s.key) ?? 0), 0);
   const unlockedCount = ACHIEVEMENTS.filter((a) => data.unlocked.has(a.id)).length;

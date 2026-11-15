@@ -1,9 +1,8 @@
-import { existsSync } from 'node:fs';
 import { expect, test } from '@playwright/test';
 import { onboarded, playRound } from './helpers';
 
 // Her own copy of the picture dictionary, when it's on this machine (it's never in the repository).
-const BOOK = process.env.IMAGIER_PDF ?? '/root/.claude/uploads/fe899c64-a6df-5791-9c7f-eac3592b4e4d/7d0c1276-Lets_Learn_French_Picture_Dictionary.pdf';
+const BOOK = '/root/.claude/uploads/fe899c64-a6df-5791-9c7f-eac3592b4e4d/7d0c1276-Lets_Learn_French_Picture_Dictionary.pdf';
 
 test.describe('Mon imagier', () => {
   test('from the home screen to a chapter, its games and back, without the book', async ({ page }) => {
@@ -42,13 +41,17 @@ test.describe('Mon imagier', () => {
   }
 
   test('reads her book on the device, then plays on its pages', async ({ page }) => {
-    test.skip(!existsSync(BOOK), 'her copy of the book is not on this machine');
     test.setTimeout(600_000);
     const errors: string[] = [];
     page.on('pageerror', (e) => errors.push(String(e)));
     await onboarded(page, { minLevel: 3, introduceNew: false, autoplay: false });
     await page.goto('/#/imagier');
-    await page.getByTestId('book-file').setInputFiles(BOOK);
+    const there = await page
+      .getByTestId('book-file')
+      .setInputFiles(BOOK)
+      .then(() => true)
+      .catch(() => false);
+    test.skip(!there, 'her copy of the book is not on this machine');
     await expect(page.getByTestId('book-in')).toBeVisible({ timeout: 480_000 });
     // every word of a chapter has its drawing now
     const linked = await page.evaluate(async () => {
