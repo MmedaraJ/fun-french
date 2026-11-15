@@ -1432,3 +1432,26 @@
   gap: 6px;
   margin-left: auto;
 }
+
+/* the PDF is her picture dictionary: its drawings go to Mon imagier */
+.pdf-imagier {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--sunshine) 22%, var(--surface));
+}
+
+.pdf-imagier span {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.pdf-imagier small {
+  font-size: 0.8rem;
+  color: var(--text-soft);
+}

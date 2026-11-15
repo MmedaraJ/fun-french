@@ -11,6 +11,7 @@ import { aiAvailable, aiExtractFromPdf, planPdfParts } from '../../lib/ai';
 import { addBookGrammar } from '../../lib/book';
 import { addCards, celebrateUnlocks, createDeck, existingByFrench, existingFrench, existingPairs } from '../../lib/content';
 import { normalizeAnswer } from '../../lib/french';
+import { offerBook } from '../../lib/imagier';
 import { uid } from '../../lib/ids';
 import type { OcrProgress } from '../../lib/ocr';
 import { cycleColor, inkOn, paletteColor } from '../../lib/palette';
@@ -42,6 +43,8 @@ interface PdfFile {
   outline: OutlineEntry[];
   opening: boolean;
   error?: string;
+  /** It's her picture dictionary: its words are in Mon imagier already, its drawings go there. */
+  imagier?: boolean;
 }
 
 type PdfRow = ReviewRow & { group: ItemGroup };
@@ -190,6 +193,11 @@ export default function AddPdf() {
       }
       docs.current.set(f.id, doc);
       setFiles((prev) => prev.map((x) => (x.id === f.id ? { ...x, pages: doc.pages, from: 1, to: Math.min(doc.pages, MAX_PAGES), outline: doc.outline, opening: false } : x)));
+      // her picture dictionary? (only a book of its length is looked at)
+      if (doc.pages === 84) {
+        const { isImagierBook } = await import('../../lib/imagier-book');
+        if (await isImagierBook(doc).catch(() => false)) setFiles((prev) => prev.map((x) => (x.id === f.id ? { ...x, imagier: true } : x)));
+      }
     } catch (e) {
       setFiles((prev) => prev.map((x) => (x.id === f.id ? { ...x, opening: false, error: (e as Error).message } : x)));
     }
@@ -631,7 +639,26 @@ export default function AddPdf() {
                           ✕
                         </button>
                       </div>
-                      {f.pages > RANGE_FROM && (
+                      {f.imagier && (
+                        <div className="pdf-imagier" data-testid="pdf-imagier">
+                          <Emoji e="🖼️" size={28} />
+                          <span>
+                            <strong>C’est ton imagier !</strong>
+                            <small>Its words are already in Mon imagier, chapter by chapter. Put its drawings there instead: every game then uses them.</small>
+                          </span>
+                          <button
+                            className="btn btn--sun btn--sm"
+                            onClick={() => {
+                              offerBook(f.file);
+                              removeFile(f.id);
+                              navigate('/imagier');
+                            }}
+                          >
+                            Y aller
+                          </button>
+                        </div>
+                      )}
+                      {f.pages > RANGE_FROM && !f.imagier && (
                         <div className="pdf-range">
                           <span className="field-label">Pages à lire · Pages to read</span>
                           <div className="pdf-range-inputs">

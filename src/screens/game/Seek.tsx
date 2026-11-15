@@ -127,6 +127,11 @@ export function Seek({ q, phase, result, onAnswer, autoplay }: QProps) {
       sfx.softPop();
       return;
     }
+    answer(hit);
+  };
+
+  const answer = (hit: Card) => {
+    if (phase !== 'ask' || picked) return;
     setPicked(hit.id);
     // the same word drawn twice on the page (l'élève, a boy and a girl): either drawing is right
     const correct = hit.id === target.id || sameWord(hit, target);
@@ -188,7 +193,7 @@ export function Seek({ q, phase, result, onAnswer, autoplay }: QProps) {
         {/* the drawings' tap areas, for screen readers and keyboards */}
         <div className="sr-only">
           {words.map((c) => (
-            <button key={c.id} disabled={answered} onClick={() => tap({} as React.MouseEvent, { x: (c.spot!.b[0] + c.spot!.b[2]) / 2, y: (c.spot!.b[1] + c.spot!.b[3]) / 2 })} data-testid={`seek-${c.id}`}>
+            <button key={c.id} disabled={answered} onClick={() => answer(c)} data-testid={`seek-${c.id}`} data-fr={c.fr}>
               {c.en}
             </button>
           ))}

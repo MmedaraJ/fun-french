@@ -23,6 +23,17 @@ export interface BookInfo {
   bytes: number;
 }
 
+/** Her book's PDF, handed over from Ajouter → Un PDF to Mon imagier, which reads it. */
+let pendingBook: File | null = null;
+export function offerBook(file: File) {
+  pendingBook = file;
+}
+export function takeBook(): File | null {
+  const f = pendingBook;
+  pendingBook = null;
+  return f;
+}
+
 /** Image ids of a stored page and of a word's drawing. */
 export const pageImageId = (page: number) => `ipage-${page}`;
 export const cropImageId = (cardId: string) => `icrop-${cardId}`;

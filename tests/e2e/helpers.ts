@@ -107,8 +107,38 @@ export async function answerCurrent(page: Page, opts: { wrong?: boolean } = {}):
     }
     return type;
   }
+  if (type === 'memory') {
+    const keys = await wrap.locator('[data-testid^="mem-"]').evaluateAll((els) => els.map((e) => e.getAttribute('data-testid')!.slice(4)));
+    const ids = [...new Set(keys.map((k) => k.replace(/:(pic|fr)$/, '')))];
+    for (const id of ids) {
+      await wrap.getByTestId(`mem-${id}:pic`).click();
+      await wrap.getByTestId(`mem-${id}:fr`).click();
+    }
+    return type;
+  }
+  if (type === 'labels') {
+    const ids = await wrap.locator('[data-testid^="chip-"]').evaluateAll((els) => els.map((e) => e.getAttribute('data-testid')!.slice(5)));
+    for (const [i, id] of ids.entries()) {
+      // a wrong one first: the first label on the second label's place
+      if (opts.wrong && i === 0 && ids.length > 1) {
+        await wrap.getByTestId(`chip-${id}`).click();
+        await wrap.getByTestId(`slot-${ids[1]}`).click({ force: true });
+        await page.waitForTimeout(650);
+      }
+      await wrap.getByTestId(`chip-${id}`).click();
+      await wrap.getByTestId(`slot-${id}`).click({ force: true });
+    }
+    return type;
+  }
   const id = (await wrap.locator('[data-target]').first().getAttribute('data-target'))!;
   const card = await getCard(page, id);
+  if (type === 'seek') {
+    // the drawings' buttons for screen readers: the right one, or one with another word
+    const all = await wrap.locator('[data-testid^="seek-"]').evaluateAll((els) => els.map((e) => ({ id: e.getAttribute('data-testid')!.slice(5), fr: e.getAttribute('data-fr') })));
+    const pick = opts.wrong ? all.find((o) => o.fr !== card.fr)! : all.find((o) => o.id === id)!;
+    await wrap.getByTestId(`seek-${pick.id}`).dispatchEvent('click');
+    return type;
+  }
   switch (type) {
     case 'pick-image':
     case 'pick-word':

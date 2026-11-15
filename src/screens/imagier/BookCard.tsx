@@ -1,10 +1,10 @@
 import { motion } from 'framer-motion';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Emoji } from '../../components/Emoji';
 import { Sheet } from '../../components/Sheet';
 import { toast } from '../../components/Toasts';
 import { celebrate } from '../../lib/confetti';
-import type { BookInfo } from '../../lib/imagier';
+import { takeBook, type BookInfo } from '../../lib/imagier';
 import type { BookProgress } from '../../lib/imagier-book';
 import { sfx } from '../../lib/sound';
 
@@ -48,6 +48,16 @@ export function BookCard({ book, compact }: { book: BookInfo | null | undefined;
       abort.current = null;
     }
   };
+
+  // her book, sent here from Ajouter → Un PDF
+  useEffect(() => {
+    if (compact || book === undefined) return;
+    const f = takeBook();
+    if (f && !book) void read(f);
+    else if (f) toast({ title: 'Déjà là !', body: 'Your book’s drawings are already on this device.', emoji: '📖' });
+    // once, when the book's state is known
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [book === undefined]);
 
   const remove = async () => {
     const { removeBook } = await import('../../lib/imagier-book');
