@@ -14,7 +14,7 @@ export const BOOK_KEY = 'imagierBook';
 
 export interface BookInfo {
   importedAt: number;
-  /** Word-list version the drawings were cut for: a newer list re-cuts them from the stored pages. */
+  /** Version of the boxes the drawings were cut with (IMAGIER_CUT): newer boxes re-cut them from the stored pages. */
   version: string;
   pages: number[];
   /** Drawings cut. */

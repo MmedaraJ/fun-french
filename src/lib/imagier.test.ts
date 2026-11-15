@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { IMAGIER_CHAPTERS, IMAGIER_VERSION, imagierDeckId, loadImagierWords } from '../data/imagier';
 import type { Progress, Session } from '../types';
 import { db, getMeta, setMeta } from './db';
-import { buildQuestions, makeLabelsBoard, type Pool } from './engine/round';
+import { buildQuestions, makeLabelsBoard, pickDistractors, samePicture, type Pool } from './engine/round';
 import { chapterStars, ensureImagierSeeded, summarize, testBests } from './imagier';
 import { deckShown } from './level';
 import { ensureSeeded } from './seed';
@@ -108,6 +108,21 @@ describe('Mon imagier: games on the page', () => {
     const all = qs.flatMap((q) => q.pairs!.map((c) => c.id));
     expect(new Set(all).size).toBe(all.length);
     expect(makeLabelsBoard({ ...pool.cards[0], spot: undefined }, pool.cards, 5)).toBeNull();
+  });
+
+  it('never offers two words of one shared drawing side by side (affilé / émoussé on the same knives)', async () => {
+    const pool = await chapterPool(true);
+    const twins = pool.cards.flatMap((a) => pool.cards.filter((b) => b.id < a.id && samePicture(a, b)).map((b) => [a, b] as const));
+    for (const [a, b] of twins) {
+      for (let i = 0; i < 5; i++) expect(pickDistractors(a, pool.all, 5, 'fr').map((c) => c.id)).not.toContain(b.id);
+    }
+    const knives = { p: 56, b: [10, 10, 60, 60], l: [[0, 0, 5, 5]] } as const;
+    const a = { ...pool.cards[0], id: 'x1', spot: { ...knives, b: [...knives.b] as [number, number, number, number], l: [[0, 0, 5, 5]] as [number, number, number, number][] } };
+    const b = { ...pool.cards[1], id: 'x2', spot: { ...knives, b: [12, 8, 62, 58] as [number, number, number, number], l: [[0, 0, 5, 5]] as [number, number, number, number][] } };
+    const far = { ...b, id: 'x3', spot: { ...b.spot, b: [200, 200, 260, 260] as [number, number, number, number] } };
+    expect(samePicture(a, b)).toBe(true);
+    expect(samePicture(a, far)).toBe(false);
+    expect(samePicture(a, { ...b, spot: { ...b.spot, p: 57 } })).toBe(false);
   });
 
   it('builds memory boards of distinct words, with or without the book', async () => {

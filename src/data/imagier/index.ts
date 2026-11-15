@@ -77,8 +77,11 @@ const LOOK: Record<number, [string, PaletteKey, string?]> = {
   32: ['🗺️', 'sunshine'],
 };
 
-/** Version of the word list: words, boxes and order. Re-seeding and re-cutting follow it. */
+/** Version of the word list: words, boxes and order. Re-seeding follows it. */
 export const IMAGIER_VERSION: string = meta.version;
+
+/** Version of the drawings' boxes alone: her drawings are cut again only when these move. */
+export const IMAGIER_CUT: string = meta.cut;
 
 export const IMAGIER_CHAPTERS: ImagierChapter[] = meta.chapters.map((c) => ({
   ...c,

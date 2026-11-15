@@ -103,6 +103,22 @@ export function shuffle<T>(arr: readonly T[], rand = Math.random): T[] {
 const sameText = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase();
 const pictureKey = (c: Card) => c.imageId ?? c.emoji ?? '';
 
+/**
+ * Two picture-dictionary words drawn as one picture in the book (affilé / émoussé on the same two
+ * knives, derrière / devant on the same cheese): their drawings mostly overlap on the page.
+ */
+export function samePicture(a: Card, b: Card): boolean {
+  if (!a.spot || !b.spot || a.spot.p !== b.spot.p) return false;
+  const [ax0, ay0, ax1, ay1] = a.spot.b;
+  const [bx0, by0, bx1, by1] = b.spot.b;
+  const inter = Math.max(0, Math.min(ax1, bx1) - Math.max(ax0, bx0)) * Math.max(0, Math.min(ay1, by1) - Math.max(ay0, by0));
+  const small = Math.min((ax1 - ax0) * (ay1 - ay0), (bx1 - bx0) * (by1 - by0));
+  return small > 0 && inter / small > 0.6;
+}
+
+/** Pictures that can't be told apart: the same image or emoji, or the same drawing in the book. */
+const lookAlike = (a: Card, b: Card) => (hasPicture(a) && hasPicture(b) && pictureKey(a) === pictureKey(b)) || samePicture(a, b);
+
 /** Can this card be asked with this question type at all? */
 export function canAsk(type: QuestionType, card: Card): boolean {
   switch (type) {
@@ -145,7 +161,7 @@ export function pickDistractors(target: Card, all: Card[], count: number, style:
     if (sameText(splitArticle(c.fr).noun, splitArticle(target.fr).noun)) return false;
     if (style === 'image' && !hasPicture(c)) return false;
     // A wrong answer drawn like the target would make the picture ambiguous (🥖 baguette / boulangerie).
-    if (hasPicture(target) && hasPicture(c) && pictureKey(c) === pictureKey(target)) return false;
+    if (lookAlike(c, target)) return false;
     return true;
   };
   const candidates = all.filter(ok);
@@ -170,7 +186,7 @@ export function pickDistractors(target: Card, all: Card[], count: number, style:
   const chosen: Card[] = [];
   for (const { c } of ranked) {
     if (chosen.length >= count) break;
-    if (chosen.some((x) => sameText(x.fr, c.fr) || sameText(x.en, c.en) || (hasPicture(c) && pictureKey(x) === pictureKey(c)))) continue;
+    if (chosen.some((x) => sameText(x.fr, c.fr) || sameText(x.en, c.en) || lookAlike(x, c))) continue;
     chosen.push(c);
   }
   return chosen;
@@ -400,7 +416,7 @@ export function makePairsBoard(cards: Card[], size: number, rand = Math.random):
   for (const c of cards) {
     if (chosen.length >= size) break;
     if (!canAsk('pairs', c)) continue;
-    if (chosen.some((x) => sameText(x.fr, c.fr) || sameText(x.en, c.en) || (hasPicture(c) && pictureKey(x) === pictureKey(c)))) continue;
+    if (chosen.some((x) => sameText(x.fr, c.fr) || sameText(x.en, c.en) || lookAlike(x, c))) continue;
     chosen.push(c);
   }
   if (chosen.length < 3) return null;
@@ -413,7 +429,7 @@ export function makeMemoryBoard(cards: Card[], size: number, rand = Math.random)
   for (const c of cards) {
     if (chosen.length >= size) break;
     if (!canAsk('memory', c)) continue;
-    if (chosen.some((x) => sameText(x.fr, c.fr) || sameText(x.en, c.en) || (hasPicture(c) && pictureKey(x) === pictureKey(c)))) continue;
+    if (chosen.some((x) => sameText(x.fr, c.fr) || sameText(x.en, c.en) || lookAlike(x, c))) continue;
     chosen.push(c);
   }
   if (chosen.length < 3) return null;
@@ -519,8 +535,11 @@ export function buildQuestions(cfg: RoundConfig, pool: Pool, rand = Math.random,
   const book = !!pool.book;
 
   if (cfg.mode === 'memory') {
-    const picked = pickCards(pool.cards.filter((c) => canAsk('memory', c)), pool.progress, Math.max(12, cfg.length), Math.max(cfg.newPerRound, 6), now, rand);
-    const ordered = picked.map((p) => p.card);
+    const usable = pool.cards.filter((c) => canAsk('memory', c));
+    const picked = pickCards(usable, pool.progress, Math.max(12, cfg.length), Math.max(cfg.newPerRound, 6), now, rand).map((p) => p.card);
+    // the words to practise first, then the rest of the theme so a board always fills up
+    const ids = new Set(picked.map((c) => c.id));
+    const ordered = [...picked, ...shuffle(usable.filter((c) => !ids.has(c.id)), rand)];
     const per = (cfg.difficulty ?? 2) >= 3 ? 8 : 6;
     const boards: Question[] = [];
     for (let i = 0; i < 2 && ordered.length; i++) {

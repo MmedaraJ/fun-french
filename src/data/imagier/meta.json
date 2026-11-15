@@ -1,5 +1,6 @@
 {
- "version": "953ea24e91",
+ "version": "c2bf493ae9",
+ "cut": "d2961030e0",
  "chapters": [
   {
    "num": 1,
@@ -308,6 +309,16 @@
     63
    ],
    "count": 117
+  },
+  {
+   "num": 32,
+   "title": "La carte du monde",
+   "en": "A Map of the World",
+   "pages": [
+    64,
+    65
+   ],
+   "count": 45
   }
  ]
 }

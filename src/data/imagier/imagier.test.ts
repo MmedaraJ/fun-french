@@ -65,6 +65,16 @@ describe('Mon imagier: the word list', () => {
     }
   });
 
+  it('never gives two different words of a chapter the same English (asked without a drawing, both would fit)', async () => {
+    const seen = new Map<string, string>();
+    for (const w of await loadImagierWords()) {
+      const key = `${w.chapter}|${w.en.toLowerCase()}`;
+      const other = seen.get(key);
+      if (other !== undefined) expect(other, `${w.chapter}: "${w.en}" is ${other} and ${w.fr}`).toBe(w.fr);
+      seen.set(key, w.fr);
+    }
+  });
+
   it('puts every drawing and label on a page of its chapter, inside the page', async () => {
     for (const w of await loadImagierWords()) {
       const at = `${w.chapter}: ${w.fr}`;

@@ -2,7 +2,7 @@
 // she picks is read here (nothing is uploaded), each page is kept for the games played on the page,
 // and every word's drawing is cut out (its label painted over) and becomes the picture of its card.
 // Bonbon itself ships only the words and where they are on the pages.
-import { IMAGIER_PAGES, IMAGIER_VERSION, loadImagierWords, type ImagierWord } from '../data/imagier';
+import { IMAGIER_CUT, IMAGIER_PAGES, loadImagierWords, type ImagierWord } from '../data/imagier';
 import type { Box } from '../types';
 import { db, setMeta } from './db';
 import { BOOK_KEY, cropImageId, ensureImagierSeeded, pageImageId, type BookInfo } from './imagier';
@@ -188,7 +188,7 @@ export async function importBook(file: Blob, onProgress?: (p: BookProgress) => v
     }
     const all = [...words.values()].flat();
     await linkCards(all);
-    const info: BookInfo = { importedAt: Date.now(), version: IMAGIER_VERSION, pages, words: all.length, bytes };
+    const info: BookInfo = { importedAt: Date.now(), version: IMAGIER_CUT, pages, words: all.length, bytes };
     await setMeta(BOOK_KEY, info);
     onProgress?.({ phase: 'drawings', done: 1, total: 1 });
     return info;
@@ -201,31 +201,45 @@ export async function importBook(file: Blob, onProgress?: (p: BookProgress) => v
  * The word list changed (a newer Bonbon): cut the drawings again from the pages already on the
  * device, so she doesn't need the PDF again.
  */
-export async function recutDrawings(onProgress?: (p: BookProgress) => void): Promise<BookInfo | null> {
+export async function recutDrawings(onProgress?: (p: BookProgress) => void, onlyMissing = false): Promise<BookInfo | null> {
   await ensureImagierSeeded();
-  const words = byPage(await loadImagierWords());
-  const pages = [...words.keys()].sort((a, b) => a - b);
-  let bytes = 0;
+  const all = await loadImagierWords();
+  // only the words without a drawing (a word whose spelling was corrected is a new card)
+  const missing = onlyMissing ? new Set((await db.cards.where('deckId').startsWith('img-').filter((c) => !c.imageId).toArray()).map((c) => c.id)) : null;
+  const todo = byPage(missing ? all.filter((w) => missing.has(w.id)) : all);
+  const pages = [...todo.keys()].sort((a, b) => a - b);
+  const everyPage = byPage(all);
   for (const [i, p] of pages.entries()) {
     onProgress?.({ phase: 'drawings', done: i, total: pages.length });
     const row = await db.images.get(pageImageId(p));
     if (!row) return null;
-    bytes += row.blob.size;
     const img = await fileToImage(row.blob);
     const canvas = document.createElement('canvas');
     canvas.width = img.naturalWidth;
     canvas.height = img.naturalHeight;
     canvas.getContext('2d')!.drawImage(img, 0, 0);
     try {
-      bytes += await cutPage(canvas, words.get(p) ?? [], img.naturalWidth / 739);
+      // every label on the page is painted over, whichever drawings are cut
+      const s = img.naturalWidth / 739;
+      blankLabels(canvas, everyPage.get(p) ?? [], s);
+      for (const w of todo.get(p) ?? []) {
+        const crop = cropSquare(canvas, w.spot.b, s);
+        const blob = await encode(crop, 0.84);
+        crop.width = 0;
+        crop.height = 0;
+        await putImage(cropImageId(w.id), blob);
+      }
     } finally {
       canvas.width = 0;
       canvas.height = 0;
     }
   }
-  const all = [...words.values()].flat();
-  await linkCards(all);
-  const info: BookInfo = { importedAt: Date.now(), version: IMAGIER_VERSION, pages, words: all.length, bytes };
+  await linkCards([...todo.values()].flat());
+  // what's on the device now
+  const ids = (await db.images.toCollection().primaryKeys()).map(String);
+  const rows = await db.images.bulkGet(ids.filter((id) => id.startsWith('ipage-') || id.startsWith('icrop-')));
+  const bytes = rows.reduce((n, r) => n + (r?.blob.size ?? 0), 0);
+  const info: BookInfo = { importedAt: Date.now(), version: IMAGIER_CUT, pages: [...everyPage.keys()].sort((a, b) => a - b), words: all.length, bytes };
   await setMeta(BOOK_KEY, info);
   return info;
 }

@@ -8,9 +8,10 @@ import { Emoji } from '../../components/Emoji';
 import { Page } from '../../components/Page';
 import { ProgressRing } from '../../components/ProgressRing';
 import { toast } from '../../components/Toasts';
-import { CHAPTER_BY_NUM, IMAGIER_CHAPTERS, IMAGIER_VERSION, IMAGIER_WORD_COUNT, imagierDeckId, type ImagierChapter } from '../../data/imagier';
+import { CHAPTER_BY_NUM, IMAGIER_CHAPTERS, IMAGIER_CUT, IMAGIER_WORD_COUNT, imagierDeckId, type ImagierChapter } from '../../data/imagier';
 import { recognitionSupported } from '../../lib/engine/modes';
 import { canAsk } from '../../lib/engine/round';
+import { db } from '../../lib/db';
 import { ensureImagierSeeded, useBookInfo, useChapterCards, useImagierProgress, type BookInfo, type ChapterProgress } from '../../lib/imagier';
 import { inkOn, paletteColor } from '../../lib/palette';
 import { sfx } from '../../lib/sound';
@@ -28,13 +29,19 @@ export default function Imagier() {
   useEffect(() => {
     void ensureImagierSeeded();
   }, []);
-  // a newer word list: the drawings are cut again from the pages already on the device
+  // newer boxes, or words without their drawing (a corrected spelling): cut from the pages already on the device
   useEffect(() => {
-    if (!book || book.version === IMAGIER_VERSION) return;
+    if (!book) return;
     let alive = true;
-    void import('../../lib/imagier-book')
-      .then((m) => m.recutDrawings())
-      .then((info) => alive && info && toast({ title: 'Dessins mis à jour', body: 'Your book’s drawings were cut again for the new word list.', emoji: '✂️' }));
+    void (async () => {
+      await ensureImagierSeeded();
+      const moved = book.version !== IMAGIER_CUT;
+      const missing = moved ? 0 : await db.cards.where('deckId').startsWith('img-').filter((c) => !c.imageId).count();
+      if (!moved && !missing) return;
+      const { recutDrawings } = await import('../../lib/imagier-book');
+      const info = await recutDrawings(undefined, !moved);
+      if (alive && info && moved) toast({ title: 'Dessins mis à jour', body: 'Your book’s drawings were cut again for the new word list.', emoji: '✂️' });
+    })();
     return () => {
       alive = false;
     };
