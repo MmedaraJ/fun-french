@@ -92,6 +92,11 @@ describe('Mon imagier: the word list', () => {
     }
   });
 
+  it('stands each chapter for a word that is in it', async () => {
+    const words = await loadImagierWords();
+    for (const c of IMAGIER_CHAPTERS) if (c.cover) expect(words.some((w) => w.chapter === c.num && w.fr === c.cover), `chapter ${c.num}: ${c.cover}`).toBe(true);
+  });
+
   it('names the themes "img-NN" and reads them back', () => {
     expect(imagierDeckId(8)).toBe('img-08');
     expect(chapterOfDeck('img-08')).toBe(8);

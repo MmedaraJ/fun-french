@@ -3,7 +3,7 @@
 // themes are always shown whatever her level, start switched off (their words reach the daily
 // review once she has met them in a game), and keep the drawings cut from her book.
 import { useLiveQuery } from 'dexie-react-hooks';
-import { IMAGIER_CHAPTERS, IMAGIER_VERSION, chapterOfDeck, imagierDeckId, loadImagierWords, type ImagierWord } from '../data/imagier';
+import { CHAPTER_BY_NUM, IMAGIER_CHAPTERS, IMAGIER_VERSION, chapterOfDeck, imagierDeckId, loadImagierWords, type ImagierWord } from '../data/imagier';
 import type { Card, Deck, Progress, Session } from '../types';
 import { db, getMeta, setMeta } from './db';
 import { statusCounts, type StatusCounts } from './stats';
@@ -174,8 +174,11 @@ export function summarize(cards: Card[], progress: Map<string, Progress>, sessio
     const list = byChapter.get(num) ?? [];
     list.push(c.id);
     byChapter.set(num, list);
+    // the chapter's chosen word, else its first
     const cover = covers.get(num);
-    if (!cover || c.order < cover.order) covers.set(num, c);
+    const wanted = CHAPTER_BY_NUM.get(num)?.cover;
+    const isWanted = (x: Card) => !!wanted && x.fr === wanted;
+    if (!cover || (isWanted(c) && !isWanted(cover)) || (!isWanted(cover) && c.order < cover.order)) covers.set(num, c);
   }
   const tests = testBests(sessions);
   const out = new Map<number, ChapterProgress>();

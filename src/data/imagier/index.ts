@@ -18,6 +18,8 @@ export interface ImagierChapter {
   count: number;
   emoji: string;
   color: PaletteKey;
+  /** French of the word whose drawing stands for the chapter (else its first word). */
+  cover?: string;
 }
 
 export interface ImagierWord {
@@ -36,39 +38,42 @@ export interface ImagierWord {
   spot: Spot;
 }
 
-/** The look of each chapter: an emoji and a colour of Bonbon's own. */
-const LOOK: Record<number, [string, PaletteKey]> = {
-  1: ['🏫', 'sky'],
-  2: ['🏠', 'tangerine'],
-  3: ['🍳', 'sunshine'],
-  4: ['📦', 'plum'],
-  5: ['🌦️', 'lagoon'],
-  6: ['🛒', 'leaf'],
-  7: ['👗', 'berry'],
-  8: ['🏙️', 'grape'],
-  9: ['🐄', 'leaf'],
-  10: ['🍽️', 'tangerine'],
-  11: ['🩺', 'sky'],
-  12: ['💇', 'plum'],
-  13: ['📮', 'berry'],
-  14: ['⛽', 'sunshine'],
-  15: ['👮', 'grape'],
-  16: ['🚂', 'lagoon'],
-  17: ['✈️', 'sky'],
-  18: ['⚽', 'leaf'],
-  19: ['🎭', 'plum'],
-  20: ['🦁', 'sunshine'],
-  21: ['🎪', 'berry'],
-  22: ['🐠', 'lagoon'],
-  23: ['🚀', 'grape'],
-  24: ['🦕', 'tangerine'],
-  25: ['🏰', 'plum'],
+/**
+ * The look of each chapter: an emoji and a colour of Bonbon's own, and the word whose drawing from
+ * her book stands for the chapter once the book is in.
+ */
+const LOOK: Record<number, [string, PaletteKey, string?]> = {
+  1: ['🏫', 'sky', 'le globe terrestre'],
+  2: ['🏠', 'tangerine', 'le fauteuil'],
+  3: ['🍳', 'sunshine', 'la bouilloire'],
+  4: ['📦', 'plum', 'le cheval à bascule'],
+  5: ['🌦️', 'lagoon', 'le bonhomme de neige'],
+  6: ['🛒', 'leaf', "l'ananas"],
+  7: ['👗', 'berry', 'les bottes'],
+  8: ['🏙️', 'grape', 'la fontaine'],
+  9: ['🐄', 'leaf', 'la vache'],
+  10: ['🍽️', 'tangerine', 'le gâteau'],
+  11: ['🩺', 'sky', 'le stéthoscope'],
+  12: ['💇', 'plum', 'le peigne'],
+  13: ['📮', 'berry', 'la boîte aux lettres'],
+  14: ['⛽', 'sunshine', 'la pompe à essence'],
+  15: ['👮', 'grape', 'le pompier'],
+  16: ['🚂', 'lagoon', 'la montgolfière'],
+  17: ['✈️', 'sky', "l'avion"],
+  18: ['⚽', 'leaf', 'le ballon de football'],
+  19: ['🎭', 'plum', 'le violon'],
+  20: ['🦁', 'sunshine', 'la girafe'],
+  21: ['🎪', 'berry', 'le clown'],
+  22: ['🐠', 'lagoon', 'le dauphin'],
+  23: ['🚀', 'grape', 'la navette spatiale'],
+  24: ['🦕', 'tangerine', 'le mammouth'],
+  25: ['🏰', 'plum', 'le dragon'],
   26: ['🐭', 'sky'],
-  27: ['🏃', 'leaf'],
-  28: ['🎨', 'berry'],
-  29: ['🌳', 'tangerine'],
-  30: ['🔺', 'grape'],
-  31: ['🔢', 'lagoon'],
+  27: ['🏃', 'leaf', 'courir'],
+  28: ['🎨', 'berry', 'rouge'],
+  29: ['🌳', 'tangerine', 'la grand-mère'],
+  30: ['🔺', 'grape', 'le triangle'],
+  31: ['🔢', 'lagoon', 'dix'],
   32: ['🗺️', 'sunshine'],
 };
 
@@ -79,6 +84,7 @@ export const IMAGIER_CHAPTERS: ImagierChapter[] = meta.chapters.map((c) => ({
   ...c,
   emoji: LOOK[c.num]?.[0] ?? '📖',
   color: LOOK[c.num]?.[1] ?? 'berry',
+  ...(LOOK[c.num]?.[2] ? { cover: LOOK[c.num][2] } : {}),
 }));
 
 export const CHAPTER_BY_NUM = new Map(IMAGIER_CHAPTERS.map((c) => [c.num, c]));
