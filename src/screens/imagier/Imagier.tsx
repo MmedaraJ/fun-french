@@ -217,8 +217,11 @@ const GAMES: GameDef[] = [
   { id: 'ecris', mode: 'type', name: 'Écris-le', en: 'Write it from memory', emoji: '✍️', color: 'berry', len: 10 },
   { id: 'dis', mode: 'speak', name: 'Dis-le !', en: 'Say it out loud', emoji: '🎤', color: 'tangerine', len: 10, when: () => recognitionSupported() },
   { id: 'defi', mode: 'imagier', name: 'Défi · 3 vies', en: 'Survival: how far can you go?', emoji: '🔥', color: 'berry', params: { survival: '1' } },
-  { id: 'test', mode: 'imagier', name: 'Test de maîtrise', en: 'Every word once, no help', emoji: '🏆', color: 'grape', params: { test: '1' }, len: (n) => n },
+  { id: 'test', mode: 'imagier', name: 'Test de maîtrise', en: 'Every word once, no help', emoji: '🏆', color: 'grape', params: { test: '1' }, len: (n) => Math.min(n, TEST_MAX) },
 ];
+
+/** A mastery test asks this many words at most (the numbers chapter has over a hundred). */
+const TEST_MAX = 60;
 
 function useChapter(): ImagierChapter | undefined {
   const { num } = useParams();
@@ -330,7 +333,7 @@ function ChapterHome({ book }: { book: BookInfo | null | undefined }) {
               <span className="img-game-num">{i + 1}</span>
               <Emoji e={g.emoji} size={40} />
               <span className="img-game-name">{g.name}</span>
-              <span className="img-game-en">{g.en}</span>
+              <span className="img-game-en">{g.id === 'test' && (cards?.length ?? chapter.count) > TEST_MAX ? `${TEST_MAX} words, no help` : g.en}</span>
               {locked && <span className="img-game-lock">📖 needs the book</span>}
             </motion.button>
           );
