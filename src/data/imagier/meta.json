@@ -1,5 +1,5 @@
 {
- "version": "9d21ec81ba",
+ "version": "fd4e701ee8",
  "chapters": [
   {
    "num": 1,
@@ -180,6 +180,16 @@
     51
    ],
    "count": 41
+  },
+  {
+   "num": 24,
+   "title": "L'histoire humaine",
+   "en": "Human History",
+   "pages": [
+    52,
+    53
+   ],
+   "count": 47
   },
   {
    "num": 25,
