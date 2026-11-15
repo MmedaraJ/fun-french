@@ -4,6 +4,7 @@ import { Emoji } from '../../components/Emoji';
 import { Sheet } from '../../components/Sheet';
 import { toast } from '../../components/Toasts';
 import { celebrate } from '../../lib/confetti';
+import { IMAGIER_PAGES } from '../../data/imagier';
 import { takeBook, type BookInfo } from '../../lib/imagier';
 import type { BookProgress } from '../../lib/imagier-book';
 import { sfx } from '../../lib/sound';
@@ -53,7 +54,8 @@ export function BookCard({ book, compact }: { book: BookInfo | null | undefined;
   useEffect(() => {
     if (compact || book === undefined) return;
     const f = takeBook();
-    if (f && !book) void read(f);
+    const incomplete = !!book && IMAGIER_PAGES.some((p) => !book.pages.includes(p));
+    if (f && (!book || incomplete)) void read(f);
     else if (f) toast({ title: 'Déjà là !', body: 'Your book’s drawings are already on this device.', emoji: '📖' });
     // once, when the book's state is known
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -66,11 +68,55 @@ export function BookCard({ book, compact }: { book: BookInfo | null | undefined;
     toast({ title: 'Dessins supprimés', body: 'The book’s pages and drawings are off this device. The words stay.', emoji: '🧹' });
   };
 
-  if (book && compact) return null;
+  // pages a newer word list needs that this device doesn't have yet: read the PDF again for them
+  const pagesMissing = book ? IMAGIER_PAGES.filter((p) => !book.pages.includes(p)).length : 0;
+
+  if (book && compact && !pagesMissing) return null;
 
   if (book) {
     return (
       <>
+        {pagesMissing > 0 && (
+          <div className="book-card panel" data-testid="book-more">
+            <div className="book-card-head">
+              <span className="book-card-art">
+                <Emoji e="✨" size={30} />
+              </span>
+              <div>
+                <strong>De nouvelles pages !</strong>
+                <p className="muted">Bonbon now covers {pagesMissing} more page{pagesMissing > 1 ? 's' : ''} of your book. Pick its PDF again to add their drawings.</p>
+              </div>
+            </div>
+            {busy ? (
+              <div className="book-card-busy" role="status" aria-live="polite">
+                <div className="book-card-step">{STEP[busy.phase]}</div>
+                <div className="book-card-bar">
+                  <motion.span animate={{ width: `${Math.round(((busy.done + 1) / Math.max(1, busy.total)) * 100)}%` }} />
+                </div>
+              </div>
+            ) : (
+              <button className="btn btn--sun btn--block" onClick={() => input.current?.click()}>
+                <Emoji e="📂" size={22} /> Choisir le PDF du livre
+              </button>
+            )}
+            {error && (
+              <p className="book-card-error" role="alert">
+                {error}
+              </p>
+            )}
+            <input
+              ref={input}
+              type="file"
+              accept="application/pdf,.pdf"
+              hidden
+              onChange={(e) => {
+                void read(e.target.files?.[0]);
+                e.target.value = '';
+              }}
+            />
+          </div>
+        )}
+        {!compact && (
         <button className="book-card book-card--in panel" onClick={() => setManage(true)} data-testid="book-in">
           <Emoji e="📖" size={30} />
           <span className="book-card-text">
@@ -83,6 +129,7 @@ export function BookCard({ book, compact }: { book: BookInfo | null | undefined;
             ⋯
           </span>
         </button>
+        )}
         <Sheet open={manage} onClose={() => setManage(false)} label="Your book's drawings">
           <div className="center" style={{ padding: '6px 0 4px' }}>
             <Emoji e="📖" size={56} />

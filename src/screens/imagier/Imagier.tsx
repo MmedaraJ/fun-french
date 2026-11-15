@@ -36,7 +36,8 @@ export default function Imagier() {
     void (async () => {
       await ensureImagierSeeded();
       const moved = book.version !== IMAGIER_CUT;
-      const missing = moved ? 0 : await db.cards.where('deckId').startsWith('img-').filter((c) => !c.imageId).count();
+      // words without a drawing on pages she has (pages she doesn't have wait for the PDF again)
+      const missing = moved ? 0 : await db.cards.where('deckId').startsWith('img-').filter((c) => !c.imageId && !!c.spot && book.pages.includes(c.spot.p)).count();
       if (!moved && !missing) return;
       const { recutDrawings } = await import('../../lib/imagier-book');
       const info = await recutDrawings(undefined, !moved);

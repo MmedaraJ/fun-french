@@ -209,10 +209,13 @@ export async function recutDrawings(onProgress?: (p: BookProgress) => void, only
   const todo = byPage(missing ? all.filter((w) => missing.has(w.id)) : all);
   const pages = [...todo.keys()].sort((a, b) => a - b);
   const everyPage = byPage(all);
+  const stored: number[] = [];
   for (const [i, p] of pages.entries()) {
     onProgress?.({ phase: 'drawings', done: i, total: pages.length });
     const row = await db.images.get(pageImageId(p));
-    if (!row) return null;
+    // a page this device never kept (a newer list covers more of the book): the PDF is needed again for it
+    if (!row) continue;
+    stored.push(p);
     const img = await fileToImage(row.blob);
     const canvas = document.createElement('canvas');
     canvas.width = img.naturalWidth;
@@ -234,12 +237,14 @@ export async function recutDrawings(onProgress?: (p: BookProgress) => void, only
       canvas.height = 0;
     }
   }
-  await linkCards([...todo.values()].flat());
+  await linkCards(stored.flatMap((p) => todo.get(p) ?? []));
   // what's on the device now
   const ids = (await db.images.toCollection().primaryKeys()).map(String);
   const rows = await db.images.bulkGet(ids.filter((id) => id.startsWith('ipage-') || id.startsWith('icrop-')));
   const bytes = rows.reduce((n, r) => n + (r?.blob.size ?? 0), 0);
-  const info: BookInfo = { importedAt: Date.now(), version: IMAGIER_CUT, pages: [...everyPage.keys()].sort((a, b) => a - b), words: all.length, bytes };
+  const kept = ids.filter((id) => id.startsWith('ipage-')).map((id) => Number(id.slice(6))).sort((a, b) => a - b);
+  const linked = await db.cards.where('deckId').startsWith('img-').filter((c) => !!c.imageId?.startsWith('icrop-')).count();
+  const info: BookInfo = { importedAt: Date.now(), version: IMAGIER_CUT, pages: kept, words: linked, bytes };
   await setMeta(BOOK_KEY, info);
   return info;
 }
