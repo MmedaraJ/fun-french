@@ -52,11 +52,11 @@ export function wordToCard(w: ImagierWord, order: number, old: Card | undefined,
 
 let seeding: Promise<void> | null = null;
 
-/** Adds (or updates) the picture-dictionary themes and words. Cheap once done. */
+/** Adds (or updates) the picture-dictionary themes and words. Cheap once done (one look at the version). */
 export function ensureImagierSeeded(): Promise<void> {
-  seeding ??= seedImagier().catch((e) => {
+  // one at a time; checked again on every call, so a wiped database is seeded afresh
+  seeding ??= seedImagier().finally(() => {
     seeding = null;
-    throw e;
   });
   return seeding;
 }
