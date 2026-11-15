@@ -1,5 +1,5 @@
 {
- "version": "5ae6de54da",
+ "version": "9d21ec81ba",
  "chapters": [
   {
    "num": 1,
@@ -18,6 +18,16 @@
    "pages": [
     8,
     9
+   ],
+   "count": 50
+  },
+  {
+   "num": 3,
+   "title": "La cuisine/La blanchisserie",
+   "en": "The Kitchen/The Utility Room",
+   "pages": [
+    10,
+    11
    ],
    "count": 50
   },

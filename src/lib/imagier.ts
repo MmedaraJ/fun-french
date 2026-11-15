@@ -50,7 +50,7 @@ export function wordToCard(w: ImagierWord, order: number, old: Card | undefined,
     ...(w.emoji ? { emoji: w.emoji } : {}),
     // her book's drawing, once cut
     ...(old?.imageId ? { imageId: old.imageId } : {}),
-    ...(w.g === 'mf' ? { note: 'masculin ou féminin' } : {}),
+    ...(w.note || w.g === 'mf' ? { note: [w.note, w.g === 'mf' ? 'masculin ou féminin' : ''].filter(Boolean).join(' · ') } : {}),
     spot: w.spot,
     source: 'starter',
     order,

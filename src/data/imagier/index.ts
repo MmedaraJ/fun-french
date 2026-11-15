@@ -31,6 +31,8 @@ export interface ImagierWord {
   g?: 'm' | 'f' | 'mf';
   plural?: boolean;
   emoji?: string;
+  /** Another way to say it, or what her book prints when Bonbon corrects it. */
+  note?: string;
   spot: Spot;
 }
 
@@ -106,6 +108,7 @@ interface RawWord {
   g?: 'm' | 'f' | 'mf';
   pl?: 1;
   e?: string;
+  n?: string;
   p: number;
   b: Box;
   l: Box[];
@@ -130,6 +133,7 @@ export function expandWords(chapters: { num: number; words: RawWord[] }[]): Imag
         ...(w.g ? { g: w.g } : {}),
         ...(w.pl ? { plural: true } : {}),
         ...(w.e ? { emoji: w.e } : {}),
+        ...(w.n ? { note: w.n } : {}),
         spot: { p: w.p, b: w.b, l: w.l },
       });
     }
