@@ -1,8 +1,9 @@
 import { expect, test } from '@playwright/test';
 import { onboarded, playRound } from './helpers';
 
-// Her own copy of the picture dictionary, when it's on this machine (it's never in the repository).
-const BOOK = '/root/.claude/uploads/fe899c64-a6df-5791-9c7f-eac3592b4e4d/7d0c1276-Lets_Learn_French_Picture_Dictionary.pdf';
+// Her own copy of the picture dictionary, when it's on this machine: put it (or a link to it) at
+// tests/e2e/local/imagier.pdf. That folder is never committed; without the file the test is skipped.
+const BOOK = 'tests/e2e/local/imagier.pdf';
 
 test.describe('Mon imagier', () => {
   test('from the home screen to a chapter, its games and back, without the book', async ({ page }) => {
