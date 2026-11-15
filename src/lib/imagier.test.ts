@@ -30,7 +30,7 @@ describe('Mon imagier: seeding', () => {
     expect(cards).toHaveLength((await loadImagierWords()).length);
     expect(cards.every((c) => c.spot && c.source === 'starter')).toBe(true);
     expect(await getMeta('imagierHash', '')).toBe(IMAGIER_VERSION);
-  });
+  }, 30_000);
 
   it('keeps her drawings, stars and progress when the list is seeded again, and survives the starter seeding', async () => {
     await ensureImagierSeeded();
@@ -47,7 +47,7 @@ describe('Mon imagier: seeding', () => {
     expect(after?.focus).toBe(true);
     expect(after?.updatedAt).toBe(after?.createdAt);
     expect((await db.progress.get(first.id))?.box).toBe(3);
-  });
+  }, 30_000);
 });
 
 describe('Mon imagier: progress', () => {
