@@ -1,5 +1,5 @@
 {
- "version": "e543d20a46",
+ "version": "5ae6de54da",
  "chapters": [
   {
    "num": 1,
@@ -12,6 +12,16 @@
    "count": 51
   },
   {
+   "num": 2,
+   "title": "Notre maison",
+   "en": "Our House",
+   "pages": [
+    8,
+    9
+   ],
+   "count": 50
+  },
+  {
    "num": 5,
    "title": "Les quatre saisons (le temps)",
    "en": "The Four Seasons (Weather)",
@@ -20,6 +30,16 @@
     15
    ],
    "count": 47
+  },
+  {
+   "num": 6,
+   "title": "Au supermarché",
+   "en": "At the Supermarket",
+   "pages": [
+    16,
+    17
+   ],
+   "count": 54
   },
   {
    "num": 9,
@@ -42,6 +62,26 @@
    "count": 52
   },
   {
+   "num": 11,
+   "title": "Chez le médecin/Chez le dentiste",
+   "en": "The Doctor's Office/The Dentist's Office",
+   "pages": [
+    26,
+    27
+   ],
+   "count": 53
+  },
+  {
+   "num": 12,
+   "title": "Chez le coiffeur",
+   "en": "The Barber Shop/Beauty Salon",
+   "pages": [
+    28,
+    29
+   ],
+   "count": 46
+  },
+  {
    "num": 13,
    "title": "La poste/La banque",
    "en": "The Post Office/The Bank",
@@ -62,6 +102,16 @@
    "count": 45
   },
   {
+   "num": 15,
+   "title": "Les gens de notre quartier",
+   "en": "People in Our Community",
+   "pages": [
+    34,
+    35
+   ],
+   "count": 48
+  },
+  {
    "num": 17,
    "title": "L'aéroport",
    "en": "The Airport",
@@ -70,6 +120,26 @@
     39
    ],
    "count": 43
+  },
+  {
+   "num": 18,
+   "title": "Le sport",
+   "en": "Sports",
+   "pages": [
+    40,
+    41
+   ],
+   "count": 50
+  },
+  {
+   "num": 19,
+   "title": "Le spectacle",
+   "en": "The Talent Show",
+   "pages": [
+    42,
+    43
+   ],
+   "count": 46
   },
   {
    "num": 21,
@@ -92,6 +162,16 @@
    "count": 49
   },
   {
+   "num": 23,
+   "title": "L'espace",
+   "en": "Space",
+   "pages": [
+    50,
+    51
+   ],
+   "count": 41
+  },
+  {
    "num": 25,
    "title": "Le château de fantaisie",
    "en": "The Make-Believe Castle",
@@ -100,6 +180,16 @@
     55
    ],
    "count": 46
+  },
+  {
+   "num": 26,
+   "title": "La chasse aux souris (prépositions et adjectifs)",
+   "en": "The Mouse Hunt (Prepositions and Adjectives)",
+   "pages": [
+    56,
+    57
+   ],
+   "count": 58
   },
   {
    "num": 28,

@@ -62,11 +62,45 @@ function cropSquare(src: HTMLCanvasElement, b: Box, s: number): HTMLCanvasElemen
   return out;
 }
 
-/** Paints over every label on a page (all chapters'), so no crop shows a word. */
+/** The paper around a box: the median colour of a thin frame just outside it. */
+function paperAround(g: CanvasRenderingContext2D, x: number, y: number, w: number, h: number): string {
+  const W = g.canvas.width;
+  const H = g.canvas.height;
+  const x0 = Math.max(0, Math.floor(x - 3));
+  const y0 = Math.max(0, Math.floor(y - 3));
+  const x1 = Math.min(W, Math.ceil(x + w + 3));
+  const y1 = Math.min(H, Math.ceil(y + h + 3));
+  if (x1 - x0 < 2 || y1 - y0 < 2) return '#fff';
+  const data = g.getImageData(x0, y0, x1 - x0, y1 - y0).data;
+  const cw = x1 - x0;
+  const r: number[] = [];
+  const gr: number[] = [];
+  const b: number[] = [];
+  for (let j = 0; j < y1 - y0; j++) {
+    for (let i = 0; i < cw; i++) {
+      // the frame only, not the label inside it
+      if (i > 2 && i < cw - 3 && j > 2 && j < y1 - y0 - 3) continue;
+      const k = (j * cw + i) * 4;
+      r.push(data[k]);
+      gr.push(data[k + 1]);
+      b.push(data[k + 2]);
+    }
+  }
+  const med = (a: number[]) => a.sort((m, n) => m - n)[a.length >> 1] ?? 255;
+  // ink on the frame (a drawing next to the label) mustn't darken it: never darker than light paper
+  return `rgb(${Math.max(225, med(r))}, ${Math.max(225, med(gr))}, ${Math.max(220, med(b))})`;
+}
+
+/** Paints over every label on a page (all chapters'), in the colour of the paper, so no crop shows a word. */
 function blankLabels(canvas: HTMLCanvasElement, words: ImagierWord[], s: number) {
-  const g = canvas.getContext('2d')!;
-  g.fillStyle = '#fff';
-  for (const w of words) for (const [x0, y0, x1, y1] of w.spot.l) g.fillRect((x0 - 1.5) * s, (y0 - 1.5) * s, (x1 - x0 + 3) * s, (y1 - y0 + 3) * s);
+  const g = canvas.getContext('2d', { willReadFrequently: true })!;
+  for (const w of words) {
+    for (const [x0, y0, x1, y1] of w.spot.l) {
+      const box = [(x0 - 1.5) * s, (y0 - 1.5) * s, (x1 - x0 + 3) * s, (y1 - y0 + 3) * s] as const;
+      g.fillStyle = paperAround(g, ...box);
+      g.fillRect(...box);
+    }
+  }
 }
 
 function byPage(words: ImagierWord[]): Map<number, ImagierWord[]> {

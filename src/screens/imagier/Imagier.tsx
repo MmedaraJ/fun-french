@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { useEffect, useMemo, useState } from 'react';
 import { Navigate, Route, Routes, useNavigate, useParams } from 'react-router-dom';
+import { BookPage } from '../../components/BookPage';
 import { CardImage } from '../../components/CardImage';
 import { wipeFrom } from '../../components/ColorWipe';
 import { Emoji } from '../../components/Emoji';
@@ -164,8 +165,9 @@ function ImagierHome({ book }: { book: BookInfo | null | undefined }) {
               whileTap={{ scale: 0.96 }}
               data-chapter={c.num}
             >
-              <span className="img-chapter-art">
-                <Emoji e={c.emoji} size={34} />
+              <span className={'img-chapter-art' + (p?.cover ? ' has-cover' : '')}>
+                {/* a drawing from her book once it's in, else the chapter's emoji */}
+                {p?.cover ? <CardImage card={{ imageId: p.cover, en: c.en, fr: c.title }} size={52} rounded={12} /> : <Emoji e={c.emoji} size={34} />}
                 <span className="img-chapter-num">{c.num}</span>
               </span>
               <span className="img-chapter-text">
@@ -286,9 +288,18 @@ function ChapterHome({ book }: { book: BookInfo | null | undefined }) {
       <BookCard book={book} compact />
 
       <motion.button className="img-read panel" onClick={() => navigate(`/imagier/${chapter.num}/livre`)} whileTap={{ scale: 0.98 }} data-testid="img-read">
-        <span className="img-read-art" style={{ background: color }}>
-          <Emoji e="📖" size={34} />
-        </span>
+        {book ? (
+          // the chapter's spread, small
+          <span className="img-read-pages" aria-hidden>
+            {chapter.pages.map((pg) => (
+              <BookPage key={pg} page={pg} width={chapter.pages.length > 1 ? 44 : 60} />
+            ))}
+          </span>
+        ) : (
+          <span className="img-read-art" style={{ background: color }}>
+            <Emoji e="📖" size={34} />
+          </span>
+        )}
         <span className="course-ex-text">
           <strong>Lire la page · Read the page</strong>
           <span>{book ? 'Your book’s pages, labels hidden: tap a drawing to hear its word' : 'Every word of the chapter, with its picture: tap to hear it'}</span>

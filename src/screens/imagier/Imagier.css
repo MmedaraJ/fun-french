@@ -335,6 +335,22 @@
   text-align: left;
 }
 
+.img-read-pages {
+  display: flex;
+  gap: 2px;
+  flex: none;
+}
+
+.img-read-pages .book-page {
+  border-radius: 4px;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.12);
+}
+
+.img-chapter-art.has-cover {
+  background: #fff;
+  overflow: visible;
+}
+
 .img-read-art {
   display: grid;
   place-items: center;

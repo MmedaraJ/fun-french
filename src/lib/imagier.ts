@@ -139,6 +139,8 @@ export interface ChapterProgress {
   test?: number;
   /** A mastery test passed at 90% or more. */
   crown: boolean;
+  /** Her book's drawing of the chapter's first word, once cut: the chapter's picture. */
+  cover?: string;
 }
 
 export function chapterStars(total: number, counts: StatusCounts): number {
@@ -164,6 +166,7 @@ export function testBests(sessions: Session[]): Map<number, number> {
 
 export function summarize(cards: Card[], progress: Map<string, Progress>, sessions: Session[]): Map<number, ChapterProgress> {
   const byChapter = new Map<number, string[]>();
+  const covers = new Map<number, Card>();
   for (const c of cards) {
     if (c.archived) continue;
     const num = chapterOfDeck(c.deckId);
@@ -171,6 +174,8 @@ export function summarize(cards: Card[], progress: Map<string, Progress>, sessio
     const list = byChapter.get(num) ?? [];
     list.push(c.id);
     byChapter.set(num, list);
+    const cover = covers.get(num);
+    if (!cover || c.order < cover.order) covers.set(num, c);
   }
   const tests = testBests(sessions);
   const out = new Map<number, ChapterProgress>();
@@ -186,6 +191,7 @@ export function summarize(cards: Card[], progress: Map<string, Progress>, sessio
       stars: chapterStars(ids.length, counts),
       ...(test !== undefined ? { test } : {}),
       crown: (test ?? 0) >= 0.9,
+      ...(covers.get(ch.num)?.imageId ? { cover: covers.get(ch.num)!.imageId } : {}),
     });
   }
   return out;
