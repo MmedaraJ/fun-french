@@ -1,0 +1,96 @@
+/* Mémoire: cards that turn over in 3D. */
+.memory-prompt {
+  margin-bottom: 12px;
+  gap: 4px;
+}
+
+.memory-count {
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+
+.memory-board {
+  display: grid;
+  gap: 10px;
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.memory-tile {
+  aspect-ratio: 1;
+  perspective: 700px;
+  padding: 0;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.memory-inner {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.38s cubic-bezier(0.3, 1.4, 0.5, 1);
+  transform-style: preserve-3d;
+}
+
+.memory-tile.is-open .memory-inner {
+  transform: rotateY(180deg);
+}
+
+.memory-back,
+.memory-face {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  box-shadow: 0 5px 0 rgba(0, 0, 0, 0.18);
+}
+
+.memory-back {
+  background:
+    radial-gradient(rgba(255, 255, 255, 0.35) 2px, transparent 2.5px) 0 0 / 14px 14px,
+    linear-gradient(135deg, rgba(255, 255, 255, 0.28), rgba(0, 0, 0, 0.08)),
+    rgba(255, 255, 255, 0.22);
+  border: 3px solid rgba(255, 255, 255, 0.7);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 2rem;
+  color: #fff;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.15);
+}
+
+.memory-face {
+  transform: rotateY(180deg);
+  background: #fff;
+  color: #2b2d42;
+  padding: 8px;
+  overflow: hidden;
+}
+
+.memory-face img {
+  object-fit: contain !important;
+}
+
+.memory-tile.is-found .memory-face {
+  box-shadow:
+    0 0 0 3px var(--ok),
+    0 5px 0 rgba(0, 0, 0, 0.18);
+}
+
+.memory-word {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(0.8rem, 3.6vw, 1.05rem);
+  line-height: 1.1;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.memory-en {
+  color: #6b6e8a;
+}

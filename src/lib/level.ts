@@ -31,9 +31,9 @@ export function inBand(level: number, band: MinLevel): boolean {
 /** The textbook's regular -er verbs are A1 words: their list is hidden (the verbs stay in the conjugation drills). */
 const BELOW_FLOOR = new Set(['verbs-er']);
 
-/** Built-in themes outside her band are hidden; hers never are. */
-export function deckShown(deck: Pick<Deck, 'id' | 'builtin' | 'level'>, band: MinLevel): boolean {
-  if (!deck.builtin) return true;
+/** Built-in themes outside her band are hidden; hers never are, nor her picture dictionary's chapters. */
+export function deckShown(deck: Pick<Deck, 'id' | 'builtin' | 'level' | 'book'>, band: MinLevel): boolean {
+  if (!deck.builtin || deck.book) return true;
   if (BELOW_FLOOR.has(deck.id)) return false;
   return inBand(deck.level ?? 1, band);
 }

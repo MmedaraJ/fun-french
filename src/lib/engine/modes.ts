@@ -10,8 +10,11 @@ export interface ModeInfo {
   color: PaletteKey;
   types: QuestionType[];
   needs?: 'recognition';
-  /** Grammar games draw generated sentences instead of word cards; course rounds come from a chapter's exercises. */
-  section: 'vocab' | 'grammar' | 'course';
+  /**
+   * Grammar games draw generated sentences instead of word cards; course rounds come from a chapter's
+   * exercises; picture-dictionary games play a chapter of her imagier (they're opened from its chapters).
+   */
+  section: 'vocab' | 'grammar' | 'course' | 'imagier';
 }
 
 export const MIX_TYPES: QuestionType[] = ['pick-image', 'pick-word', 'listen', 'spell', 'gender', 'build', 'type', 'dictation'];
@@ -36,6 +39,10 @@ export const MODES: ModeInfo[] = [
   { id: 'questions', num: 3, name: 'Questions', en: 'Asking questions', blurb: 'Où, quand, pourquoi… and three ways to ask.', emoji: '❓', color: 'tangerine', types: ['qword', 'qform', 'qmatch'], section: 'grammar' },
   { id: 'structures', num: 4, name: 'Structures', en: 'Advanced structures', blurb: 'Dont, lequel, le lui, si j’avais su, bien qu’il soit… complete real sentences.', emoji: '🏗️', color: 'plum', types: ['drill'], section: 'grammar' },
   { id: 'cours', num: 0, name: 'Cours', en: 'Courses', blurb: 'A chapter’s exercises: complete, build, translate and correct whole sentences.', emoji: '📚', color: 'grape', types: ['compose'], section: 'course' },
+  { id: 'seek', num: 0, name: 'Cherche et trouve', en: 'Seek and find', blurb: 'Hear a word, find its drawing on the page of your book.', emoji: '🔍', color: 'sunshine', types: ['seek'], section: 'imagier' },
+  { id: 'labels', num: 0, name: 'Étiquettes', en: 'Label the page', blurb: 'Put each French label back next to its drawing.', emoji: '🏷️', color: 'leaf', types: ['labels'], section: 'imagier' },
+  { id: 'memory', num: 0, name: 'Mémoire', en: 'Memory', blurb: 'Turn over two cards: find each drawing and its word.', emoji: '🧠', color: 'plum', types: ['memory'], section: 'imagier' },
+  { id: 'imagier', num: 0, name: 'Imagier', en: 'Picture words', blurb: 'Every picture game mixed: find, listen, spell, write.', emoji: '🖼️', color: 'tangerine', types: ['pick-image', 'pick-word', 'listen', 'spell', 'gender', 'type', 'seek'], section: 'imagier' },
   { id: 'grammaire', num: 5, name: 'Leçons', en: 'Grammar lessons', blurb: 'Short lessons with tables and examples, then practice.', emoji: '📘', color: 'leaf', types: GRAMMAR_TYPES, section: 'grammar' },
 ];
 
@@ -65,6 +72,9 @@ export const TYPE_LABEL: Record<QuestionType, string> = {
   glisten: 'Listening (grammar)',
   drill: 'Structures',
   compose: 'Courses',
+  seek: 'Seek and find',
+  labels: 'Labels',
+  memory: 'Memory',
 };
 
 export function recognitionSupported(): boolean {

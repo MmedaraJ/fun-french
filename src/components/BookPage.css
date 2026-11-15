@@ -1,0 +1,84 @@
+/* A page of her picture dictionary, drawn from the copy on her device, with overlays on top. */
+.book-page {
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.12);
+  touch-action: manipulation;
+}
+
+.book-page-sheet {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+}
+
+.book-page-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  user-select: none;
+  -webkit-user-select: none;
+  pointer-events: none;
+}
+
+.book-page-wait {
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(45deg, #f6f1ea 0 14px, #fff 14px 28px);
+}
+
+/* a label covered by a sticker, until it's peeled off */
+.book-sticker {
+  position: absolute;
+  border-radius: 6px;
+  background: var(--sticker, #ffd8e1);
+  background-image: radial-gradient(rgba(255, 255, 255, 0.55) 1.2px, transparent 1.3px);
+  background-size: 7px 7px;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.12);
+  display: grid;
+  place-items: center;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.book-sticker.is-open {
+  background: #fff;
+  background-image: none;
+  box-shadow: 0 0 0 2px var(--sticker-edge, #2dbe6c);
+  z-index: 2;
+}
+
+.book-sticker-text {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: #2b2d42;
+  line-height: 1.05;
+  text-align: center;
+  white-space: nowrap;
+  padding: 0 3px;
+  border-radius: 6px;
+  background: #fff;
+}
+
+/* a drawing ringed after an answer */
+.book-ring {
+  position: absolute;
+  border-radius: 12px;
+  border: 3px solid var(--ok);
+  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.25);
+  pointer-events: none;
+  z-index: 3;
+}
+
+.book-ring.is-wrong {
+  border-color: var(--bad);
+  box-shadow: 0 0 0 4px rgba(255, 77, 79, 0.25);
+}
+
+.book-ring.is-glow {
+  border-color: var(--sunshine);
+  box-shadow: 0 0 0 5px rgba(255, 200, 61, 0.35);
+}

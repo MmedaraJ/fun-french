@@ -2,10 +2,13 @@ import { Build } from './Build';
 import { Flash } from './Flash';
 import { Gender } from './Gender';
 import { GrammarQuestion } from './GrammarQuestion';
+import { Labels } from './Labels';
 import { Listen } from './Listen';
+import { Memory } from './Memory';
 import { Pairs } from './Pairs';
 import { PickImage } from './PickImage';
 import { PickWord } from './PickWord';
+import { Seek } from './Seek';
 import { Speak } from './Speak';
 import { Spell } from './Spell';
 import { TypeIt } from './TypeIt';
@@ -35,5 +38,11 @@ export function QuestionView(props: QProps) {
       return <Speak {...props} />;
     case 'pairs':
       return <Pairs {...props} />;
+    case 'seek':
+      return <Seek {...props} />;
+    case 'labels':
+      return <Labels {...props} />;
+    case 'memory':
+      return <Memory {...props} />;
   }
 }

@@ -67,6 +67,8 @@ export interface RoundConfig {
   difficulty?: Difficulty;
   /** Her band: built-in themes outside it and the recognition-only questions aren't used (none given: everything). */
   minLevel?: MinLevel;
+  /** Question types to ask instead of the game's own (a picture-dictionary mastery test). */
+  types?: QuestionType[];
 }
 
 export interface Pool {
@@ -75,7 +77,14 @@ export interface Pool {
   /** Every usable card, for wrong-answer options. */
   all: Card[];
   progress: Map<string, Progress>;
+  /** Her picture dictionary's pages are on the device: the games played on the page can be asked. */
+  book?: boolean;
 }
+
+/** Played on her book's pages: need its pages on the device. */
+export const BOOK_TYPES: QuestionType[] = ['seek', 'labels'];
+/** One question, several words (each reported on its own). */
+export const MULTI_TYPES: QuestionType[] = ['pairs', 'memory', 'labels'];
 
 let keySeq = 0;
 const nextKey = () => `q${++keySeq}-${Date.now().toString(36)}`;
@@ -115,7 +124,11 @@ export function canAsk(type: QuestionType, card: Card): boolean {
     case 'speak':
       return wordCount(card.fr) <= 8;
     case 'pairs':
+    case 'memory':
       return card.fr.length <= 26;
+    case 'seek':
+    case 'labels':
+      return !!card.spot;
     default:
       // grammar questions are generated from sentence frames, not word cards
       return false;
@@ -165,8 +178,8 @@ const PRODUCTION: QuestionType[] = ['spell', 'build', 'type', 'dictation', 'spea
 const RECOGNITION: QuestionType[] = ['pick-image', 'pick-word', 'listen'];
 
 /** Choose a question type for a card; harder types as the card gets stronger (and sooner at higher difficulty). */
-export function chooseType(card: Card, allowed: QuestionType[], box: number, pictureOptions: boolean, rand = Math.random, difficulty: Difficulty = 2): QuestionType | null {
-  const usable = allowed.filter((t) => canAsk(t, card) && (t !== 'pick-image' || pictureOptions));
+export function chooseType(card: Card, allowed: QuestionType[], box: number, pictureOptions: boolean, rand = Math.random, difficulty: Difficulty = 2, book = false): QuestionType | null {
+  const usable = allowed.filter((t) => canAsk(t, card) && (t !== 'pick-image' || pictureOptions) && (book || !BOOK_TYPES.includes(t)));
   if (!usable.length) return null;
   if (usable.length === 1) return usable[0];
   const W: Partial<Record<QuestionType, [number, number, number]>> = {
@@ -182,6 +195,8 @@ export function chooseType(card: Card, allowed: QuestionType[], box: number, pic
     speak: [1, 2, 3],
     flash: [1, 1, 1],
     pairs: [1, 1, 1],
+    // her book's page: as often as the others, and still there once the word is strong
+    seek: [3, 3, 2],
   };
   const tier = difficulty >= 3 ? (box <= 0 ? 0 : box <= 2 ? 1 : 2) : box <= 1 ? 0 : box <= 3 ? 1 : 2;
   // recall (typing, spelling, building) over recognition (picking) as the difficulty goes up
@@ -361,8 +376,17 @@ export function makeQuestion(
       return q;
     case 'gender':
       return q;
+    case 'seek': {
+      // every drawing of the chapter on that page: their labels are hidden, and a tap on one is an answer
+      const page = card.spot!.p;
+      q.options = pool.all.filter((c) => c.deckId === card.deckId && c.spot?.p === page && !c.archived);
+      if (!q.options.some((c) => c.id === card.id)) q.options.push(card);
+      return q;
+    }
     case 'pairs':
-      return null; // built by makePairsBoard
+    case 'memory':
+    case 'labels':
+      return null; // built by makePairsBoard, makeMemoryBoard, makeLabelsBoard
     default:
       return null; // grammar questions come from lib/grammar/exercises
   }
@@ -379,6 +403,50 @@ export function makePairsBoard(cards: Card[], size: number, rand = Math.random):
   }
   if (chosen.length < 3) return null;
   return { key: nextKey(), type: 'pairs', card: chosen[0], pairs: shuffle(chosen, rand), isNew: false };
+}
+
+/** One memory board: `size` words, each a drawing card and a word card, all face down. */
+export function makeMemoryBoard(cards: Card[], size: number, rand = Math.random): Question | null {
+  const chosen: Card[] = [];
+  for (const c of cards) {
+    if (chosen.length >= size) break;
+    if (!canAsk('memory', c)) continue;
+    if (chosen.some((x) => sameText(x.fr, c.fr) || sameText(x.en, c.en) || (hasPicture(c) && pictureKey(x) === pictureKey(c)))) continue;
+    chosen.push(c);
+  }
+  if (chosen.length < 3) return null;
+  return { key: nextKey(), type: 'memory', card: chosen[0], pairs: shuffle(chosen, rand), isNew: false };
+}
+
+const centre = (c: Card) => {
+  const [x0, y0, x1, y1] = c.spot!.b;
+  return [(x0 + x1) / 2, (y0 + y1) / 2];
+};
+
+/**
+ * One labelling board: a word and its nearest neighbours on its page (a small patch of the page),
+ * whose labels she puts back. `page` holds every word of the chapter on that page.
+ */
+export function makeLabelsBoard(anchor: Card, page: Card[], size: number): Question | null {
+  if (!anchor.spot) return null;
+  const [ax, ay] = centre(anchor);
+  const near = page
+    .filter((c) => c.spot && c.spot.p === anchor.spot!.p && c.deckId === anchor.deckId && !c.archived)
+    .map((c) => {
+      const [x, y] = centre(c);
+      return { c, d: Math.hypot(x - ax, y - ay) };
+    })
+    .sort((a, b) => a.d - b.d);
+  const chosen: Card[] = [];
+  for (const { c, d } of near) {
+    if (chosen.length >= size) break;
+    // a patch, not the whole page: neighbours only
+    if (d > 260) break;
+    if (chosen.some((x) => sameText(x.fr, c.fr))) continue;
+    chosen.push(c);
+  }
+  if (chosen.length < 3) return null;
+  return { key: nextKey(), type: 'labels', card: anchor, pairs: chosen, options: page.filter((c) => c.spot?.p === anchor.spot!.p), isNew: false };
 }
 
 function newCardRank(c: Card): number {
@@ -442,9 +510,44 @@ export function arrange<T extends { card: Card }>(items: T[], rand = Math.random
 /** Build the questions for a round from an already loaded pool. Pure apart from randomness. */
 export function buildQuestions(cfg: RoundConfig, pool: Pool, rand = Math.random, now = Date.now()): Question[] {
   const mode = MODE_BY_ID[cfg.mode];
-  const types = cfg.minLevel ? typesAtLevel(mode.types) : mode.types;
+  // her band leaves out the recognition-only questions; not in the picture dictionary, where pictures are the point
+  const types = cfg.types ?? (cfg.minLevel && mode.section === 'vocab' ? typesAtLevel(mode.types) : mode.types);
   const pictureCount = pool.all.filter(hasPicture).length;
   const pictureOptions = pictureCount >= 2;
+  const book = !!pool.book;
+
+  if (cfg.mode === 'memory') {
+    const picked = pickCards(pool.cards.filter((c) => canAsk('memory', c)), pool.progress, Math.max(12, cfg.length), Math.max(cfg.newPerRound, 6), now, rand);
+    const ordered = picked.map((p) => p.card);
+    const per = (cfg.difficulty ?? 2) >= 3 ? 8 : 6;
+    const boards: Question[] = [];
+    for (let i = 0; i < 2 && ordered.length; i++) {
+      const board = makeMemoryBoard(ordered, per, rand);
+      if (!board) break;
+      boards.push(board);
+      const used = new Set(board.pairs!.map((c) => c.id));
+      for (let k = ordered.length - 1; k >= 0; k--) if (used.has(ordered[k].id)) ordered.splice(k, 1);
+    }
+    return boards;
+  }
+
+  if (cfg.mode === 'labels') {
+    if (!book) return [];
+    const withSpot = pool.cards.filter((c) => canAsk('labels', c));
+    const anchors = pickCards(withSpot, pool.progress, Math.max(8, cfg.length), Math.max(cfg.newPerRound, 6), now, rand).map((p) => p.card);
+    const size = (cfg.difficulty ?? 2) >= 3 ? 6 : (cfg.difficulty ?? 2) <= 1 ? 4 : 5;
+    const used = new Set<string>();
+    const boards: Question[] = [];
+    for (const anchor of anchors) {
+      if (boards.length >= 4) break;
+      if (used.has(anchor.id)) continue;
+      const board = makeLabelsBoard(anchor, withSpot.filter((c) => !used.has(c.id) || c.id === anchor.id), size);
+      if (!board) continue;
+      board.pairs!.forEach((c) => used.add(c.id));
+      boards.push(board);
+    }
+    return boards;
+  }
 
   if (cfg.mode === 'pairs') {
     const picked = pickCards(pool.cards.filter((c) => canAsk('pairs', c)), pool.progress, Math.max(6, cfg.length), Math.max(cfg.newPerRound, 2), now, rand);
@@ -461,7 +564,7 @@ export function buildQuestions(cfg: RoundConfig, pool: Pool, rand = Math.random,
     return boards;
   }
 
-  const eligible = pool.cards.filter((c) => types.some((t) => canAsk(t, c) && (t !== 'pick-image' || pictureOptions)));
+  const eligible = pool.cards.filter((c) => types.some((t) => canAsk(t, c) && (t !== 'pick-image' || pictureOptions) && (book || !BOOK_TYPES.includes(t))));
   if (!eligible.length) return [];
 
   const n = cfg.cardIds?.length ? Math.min(cfg.cardIds.length, Math.max(cfg.length, 4), 30) : cfg.length;
@@ -486,11 +589,11 @@ export function buildQuestions(cfg: RoundConfig, pool: Pool, rand = Math.random,
     const first = !seenIds.has(card.id);
     seenIds.add(card.id);
     const difficulty = cfg.difficulty ?? 2;
-    let type = chooseType(card, types, first ? box : box + 2, pictureOptions, rand, difficulty);
+    let type = chooseType(card, types, first ? box : box + 2, pictureOptions, rand, difficulty, book);
     let q = type ? makeQuestion(type, card, pool, { isNew: isNew && first, box, difficulty }, rand) : null;
     if (!q && types.length > 1) {
       for (const t of shuffle(types, rand)) {
-        if (!canAsk(t, card)) continue;
+        if (!canAsk(t, card) || (!book && BOOK_TYPES.includes(t))) continue;
         q = makeQuestion(t, card, pool, { isNew: isNew && first, box, difficulty }, rand);
         if (q) break;
       }
@@ -512,7 +615,7 @@ export function buildQuestions(cfg: RoundConfig, pool: Pool, rand = Math.random,
 
 /** A follow-up question for a card that was just missed. */
 export function retryQuestion(prev: Question, pool: Pool, rand = Math.random, difficulty: Difficulty = 2): Question | null {
-  if (prev.type === 'pairs') return null;
+  if (MULTI_TYPES.includes(prev.type)) return null;
   const mode = prev.type;
   const easier: QuestionType[] = mode === 'spell' || mode === 'type' ? [mode, 'pick-word'] : [mode];
   for (const t of easier) {

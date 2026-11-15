@@ -1,0 +1,50 @@
+/* Cherche et trouve: the page of her book fills the screen, scrollable once zoomed in. */
+.q-wrap[data-qtype='seek'] .q-prompt {
+  margin-bottom: 10px;
+  gap: 8px;
+}
+
+.seek-view {
+  position: relative;
+  height: min(66dvh, 760px);
+  overflow: auto;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.18);
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.seek-page {
+  margin: 0 auto;
+  cursor: pointer;
+}
+
+.seek-miss {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  margin: -14px 0 0 -14px;
+  border-radius: 50%;
+  border: 3px solid rgba(43, 45, 66, 0.55);
+  pointer-events: none;
+  z-index: 4;
+}
+
+.seek-zoom {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 10px;
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+
+.seek-zoom .icon-btn {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.seek-zoom .icon-btn:disabled {
+  opacity: 0.4;
+}

@@ -11,7 +11,7 @@ import { db } from '../lib/db';
 import { MODE_BY_ID } from '../lib/engine/modes';
 import { loadPool } from '../lib/engine/pool';
 import { recordAnswer, saveSession } from '../lib/engine/record';
-import { buildQuestions, deferIntroduced, INTRO_GAP, retryQuestion, type Pool, type Question, type RoundConfig } from '../lib/engine/round';
+import { buildQuestions, deferIntroduced, INTRO_GAP, MULTI_TYPES, retryQuestion, type Pool, type Question, type RoundConfig } from '../lib/engine/round';
 import { levelFromXp, multiplier, pointsFor, starsFor, XP } from '../lib/engine/scoring';
 import { uid } from '../lib/ids';
 import { computeStreak } from '../lib/stats';
@@ -19,7 +19,7 @@ import { inkOn, paletteColor, PALETTE_KEYS } from '../lib/palette';
 import { settings as getSettings, useSettings } from '../lib/settings';
 import { haptic, sfx } from '../lib/sound';
 import { dropQueuedSpeech, speak } from '../lib/speech';
-import type { Card, GameMode, GrammarType, PaletteKey, Session } from '../types';
+import type { Card, GameMode, GrammarType, PaletteKey, QuestionType, Session } from '../types';
 import { FeedbackBar } from './game/FeedbackBar';
 import { GameHeader } from './game/GameHeader';
 import { IntroCard } from './game/IntroCard';
@@ -30,6 +30,9 @@ import './Game.css';
 
 const HEARTS = 3;
 const MAX_RETRIES = 3;
+
+/** A picture-dictionary chapter's mastery test: every word, asked so she has to produce it. */
+const TEST_TYPES: QuestionType[] = ['spell', 'type', 'gender', 'dictation', 'seek', 'listen'];
 
 export interface QResult {
   key: string;
@@ -81,7 +84,7 @@ function colorsFor(n: number, from: PaletteKey[] = []): PaletteKey[] {
  */
 function wantsIntro(introduce: boolean, questions: Question[], index: number): boolean {
   const q = questions[index];
-  return !!q && introduce && q.isNew && !q.introduced && q.type !== 'flash' && q.type !== 'pairs' && questions.length - index - 1 >= INTRO_GAP;
+  return !!q && introduce && q.isNew && !q.introduced && q.type !== 'flash' && !MULTI_TYPES.includes(q.type) && questions.length - index - 1 >= INTRO_GAP;
 }
 
 function reducer(s: State, a: Action): State {
@@ -110,7 +113,7 @@ function reducer(s: State, a: Action): State {
     }
     case 'answer': {
       const r = a.result;
-      const isPairs = r.type === 'pairs';
+      const isPairs = MULTI_TYPES.includes(r.type);
       const combo = isPairs ? s.combo : r.correct ? s.combo + 1 : 0;
       let questions = s.questions;
       if (a.retry) {
@@ -172,11 +175,15 @@ export default function Game() {
   const navigate = useNavigate();
   const { introduceNew, autoplay, newPerRound, roundLength, difficulty, minLevel } = useSettings();
 
-  const survival = search.get('survival') === '1' && mode !== 'pairs' && mode !== 'flash';
+  const survival = search.get('survival') === '1' && !MULTI_TYPES.includes(mode as QuestionType) && mode !== 'flash';
+  // a picture-dictionary chapter ("chap=8"), maybe its mastery test
+  const chapter = Number(search.get('chap')) || 0;
+  const test = chapter > 0 && search.get('test') === '1';
   const cfg = useMemo<RoundConfig>(
     () => ({
       mode,
       survival,
+      types: test ? TEST_TYPES : undefined,
       length: survival ? 10 : Number(search.get('len')) || roundLength,
       deckIds: search.get('decks')?.split(',').filter(Boolean),
       cardIds: search.get('cards')?.split(',').filter(Boolean),
@@ -208,7 +215,7 @@ export default function Game() {
   const todayBefore = useRef({ xp: 0, practiced: false });
   const finished = useRef(false);
 
-  const isGrammar = info.section !== 'vocab';
+  const isGrammar = info.section === 'grammar' || info.section === 'course';
 
   /** Grammar questions for this game (or a lesson's practice), generated on demand. */
   const grammarRound = useCallback(
@@ -340,13 +347,15 @@ export default function Game() {
       if (!q || s.phase !== 'ask') return;
       const ms = Date.now() - askedAt.current;
       const combo = correct ? s.combo + 1 : 0;
-      const points = extra.points ?? (q.type === 'pairs' ? 0 : pointsFor(q.type, correct, ms, combo));
-      if (q.type !== 'pairs') persist(q.card, q.type, correct, ms);
+      const multi = MULTI_TYPES.includes(q.type);
+      const points = extra.points ?? (multi ? 0 : pointsFor(q.type, correct, ms, combo));
+      // a board of several words reported each one as she went
+      if (!multi) persist(q.card, q.type, correct, ms);
       // a course sentence she has now met: the next rounds start with the ones she hasn't
       const item = q.g?.item;
       if (item) saving.current = saving.current.then(() => markSeen(item, correct));
       if (correct) {
-        sfx.correct(q.type === 'pairs' ? 4 : combo);
+        sfx.correct(multi ? 4 : combo);
         haptic(25);
         if (combo > 0 && combo % 5 === 0) setTimeout(() => sfx.coin(), 260);
       } else {
@@ -368,10 +377,10 @@ export default function Game() {
 
   const onPartial = useCallback(
     (card: Card, correct: boolean, ms: number) => {
-      persist(card, 'pairs', correct, ms);
+      persist(card, q && MULTI_TYPES.includes(q.type) ? q.type : 'pairs', correct, ms);
       dispatch({ type: 'partial', correct });
     },
-    [persist],
+    [persist, q],
   );
 
   const finish = useCallback(
@@ -410,15 +419,19 @@ export default function Game() {
             ? { lesson: `ex:${search.get('ex')}` }
             : search.get('endless')
               ? { lesson: `endless:${search.get('endless')}` }
-              : {}),
+              : chapter
+                ? { lesson: `imagier:${chapter}${test ? ':test' : ''}` }
+                : {}),
       };
+      // leaving early goes back where the round came from: a picture-dictionary chapter, or home
+      const back = chapter ? `/imagier/${chapter}` : '/';
       if (!completed && total === 0) {
-        navigate('/');
+        navigate(back);
         return;
       }
       await saveSession(session, completed);
       if (!completed) {
-        navigate('/');
+        navigate(back);
         return;
       }
       const prevBest = await db.sessions
@@ -448,7 +461,7 @@ export default function Game() {
         },
       });
     },
-    [s.results, s.score, s.maxCombo, mode, survival, cfg.deckIds, navigate],
+    [s.results, s.score, s.maxCombo, mode, survival, cfg.deckIds, navigate, chapter, test],
   );
 
   const next = useCallback(() => {
@@ -494,8 +507,8 @@ export default function Game() {
   // After answering, let her hear the French (never before: that would give the answer away).
   // Games where the French was the question itself only repeat it after a mistake.
   useEffect(() => {
-    if (s.phase !== 'feedback' || !s.last || !q || q.type === 'pairs' || !getSettings().autoplay) return;
-    const heardAlready = ['listen', 'pick-image', 'dictation', 'flash', 'glisten'].includes(q.type);
+    if (s.phase !== 'feedback' || !s.last || !q || MULTI_TYPES.includes(q.type) || !getSettings().autoplay) return;
+    const heardAlready = ['listen', 'pick-image', 'dictation', 'flash', 'glisten', 'seek'].includes(q.type);
     if (heardAlready && s.last.correct) return;
     const t = setTimeout(() => void speak(q.card.fr, { queue: true }), 350);
     return () => clearTimeout(t);
@@ -522,7 +535,7 @@ export default function Game() {
   }
 
   if (s.status === 'empty') {
-    return <EmptyRound mode={mode} onBack={() => navigate('/')} onAdd={() => navigate('/add')} />;
+    return <EmptyRound mode={mode} onBack={() => navigate(chapter ? `/imagier/${chapter}` : '/')} onAdd={() => navigate(chapter ? `/imagier/${chapter}` : '/add')} imagier={!!chapter} />;
   }
 
   const total = survival ? null : s.questions.length;
@@ -539,7 +552,7 @@ export default function Game() {
         onQuit={() => {
           sfx.tap();
           if (s.results.length === 0) {
-            navigate('/');
+            navigate(chapter ? `/imagier/${chapter}` : '/');
             return;
           }
           setQuitOpen(true);
@@ -650,14 +663,32 @@ export default function Game() {
   );
 }
 
-function EmptyRound({ mode, onBack, onAdd }: { mode: GameMode; onBack: () => void; onAdd: () => void }) {
+function EmptyRound({ mode, onBack, onAdd, imagier }: { mode: GameMode; onBack: () => void; onAdd: () => void; imagier?: boolean }) {
   const info = MODE_BY_ID[mode];
   const hint: Partial<Record<GameMode, string>> = {
     'pick-image': 'This game needs words with pictures.',
     gender: 'This game needs nouns with le/la.',
     build: 'This game needs phrases or sentences.',
     spell: 'This game needs single words to spell.',
+    seek: 'This game is played on the pages of your book: add it in Mon imagier first.',
+    labels: 'This game is played on the pages of your book: add it in Mon imagier first.',
   };
+  if (imagier) {
+    return (
+      <div className="game game--empty" style={{ background: paletteColor(info.color), color: inkOn(info.color) }}>
+        <motion.div initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring' }} className="empty-card">
+          <Emoji e="📖" size={84} />
+          <h2>Pas pour ce chapitre… pour l’instant !</h2>
+          <p>{hint[mode] ?? 'This chapter has no words this game can ask.'}</p>
+          <div className="row" style={{ gap: 10, marginTop: 18, justifyContent: 'center' }}>
+            <button className="btn btn--ok" onClick={onBack}>
+              Back to the chapter
+            </button>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
   return (
     <div className="game game--empty" style={{ background: paletteColor(info.color), color: inkOn(info.color) }}>
       <motion.div initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring' }} className="empty-card">

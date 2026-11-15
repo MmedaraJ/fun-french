@@ -83,8 +83,10 @@ export async function ensureSeeded(): Promise<void> {
 async function retireMovedCards(starterIds: Map<string, string>) {
   const byFr = new Map<string, string>();
   for (const [id, fr] of starterIds) if (!byFr.has(fr.toLowerCase())) byFr.set(fr.toLowerCase(), id);
+  // only the starter themes' cards: the picture dictionary's words are seeded (and retired) on their own
+  const starterDecks = new Set(STARTER_DECKS.map((d) => d.id));
   const stale = (await db.cards.where('source').equals('starter').toArray()).filter(
-    (c) => !starterIds.has(c.id) && c.updatedAt === c.createdAt,
+    (c) => starterDecks.has(c.deckId) && !starterIds.has(c.id) && c.updatedAt === c.createdAt,
   );
   for (const old of stale) {
     const replacement = byFr.get(old.fr.toLowerCase());

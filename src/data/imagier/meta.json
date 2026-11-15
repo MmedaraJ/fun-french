@@ -1,0 +1,44 @@
+{
+ "version": "b22a8f29d4",
+ "chapters": [
+  {
+   "num": 1,
+   "title": "En classe",
+   "en": "Our Classroom",
+   "pages": [
+    6,
+    7
+   ],
+   "count": 51
+  },
+  {
+   "num": 13,
+   "title": "La poste/La banque",
+   "en": "The Post Office/The Bank",
+   "pages": [
+    30,
+    31
+   ],
+   "count": 45
+  },
+  {
+   "num": 21,
+   "title": "Au cirque",
+   "en": "At the Circus",
+   "pages": [
+    46,
+    47
+   ],
+   "count": 46
+  },
+  {
+   "num": 28,
+   "title": "Les couleurs",
+   "en": "Colors",
+   "pages": [
+    60
+   ],
+   "count": 13
+  }
+ ]
+}

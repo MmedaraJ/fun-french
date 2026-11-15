@@ -25,6 +25,9 @@ const SPEED: Record<QuestionType, [number, number]> = {
   glisten: [3000, 12000],
   drill: [4000, 18000],
   compose: [6000, 30000],
+  seek: [2500, 15000],
+  labels: [0, 0],
+  memory: [0, 0],
 };
 
 export const BASE_POINTS = 100;

@@ -24,6 +24,8 @@ export interface Deck {
   emoji: string;
   color: PaletteKey;
   builtin: boolean;
+  /** A chapter of her picture dictionary ("Mon imagier"): always shown, whatever her level. */
+  book?: 'imagier';
   /** Active decks feed new words into daily practice. */
   active: boolean;
   /** 1 = A1, 2 = A2, 3 = B1, 4 = B2 and up. */
@@ -54,8 +56,23 @@ export interface Card {
   archived?: boolean;
   /** Usefulness order inside the deck (lower = taught first). */
   order: number;
+  /** Picture-dictionary words: where the word's drawing and label are in her book. */
+  spot?: Spot;
   createdAt: number;
   updatedAt: number;
+}
+
+/** A rectangle on a book page, in PDF points: [left, top, right, bottom]. */
+export type Box = [number, number, number, number];
+
+/** Where a picture-dictionary word sits in the book: page, drawing and label. */
+export interface Spot {
+  /** 1-based page of the PDF. */
+  p: number;
+  /** The drawing. */
+  b: Box;
+  /** The printed label (English and French), hidden in the games: one box, or one per line where it wraps around a drawing. */
+  l: Box[];
 }
 
 /** Spaced-repetition memory for one card. Missing row = never seen. */
@@ -109,11 +126,17 @@ export type GrammarType =
   | 'drill'
   | 'compose';
 
-/** A question type is what a single question actually asks. */
-export type QuestionType = VocabType | GrammarType;
+/**
+ * Picture-dictionary question types, played on her book's pages and drawings: find a drawing on
+ * the page, put the labels back on a part of the page, flip-card memory.
+ */
+export type ImagierType = 'seek' | 'labels' | 'memory';
 
-/** A game: one vocabulary type, the vocabulary mix, or a grammar game. */
-export type GameMode = VocabType | 'mix' | 'conjugaison' | 'temps' | 'questions' | 'structures' | 'grammaire' | 'cours';
+/** A question type is what a single question actually asks. */
+export type QuestionType = VocabType | GrammarType | ImagierType;
+
+/** A game: one vocabulary type, the vocabulary mix, a grammar game, or a picture-dictionary game. */
+export type GameMode = VocabType | ImagierType | 'mix' | 'conjugaison' | 'temps' | 'questions' | 'structures' | 'grammaire' | 'cours' | 'imagier';
 
 /** One answered question, stored for statistics. */
 export interface AnswerEvent {

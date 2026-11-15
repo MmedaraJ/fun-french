@@ -126,16 +126,26 @@ export default function Results() {
     const p = new URLSearchParams();
     if (session.deckIds.length) p.set('decks', session.deckIds.join(','));
     // the same lesson practice, course exercise or chapter's endless practice again
+    const pic = /^imagier:(\d+)(:test)?$/.exec(session.lesson ?? '');
     if (session.lesson?.startsWith('ex:')) p.set('ex', session.lesson.slice(3));
     else if (session.lesson?.startsWith('endless:')) p.set('endless', session.lesson.slice(8));
-    else if (session.lesson) p.set('lesson', session.lesson);
+    else if (pic) {
+      // a picture-dictionary chapter's game (or its mastery test) again
+      p.set('chap', pic[1]);
+      if (pic[2]) p.set('test', '1');
+    } else if (session.lesson) p.set('lesson', session.lesson);
     if (session.survival) p.set('survival', '1');
+    else if (pic?.[2]) p.set('len', String(session.total));
     else p.set('len', String(Math.max(10, Math.min(20, session.total))));
     navigate(`/play/${session.mode}?${p}`, { replace: true });
   };
   // a course exercise (or a verb chapter's endless practice) leads back to its chapter
   const toChapter = async () => {
     const lesson = session?.lesson ?? '';
+    if (lesson.startsWith('imagier:')) {
+      navigate(`/imagier/${lesson.split(':')[1]}`, { replace: true });
+      return;
+    }
     if (lesson.startsWith('endless:')) {
       navigate(`/cours/temps/${lesson.slice(8)}`, { replace: true });
       return;
@@ -146,8 +156,11 @@ export default function Results() {
   };
   const reviewMissed = () => {
     sfx.whoosh();
-    const mode = session.mode === 'pairs' || session.mode === 'speak' ? 'mix' : session.mode;
-    navigate(`/play/${mode}?cards=${missed.join(',')}`, { replace: true });
+    // boards of several words come back as one-word questions; a picture-dictionary chapter's in its own mix
+    const chap = /^imagier:(\d+)/.exec(session.lesson ?? '')?.[1];
+    const board = ['pairs', 'speak', 'memory', 'labels'].includes(session.mode);
+    const mode = board ? (chap ? 'imagier' : 'mix') : session.mode;
+    navigate(`/play/${mode}?cards=${missed.join(',')}${chap ? `&chap=${chap}` : ''}`, { replace: true });
   };
 
   return (
@@ -291,7 +304,7 @@ export default function Results() {
             </button>
           )}
           <div className="row" style={{ gap: 12 }}>
-            {session.lesson?.startsWith('ex:') || session.lesson?.startsWith('endless:') ? (
+            {session.lesson?.startsWith('ex:') || session.lesson?.startsWith('endless:') || session.lesson?.startsWith('imagier:') ? (
               <button className="btn btn--ghost grow" onClick={() => void toChapter()}>
                 Chapitre
               </button>

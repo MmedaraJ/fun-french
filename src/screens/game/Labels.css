@@ -1,0 +1,122 @@
+/* Étiquettes: a patch of her book's page, its labels gone, and the labels to put back. */
+.labels-prompt {
+  margin-bottom: 10px;
+  gap: 4px;
+}
+
+.labels-count {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.labels-wrap {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.labels-page {
+  margin: 0 auto;
+}
+
+/* where a label goes: its place under the drawing */
+.labels-slot {
+  position: absolute;
+  border-radius: 7px;
+  border: 2px dashed rgba(43, 45, 66, 0.45);
+  background: #fff8ef;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  z-index: 2;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s;
+}
+
+.labels-slot.is-ready {
+  border-color: var(--sky);
+  background: #eef4ff;
+}
+
+.labels-slot.is-placed {
+  border: 2px solid var(--ok);
+  background: #fff;
+  cursor: default;
+}
+
+.labels-slot.is-wrong {
+  border-color: var(--bad);
+  background: #ffe8e8;
+}
+
+.labels-slot-text {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: #2b2d42;
+  white-space: nowrap;
+  line-height: 1;
+  padding: 1px 4px;
+  border-radius: 6px;
+  background: #fff;
+}
+
+/* the drawing itself takes a label too */
+.labels-target {
+  position: absolute;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.labels-tray {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.labels-chip {
+  padding: 10px 16px;
+  border-radius: 14px;
+  background: #fff;
+  color: #2b2d42;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.05rem;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.18);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: grab;
+}
+
+.labels-chip.is-sel {
+  background: var(--sunshine);
+  transform: translateY(-3px);
+  box-shadow: 0 7px 0 rgba(0, 0, 0, 0.2);
+}
+
+.labels-chip.is-dragging {
+  opacity: 0.35;
+}
+
+.labels-chip.is-wrong {
+  background: #ffd6d6;
+}
+
+.labels-ghost {
+  position: fixed;
+  z-index: 50;
+  transform: translate(-50%, -120%);
+  padding: 8px 14px;
+  border-radius: 14px;
+  background: var(--sunshine);
+  color: #2b2d42;
+  font-family: var(--font-display);
+  font-weight: 600;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+  white-space: nowrap;
+}

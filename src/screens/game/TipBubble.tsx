@@ -22,6 +22,10 @@ export const TIPS: Record<GameMode, { fr: string; en: string }> = {
   structures: { fr: 'Lis toute la phrase, puis complète le trou : pronom, mode, temps, connecteur…', en: 'Read the whole sentence, then fill the gap: pronoun, mood, tense, linking word…' },
   grammaire: { fr: 'Lis la petite leçon, puis entraîne-toi.', en: 'Read the short lesson, then practise.' },
   cours: { fr: 'Choisis la bonne phrase ; quand tu la connais, construis-la avec les mots.', en: 'Pick the right sentence; once you know it, build it from the word tiles.' },
+  seek: { fr: 'Écoute le mot, puis touche son petit dessin sur la page. Les boutons + et − font un zoom.', en: 'Hear the word, then tap its little drawing on the page. Zoom with + and −.' },
+  labels: { fr: 'Touche une étiquette, puis l’endroit où elle va. Tu peux aussi la faire glisser.', en: 'Tap a label, then the spot where it belongs. Or drag it there.' },
+  memory: { fr: 'Retourne deux cartes : trouve chaque dessin et son mot français.', en: 'Turn over two cards: match each drawing with its French word.' },
+  imagier: { fr: 'Un peu de tout : trouve, écoute, épelle, écris les mots du chapitre.', en: 'A bit of everything: find, listen, spell and write the chapter’s words.' },
 };
 
 export function TipBubble({ mode, onDone }: { mode: GameMode; onDone: () => void }) {

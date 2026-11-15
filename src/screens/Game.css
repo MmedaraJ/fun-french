@@ -77,7 +77,9 @@
 .q-wrap[data-qtype='pick-image'],
 .q-wrap[data-qtype='pick-word'],
 .q-wrap[data-qtype='listen'],
-.q-wrap[data-qtype='pairs'] {
+.q-wrap[data-qtype='pairs'],
+.q-wrap[data-qtype='memory'],
+.q-wrap[data-qtype='labels'] {
   justify-content: center;
   padding-bottom: 4vh;
 }
