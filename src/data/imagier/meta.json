@@ -1,5 +1,5 @@
 {
- "version": "b22a8f29d4",
+ "version": "e543d20a46",
  "chapters": [
   {
    "num": 1,
@@ -12,6 +12,36 @@
    "count": 51
   },
   {
+   "num": 5,
+   "title": "Les quatre saisons (le temps)",
+   "en": "The Four Seasons (Weather)",
+   "pages": [
+    14,
+    15
+   ],
+   "count": 47
+  },
+  {
+   "num": 9,
+   "title": "À la campagne",
+   "en": "In the Country",
+   "pages": [
+    22,
+    23
+   ],
+   "count": 53
+  },
+  {
+   "num": 10,
+   "title": "Au restaurant",
+   "en": "In a Restaurant",
+   "pages": [
+    24,
+    25
+   ],
+   "count": 52
+  },
+  {
    "num": 13,
    "title": "La poste/La banque",
    "en": "The Post Office/The Bank",
@@ -20,6 +50,26 @@
     31
    ],
    "count": 45
+  },
+  {
+   "num": 14,
+   "title": "À la station-service",
+   "en": "At the Gas Station",
+   "pages": [
+    32,
+    33
+   ],
+   "count": 45
+  },
+  {
+   "num": 17,
+   "title": "L'aéroport",
+   "en": "The Airport",
+   "pages": [
+    38,
+    39
+   ],
+   "count": 43
   },
   {
    "num": 21,
@@ -32,6 +82,26 @@
    "count": 46
   },
   {
+   "num": 22,
+   "title": "L'océan",
+   "en": "In the Ocean",
+   "pages": [
+    48,
+    49
+   ],
+   "count": 49
+  },
+  {
+   "num": 25,
+   "title": "Le château de fantaisie",
+   "en": "The Make-Believe Castle",
+   "pages": [
+    54,
+    55
+   ],
+   "count": 46
+  },
+  {
    "num": 28,
    "title": "Les couleurs",
    "en": "Colors",
@@ -39,6 +109,25 @@
     60
    ],
    "count": 13
+  },
+  {
+   "num": 29,
+   "title": "L'arbre généalogique",
+   "en": "The Family Tree",
+   "pages": [
+    60,
+    61
+   ],
+   "count": 12
+  },
+  {
+   "num": 30,
+   "title": "Les formes",
+   "en": "Shapes",
+   "pages": [
+    61
+   ],
+   "count": 10
   }
  ]
 }

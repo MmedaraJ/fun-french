@@ -173,12 +173,16 @@ export default function Game() {
   const info = MODE_BY_ID[mode];
   const [search] = useSearchParams();
   const navigate = useNavigate();
-  const { introduceNew, autoplay, newPerRound, roundLength, difficulty, minLevel } = useSettings();
+  const settingsNow = useSettings();
+  const { autoplay, newPerRound, roundLength, difficulty, minLevel } = settingsNow;
 
   const survival = search.get('survival') === '1' && !MULTI_TYPES.includes(mode as QuestionType) && mode !== 'flash';
-  // a picture-dictionary chapter ("chap=8"), maybe its mastery test
-  const chapter = Number(search.get('chap')) || 0;
-  const test = chapter > 0 && search.get('test') === '1';
+  // a picture-dictionary chapter ("chap=8", or "all" of them), maybe a chapter's mastery test
+  const chapter: number | 'all' = search.get('chap') === 'all' ? 'all' : Number(search.get('chap')) || 0;
+  const test = typeof chapter === 'number' && chapter > 0 && search.get('test') === '1';
+  const chapterHome = chapter === 'all' ? '/imagier' : chapter ? `/imagier/${chapter}` : '';
+  // a mastery test gives no help: no "new word" cards, no second try
+  const introduceNew = settingsNow.introduceNew && !test;
   const cfg = useMemo<RoundConfig>(
     () => ({
       mode,
@@ -188,6 +192,7 @@ export default function Game() {
       deckIds: search.get('decks')?.split(',').filter(Boolean),
       cardIds: search.get('cards')?.split(',').filter(Boolean),
       focusOnly: search.get('focus') === '1',
+      metOnly: search.get('met') === '1',
       newPerRound,
       difficulty,
       minLevel,
@@ -364,7 +369,7 @@ export default function Game() {
         if (survival) setTimeout(() => sfx.heartLost(), 250);
       }
       setMascotKey((k) => k + 1);
-      const retry = !correct && !survival && !q.retry && s.retries < MAX_RETRIES && poolRef.current ? retryQuestion(q, poolRef.current, Math.random, cfg.difficulty) : null;
+      const retry = !correct && !survival && !test && !q.retry && s.retries < MAX_RETRIES && poolRef.current ? retryQuestion(q, poolRef.current, Math.random, cfg.difficulty) : null;
       dispatch({
         type: 'answer',
         survival,
@@ -372,7 +377,7 @@ export default function Game() {
         result: { key: q.key, cardId: q.card.id, type: q.type, correct, ms, points, ...extra },
       });
     },
-    [q, s.phase, s.combo, s.retries, survival, persist],
+    [q, s.phase, s.combo, s.retries, survival, persist, test],
   );
 
   const onPartial = useCallback(
@@ -424,7 +429,7 @@ export default function Game() {
                 : {}),
       };
       // leaving early goes back where the round came from: a picture-dictionary chapter, or home
-      const back = chapter ? `/imagier/${chapter}` : '/';
+      const back = chapterHome || '/';
       if (!completed && total === 0) {
         navigate(back);
         return;
@@ -461,7 +466,7 @@ export default function Game() {
         },
       });
     },
-    [s.results, s.score, s.maxCombo, mode, survival, cfg.deckIds, navigate, chapter, test],
+    [s.results, s.score, s.maxCombo, mode, survival, cfg.deckIds, navigate, chapter, chapterHome, test],
   );
 
   const next = useCallback(() => {
@@ -535,7 +540,7 @@ export default function Game() {
   }
 
   if (s.status === 'empty') {
-    return <EmptyRound mode={mode} onBack={() => navigate(chapter ? `/imagier/${chapter}` : '/')} onAdd={() => navigate(chapter ? `/imagier/${chapter}` : '/add')} imagier={!!chapter} />;
+    return <EmptyRound mode={mode} onBack={() => navigate(chapterHome || '/')} onAdd={() => navigate(chapterHome || '/add')} imagier={!!chapter} />;
   }
 
   const total = survival ? null : s.questions.length;
@@ -552,7 +557,7 @@ export default function Game() {
         onQuit={() => {
           sfx.tap();
           if (s.results.length === 0) {
-            navigate(chapter ? `/imagier/${chapter}` : '/');
+            navigate(chapterHome || '/');
             return;
           }
           setQuitOpen(true);

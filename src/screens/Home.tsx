@@ -9,6 +9,8 @@ import { Page } from '../components/Page';
 import { ProgressRing } from '../components/ProgressRing';
 import { Wordmark } from '../components/Wordmark';
 import { chapterDone, chapterProgress, nextChapter, useCourseProgress } from '../lib/course';
+import { IMAGIER_CHAPTERS, IMAGIER_WORD_COUNT } from '../data/imagier';
+import { useImagierProgress } from '../lib/imagier';
 import { MODES, recognitionSupported, type ModeInfo } from '../lib/engine/modes';
 import type { Course } from '../lib/grammar/types';
 import { levelName } from '../lib/engine/scoring';
@@ -41,6 +43,19 @@ const COURSE_CARDS = [
   { id: 'phrases', title: 'Construire des phrases', en: 'Sentence building', emoji: '🧱', color: 'grape' },
   { id: 'temps', title: 'Les temps des verbes', en: 'Verb tenses', emoji: '⏳', color: 'lagoon' },
 ] as const;
+
+/** Her picture dictionary's line on the home screen: words learned, chapters with their first star. */
+function useImagierLine(): { text: string; progress: number } {
+  const progress = useImagierProgress();
+  const rows = [...(progress?.values() ?? [])];
+  const learned = rows.reduce((n, p) => n + p.counts.learned + p.counts.mastered, 0);
+  const met = rows.reduce((n, p) => n + p.met, 0);
+  const total = IMAGIER_WORD_COUNT;
+  const text = met
+    ? `${learned.toLocaleString('fr-FR')}/${total.toLocaleString('fr-FR')} mots appris · ${rows.filter((p) => p.stars > 0).length}/${IMAGIER_CHAPTERS.length} chapitres ★`
+    : `${IMAGIER_CHAPTERS.length} chapitres · ${total.toLocaleString('fr-FR')} mots en images`;
+  return { text, progress: total ? learned / total : 0 };
+}
 
 /** Where she is in each course; the course content loads after the home screen is up. */
 function useCourseLines(): Record<string, { text: string; progress: number }> | undefined {
@@ -77,13 +92,14 @@ export default function Home() {
   const pep = useMemo(() => PEP_TALKS[Math.floor(Math.random() * PEP_TALKS.length)](), []);
   const canSpeakIt = recognitionSupported();
   const courseLines = useCourseLines();
+  const imagierLine = useImagierLine();
   // numbered as shown: from A2 on, the picture-tapping and flip-card games aren't there
   const modes = MODES.filter((m) => m.section === 'vocab' && (m.needs !== 'recognition' || canSpeakIt) && modeShown(m)).map((m, i) => ({ ...m, num: i + 1 }));
   const grammarModes = MODES.filter((m) => m.section === 'grammar').map((m, i) => ({ ...m, num: i + 1 }));
 
   const todayXp = overview?.today.xp ?? 0;
   const goalDone = todayXp >= dailyGoal;
-  const activeDecks = decks?.filter((d) => d.active) ?? [];
+  const activeDecks = decks?.filter((d) => d.active && !d.book) ?? [];
 
   const startDaily = async () => {
     sfx.whoosh();
@@ -195,6 +211,31 @@ export default function Home() {
         Mes cours <small>Chapter by chapter</small>
       </h2>
       <div className="course-cards">
+        <motion.button
+          className="course-card course-card--imagier"
+          style={{ background: paletteColor('tangerine'), color: inkOn('tangerine') }}
+          onClick={() => {
+            sfx.pop();
+            navigate('/imagier');
+          }}
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 22, delay: 0.02 }}
+          whileTap={{ scale: 0.97 }}
+          data-course="imagier"
+        >
+          <span className="course-card-art">
+            <Emoji e="🖼️" size={40} />
+          </span>
+          <span className="course-card-text">
+            <strong>Mon imagier</strong>
+            <span>Picture dictionary · games on every page</span>
+            <small>{imagierLine.text}</small>
+            <span className="course-card-bar" aria-hidden>
+              <span style={{ width: `${Math.round(imagierLine.progress * 100)}%` }} />
+            </span>
+          </span>
+        </motion.button>
         {COURSE_CARDS.map((c, i) => {
           const line = courseLines?.[c.id];
           return (
@@ -296,7 +337,8 @@ export default function Home() {
       </h2>
       <div className="hscroll deck-strip">
         {decks
-          ?.filter((d) => d.total > 0)
+          // the picture dictionary's chapters have their own place, in Mon imagier
+          ?.filter((d) => d.total > 0 && !d.book)
           .sort((a, b) => Number(b.active) - Number(a.active) || a.order - b.order)
           .map((d) => {
             const learned = d.counts.learned + d.counts.mastered;

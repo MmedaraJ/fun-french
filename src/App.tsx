@@ -23,6 +23,7 @@ const Settings = lazy(() => import('./screens/Settings'));
 const Welcome = lazy(() => import('./screens/Welcome'));
 const Grammar = lazy(() => import('./screens/grammar/Grammar'));
 const Courses = lazy(() => import('./screens/course/Courses'));
+const Imagier = lazy(() => import('./screens/imagier/Imagier'));
 
 function useThemeAttr() {
   const theme = useSettings((s) => s.theme);
@@ -73,9 +74,10 @@ function Shell() {
   const location = useLocation();
   const onboarded = useSettings((s) => s.onboarded);
   const path = location.pathname;
-  const fullscreen = /^\/(play|results|welcome)/.test(path);
+  // reading a page of the picture dictionary takes the whole screen too
+  const fullscreen = /^\/(play|results|welcome)/.test(path) || /^\/imagier\/\d+\/livre/.test(path);
   if (!onboarded && path !== '/welcome') return <Navigate to="/welcome" replace />;
-  const routeKey = path.startsWith('/add') ? '/add' : path.startsWith('/words') ? '/words' : path.startsWith('/grammaire') ? '/grammaire' : path.startsWith('/cours/') ? '/cours' : path;
+  const routeKey = path.startsWith('/add') ? '/add' : path.startsWith('/words') ? '/words' : path.startsWith('/grammaire') ? '/grammaire' : path.startsWith('/cours/') ? '/cours' : path.startsWith('/imagier') ? '/imagier' : path;
   return (
     <div className="app">
       <Suspense fallback={<Loader />}>
@@ -90,6 +92,7 @@ function Shell() {
             <Route path="/settings" element={<Settings />} />
             <Route path="/grammaire/*" element={<Grammar />} />
             <Route path="/cours/*" element={<Courses />} />
+            <Route path="/imagier/*" element={<Imagier />} />
             <Route path="/welcome" element={<Welcome />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

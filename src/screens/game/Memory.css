@@ -88,7 +88,8 @@
   font-size: clamp(0.8rem, 3.6vw, 1.05rem);
   line-height: 1.1;
   text-align: center;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 
 .memory-en {

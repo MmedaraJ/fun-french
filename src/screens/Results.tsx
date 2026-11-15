@@ -125,8 +125,10 @@ export default function Results() {
     sfx.whoosh();
     const p = new URLSearchParams();
     if (session.deckIds.length) p.set('decks', session.deckIds.join(','));
+    // the whole picture dictionary's review: still only the words she has met
+    if (session.lesson === 'imagier:all') p.set('met', '1');
     // the same lesson practice, course exercise or chapter's endless practice again
-    const pic = /^imagier:(\d+)(:test)?$/.exec(session.lesson ?? '');
+    const pic = /^imagier:(\d+|all)(:test)?$/.exec(session.lesson ?? '');
     if (session.lesson?.startsWith('ex:')) p.set('ex', session.lesson.slice(3));
     else if (session.lesson?.startsWith('endless:')) p.set('endless', session.lesson.slice(8));
     else if (pic) {
@@ -143,7 +145,8 @@ export default function Results() {
   const toChapter = async () => {
     const lesson = session?.lesson ?? '';
     if (lesson.startsWith('imagier:')) {
-      navigate(`/imagier/${lesson.split(':')[1]}`, { replace: true });
+      const chap = lesson.split(':')[1];
+      navigate(chap === 'all' ? '/imagier' : `/imagier/${chap}`, { replace: true });
       return;
     }
     if (lesson.startsWith('endless:')) {
@@ -157,7 +160,7 @@ export default function Results() {
   const reviewMissed = () => {
     sfx.whoosh();
     // boards of several words come back as one-word questions; a picture-dictionary chapter's in its own mix
-    const chap = /^imagier:(\d+)/.exec(session.lesson ?? '')?.[1];
+    const chap = /^imagier:(\d+|all)/.exec(session.lesson ?? '')?.[1];
     const board = ['pairs', 'speak', 'memory', 'labels'].includes(session.mode);
     const mode = board ? (chap ? 'imagier' : 'mix') : session.mode;
     navigate(`/play/${mode}?cards=${missed.join(',')}${chap ? `&chap=${chap}` : ''}`, { replace: true });

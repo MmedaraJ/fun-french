@@ -69,6 +69,8 @@ export interface RoundConfig {
   minLevel?: MinLevel;
   /** Question types to ask instead of the game's own (a picture-dictionary mastery test). */
   types?: QuestionType[];
+  /** Only words she has already met (a review, no new words). */
+  metOnly?: boolean;
 }
 
 export interface Pool {

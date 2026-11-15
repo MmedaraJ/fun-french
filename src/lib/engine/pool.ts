@@ -11,7 +11,7 @@ import type { Pool, RoundConfig } from './round';
  * Themes below the level floor are left out entirely, wrong-answer options included,
  * unless she picked the exact words herself.
  */
-export async function loadPool(cfg: Pick<RoundConfig, 'deckIds' | 'cardIds' | 'focusOnly' | 'minLevel'>): Promise<Pool> {
+export async function loadPool(cfg: Pick<RoundConfig, 'deckIds' | 'cardIds' | 'focusOnly' | 'minLevel' | 'metOnly'>): Promise<Pool> {
   // a picture-dictionary round opened before its chapters were set up (a link, a reload)
   if (cfg.deckIds?.some(isImagierDeck) || cfg.cardIds?.some((id) => /^i\d\d-/.test(id))) await ensureImagierSeeded();
   const [allDecks, allCards, progressRows, book] = await Promise.all([db.decks.toArray(), db.cards.toArray(), db.progress.toArray(), getMeta(BOOK_KEY, null)]);
@@ -34,5 +34,6 @@ export async function loadPool(cfg: Pick<RoundConfig, 'deckIds' | 'cardIds' | 'f
     cards = usable.filter((c) => active.has(c.deckId) || (progress.get(c.id)?.seen ?? 0) > 0);
   }
   if (cfg.focusOnly) cards = cards.filter((c) => c.focus);
+  if (cfg.metOnly) cards = cards.filter((c) => (progress.get(c.id)?.seen ?? 0) > 0);
   return { cards, all: usable, progress, book: !!book };
 }

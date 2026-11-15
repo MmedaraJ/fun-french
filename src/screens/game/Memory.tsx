@@ -97,7 +97,9 @@ export function Memory({ q, phase, onAnswer, onPartial }: QProps) {
                 </span>
                 <span className="memory-face">
                   {t.side === 'fr' ? (
-                    <span className="memory-word">{t.card.fr}</span>
+                    <span className="memory-word" lang="fr" style={{ fontSize: t.card.fr.length > 15 ? '0.7rem' : t.card.fr.length > 11 ? '0.8rem' : undefined }}>
+                      {t.card.fr}
+                    </span>
                   ) : hasPicture(t.card) ? (
                     <CardImage card={t.card} size="100%" rounded={10} />
                   ) : (

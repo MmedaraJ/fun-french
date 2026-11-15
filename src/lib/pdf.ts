@@ -31,6 +31,10 @@ export interface PdfDoc {
   read(page: number): Promise<{ lines: PdfLine[]; height: number }>;
   /** A page as an image, for OCR or for Claude. */
   render(page: number, opts?: { longEdge?: number; type?: 'image/png' | 'image/jpeg'; quality?: number }): Promise<Blob>;
+  /** A page drawn on a canvas, `scale` pixels per point (set its width to 0 when done, to free it). */
+  draw(page: number, scale: number): Promise<HTMLCanvasElement>;
+  /** Size of a page in points. */
+  size(page: number): Promise<{ width: number; height: number }>;
   close(): Promise<void>;
 }
 
@@ -135,6 +139,28 @@ export async function openPdf(file: Blob, name = (file as File).name || 'documen
         canvas.height = 0;
         page.cleanup();
       }
+    },
+    async draw(n, scale) {
+      const page = await doc.getPage(n);
+      const viewport = page.getViewport({ scale });
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.max(1, Math.round(viewport.width));
+      canvas.height = Math.max(1, Math.round(viewport.height));
+      try {
+        await page.render({ canvas, viewport }).promise;
+        return canvas;
+      } catch (e) {
+        canvas.width = 0;
+        canvas.height = 0;
+        throw e;
+      } finally {
+        page.cleanup();
+      }
+    },
+    async size(n) {
+      const page = await doc.getPage(n);
+      const { width, height } = page.getViewport({ scale: 1 });
+      return { width, height };
     },
     // destroying the loading task also ends its worker
     close: () => task.destroy(),

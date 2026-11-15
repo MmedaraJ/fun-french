@@ -48,3 +48,11 @@
 .seek-zoom .icon-btn:disabled {
   opacity: 0.4;
 }
+
+.seek-peek {
+  background: none;
+  color: inherit;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}

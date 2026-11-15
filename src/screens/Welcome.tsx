@@ -56,7 +56,7 @@ export default function Welcome() {
 
   // the themes for the level she picks (all of them until she has picked one)
   const floor = level === null ? 2 : LEVELS[level].minLevel;
-  const builtin = useMemo(() => (decks ?? []).filter((d) => d.builtin && deckShown(d, floor)).sort((a, b) => a.order - b.order), [decks, floor]);
+  const builtin = useMemo(() => (decks ?? []).filter((d) => d.builtin && !d.book && deckShown(d, floor)).sort((a, b) => a.order - b.order), [decks, floor]);
   const color = STEP_COLORS[step];
   const ink = inkOn(color);
   const trimmed = name.trim();
@@ -88,7 +88,7 @@ export default function Welcome() {
 
   const pickLevel = (l: Level) => {
     setLevel(l);
-    setChosen(suggestedDecks((decks ?? []).filter((d) => d.builtin && deckShown(d, LEVELS[l].minLevel))));
+    setChosen(suggestedDecks((decks ?? []).filter((d) => d.builtin && !d.book && deckShown(d, LEVELS[l].minLevel))));
     sfx.pop();
     setReact((r) => r + 1);
     setTimeout(() => go(4), 380);

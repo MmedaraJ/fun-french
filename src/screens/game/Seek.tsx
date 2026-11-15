@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { boxStyle, BookPage, hitTest } from '../../components/BookPage';
 import { SpeakButton } from '../../components/SpeakButton';
 import { burstFrom } from '../../lib/confetti';
@@ -10,21 +10,41 @@ import type { Card } from '../../types';
 import type { QProps } from './types';
 import './Seek.css';
 
-const ZOOMS = [1, 1.5, 2.2];
+export const ZOOMS = [1, 1.5, 2.2];
 
-/** Width of an element, kept up to date. */
-export function useWidth<T extends HTMLElement>(): [React.RefObject<T | null>, number] {
-  const ref = useRef<T>(null);
-  const [w, setW] = useState(0);
+/**
+ * Inner size of an element, kept up to date. Returns a callback ref to put on the element (it may
+ * appear after a loader), its size, and a ref object to reach it.
+ */
+export function useSize<T extends HTMLElement>(): [(el: T | null) => void, { w: number; h: number }, React.RefObject<T | null>] {
+  const ref = useRef<T | null>(null);
+  const [el, setEl] = useState<T | null>(null);
+  const [size, setSize] = useState({ w: 0, h: 0 });
+  const setRef = useCallback((node: T | null) => {
+    ref.current = node;
+    setEl(node);
+  }, []);
   useLayoutEffect(() => {
-    const el = ref.current;
     if (!el) return;
-    setW(el.clientWidth);
-    const ro = new ResizeObserver(() => setW(el.clientWidth));
+    const read = () => setSize((s) => (s.w === el.clientWidth && s.h === el.clientHeight ? s : { w: el.clientWidth, h: el.clientHeight }));
+    read();
+    const ro = new ResizeObserver(read);
     ro.observe(el);
     return () => ro.disconnect();
-  }, []);
-  return [ref, w];
+  }, [el]);
+  return [setRef, size, ref];
+}
+
+/** Width of an element, kept up to date. */
+export function useWidth<T extends HTMLElement>(): [(el: T | null) => void, number] {
+  const [ref, size] = useSize<T>();
+  return [ref, size.w];
+}
+
+/** A whole page fits the box at zoom 1: as wide as it is, unless that makes it taller than the box. */
+export function fitWidth(box: { w: number; h: number }, zoom: number): number {
+  const fit = box.h > 0 ? Math.min(box.w, (box.h * 739) / 989) : box.w;
+  return Math.max(200, fit - 2) * zoom;
 }
 
 /** The sticker over a word's label: blank until it's revealed, then the French. */
@@ -37,7 +57,8 @@ export function Sticker({ card, k, open, tone }: { card: Card; k: number; open: 
       {rects.map((r, i) => (
         <span key={i} className={'book-sticker' + (open ? ' is-open' : '')} style={{ ...boxStyle(r, k, 1.5), ...(tone ? ({ '--sticker': tone } as React.CSSProperties) : {}) }}>
           {open && i === main && (
-            <span className="book-sticker-text" style={{ fontSize: Math.max(9, Math.min(15, 11 * k * 1.25)) }}>
+            // as big as the printed label, smaller for a long word so it stays on its label
+            <span className="book-sticker-text" style={{ fontSize: Math.max(8, Math.min(15, 11 * k * 1.25, ((r[2] - r[0] + 10) * k) / (card.fr.length * 0.5))) }}>
               {card.fr}
             </span>
           )}
@@ -47,6 +68,9 @@ export function Sticker({ card, k, open, tone }: { card: Card; k: number; open: 
   );
 }
 
+const norm = (s: string) => s.toLowerCase().replace(/[’]/g, "'").trim();
+const sameWord = (a: Card, b: Card) => norm(a.fr) === norm(b.fr);
+
 /** Cherche et trouve: hear (or read) a word, find its drawing on the page of her book. */
 export function Seek({ q, phase, result, onAnswer, autoplay }: QProps) {
   const target = q.card;
@@ -55,13 +79,16 @@ export function Seek({ q, phase, result, onAnswer, autoplay }: QProps) {
   const difficulty = useSettings((s) => s.difficulty);
   // Difficile: ears only, the word shows once she has answered
   const earsOnly = difficulty >= 3 && phase === 'ask';
-  const [viewRef, viewW] = useWidth<HTMLDivElement>();
+  const [viewRef, viewSize, viewEl] = useSize<HTMLDivElement>();
+  const viewW = viewSize.w;
   const [zoom, setZoom] = useState(0);
   const [picked, setPicked] = useState<string | null>(null);
+  // Difficile: she can still peek at the word
+  const [peek, setPeek] = useState(false);
   const [miss, setMiss] = useState<{ x: number; y: number; n: number } | null>(null);
   const targetRef = useRef<HTMLSpanElement>(null);
   const pending = useRef<{ cx: number; cy: number } | null>(null);
-  const width = Math.max(200, viewW - 2) * ZOOMS[zoom];
+  const width = fitWidth(viewSize, ZOOMS[zoom]);
 
   useEffect(() => {
     if (!autoplay) return;
@@ -71,20 +98,20 @@ export function Seek({ q, phase, result, onAnswer, autoplay }: QProps) {
 
   // zooming keeps the middle of what she was looking at in the middle
   const changeZoom = (z: number) => {
-    const el = viewRef.current;
+    const el = viewEl.current;
     if (!el || z === zoom) return;
     pending.current = { cx: (el.scrollLeft + el.clientWidth / 2) / el.scrollWidth, cy: (el.scrollTop + el.clientHeight / 2) / el.scrollHeight };
     sfx.tap();
     setZoom(z);
   };
   useLayoutEffect(() => {
-    const el = viewRef.current;
+    const el = viewEl.current;
     const p = pending.current;
     if (!el || !p) return;
     pending.current = null;
     el.scrollLeft = p.cx * el.scrollWidth - el.clientWidth / 2;
     el.scrollTop = p.cy * el.scrollHeight - el.clientHeight / 2;
-  }, [zoom, viewRef]);
+  }, [zoom, viewEl]);
 
   // after a miss, the right drawing comes into view
   useEffect(() => {
@@ -101,23 +128,27 @@ export function Seek({ q, phase, result, onAnswer, autoplay }: QProps) {
       return;
     }
     setPicked(hit.id);
-    const correct = hit.id === target.id;
+    // the same word drawn twice on the page (l'élève, a boy and a girl): either drawing is right
+    const correct = hit.id === target.id || sameWord(hit, target);
     if (correct) setTimeout(() => burstFrom(targetRef.current, { count: 22 }), 30);
     onAnswer(correct, { picked: hit.id, given: correct ? undefined : hit.fr });
   };
 
   const chosen = result?.picked ?? picked;
   const answered = phase === 'feedback' || !!picked;
+  const chosenCard = chosen ? words.find((c) => c.id === chosen) : undefined;
+  // the drawing ringed green: hers if it's right, else the one she was looking for
+  const right = chosenCard && (chosenCard.id === target.id || sameWord(chosenCard, target)) ? chosenCard : target;
 
   return (
     <>
       <div className="q-prompt seek-prompt">
         <div className="q-label">Cherche et trouve · Find it on the page</div>
         <div className="q-row">
-          {earsOnly ? (
-            <div className="q-word q-word--md" aria-label="Listen">
+          {earsOnly && !peek ? (
+            <button className="q-word q-word--md seek-peek" onClick={() => setPeek(true)} aria-label="Listen (tap to see the word)" data-target={target.id}>
               🎧 Écoute…
-            </div>
+            </button>
           ) : (
             <div className="q-word q-word--md" data-target={target.id}>
               {target.fr}
@@ -133,14 +164,10 @@ export function Seek({ q, phase, result, onAnswer, autoplay }: QProps) {
             {(k) => (
               <>
                 {words.map((c) => (
-                  <Sticker key={c.id} card={c} k={k} open={answered && (c.id === target.id || c.id === chosen)} />
+                  <Sticker key={c.id} card={c} k={k} open={answered && (c.id === right.id || c.id === chosen)} />
                 ))}
-                {answered && (
-                  <span ref={targetRef} className="book-ring" style={boxStyle(target.spot!.b, k, 2)} data-testid="seek-answer" />
-                )}
-                {answered && chosen && chosen !== target.id && (
-                  <span className="book-ring is-wrong" style={boxStyle(words.find((c) => c.id === chosen)!.spot!.b, k, 2)} />
-                )}
+                {answered && <span ref={targetRef} className="book-ring" style={boxStyle(right.spot!.b, k, 2)} data-testid="seek-answer" />}
+                {answered && chosenCard && chosenCard.id !== right.id && <span className="book-ring is-wrong" style={boxStyle(chosenCard.spot!.b, k, 2)} />}
                 <AnimatePresence>
                   {miss && (
                     <motion.span
