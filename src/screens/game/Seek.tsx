@@ -120,7 +120,9 @@ export function Seek({ q, phase, result, onAnswer, autoplay }: QProps) {
 
   const tap = (_e: React.MouseEvent, { x, y }: { x: number; y: number }) => {
     if (phase !== 'ask' || picked) return;
-    const hit = hitTest(words, x, y);
+    // anywhere on the drawing she's looking for is right, even over a smaller drawing inside it
+    // (the raincoat's pocket, the pencil's eraser); elsewhere, the drawing under her finger
+    const hit = hitTest([target], x, y) ?? hitTest(words, x, y);
     if (!hit) {
       // not on a drawing: no harm done
       setMiss({ x, y, n: Date.now() });

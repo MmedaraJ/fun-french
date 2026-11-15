@@ -1,5 +1,5 @@
 {
- "version": "fd4e701ee8",
+ "version": "062f896726",
  "chapters": [
   {
    "num": 1,
@@ -32,6 +32,16 @@
    "count": 50
   },
   {
+   "num": 4,
+   "title": "Le grenier",
+   "en": "The Attic",
+   "pages": [
+    12,
+    13
+   ],
+   "count": 47
+  },
+  {
    "num": 5,
    "title": "Les quatre saisons (le temps)",
    "en": "The Four Seasons (Weather)",
@@ -50,6 +60,26 @@
     17
    ],
    "count": 54
+  },
+  {
+   "num": 7,
+   "title": "Les vêtements",
+   "en": "Clothing",
+   "pages": [
+    18,
+    19
+   ],
+   "count": 53
+  },
+  {
+   "num": 8,
+   "title": "En ville",
+   "en": "In the City",
+   "pages": [
+    20,
+    21
+   ],
+   "count": 48
   },
   {
    "num": 9,
@@ -122,6 +152,16 @@
    "count": 48
   },
   {
+   "num": 16,
+   "title": "En voyage (le transport)",
+   "en": "Going Places (Transportation)",
+   "pages": [
+    36,
+    37
+   ],
+   "count": 47
+  },
+  {
    "num": 17,
    "title": "L'aéroport",
    "en": "The Airport",
@@ -150,6 +190,16 @@
     43
    ],
    "count": 46
+  },
+  {
+   "num": 20,
+   "title": "Au zoo",
+   "en": "At the Zoo",
+   "pages": [
+    44,
+    45
+   ],
+   "count": 49
   },
   {
    "num": 21,
@@ -212,6 +262,16 @@
    "count": 58
   },
   {
+   "num": 27,
+   "title": "Actions",
+   "en": "Action Words",
+   "pages": [
+    58,
+    59
+   ],
+   "count": 60
+  },
+  {
    "num": 28,
    "title": "Les couleurs",
    "en": "Colors",
@@ -238,6 +298,16 @@
     61
    ],
    "count": 10
+  },
+  {
+   "num": 31,
+   "title": "Les nombres",
+   "en": "Numbers",
+   "pages": [
+    62,
+    63
+   ],
+   "count": 117
   }
  ]
 }
