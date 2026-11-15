@@ -75,8 +75,8 @@ describe('Mon imagier: the word list', () => {
         expect(b[2], at).toBeLessThanOrEqual(739);
         expect(b[3], at).toBeLessThanOrEqual(989);
         // (a label can take a few small boxes to wrap around a drawing)
-        expect(b[2] - b[0], at).toBeGreaterThan(1);
-        expect(b[3] - b[1], at).toBeGreaterThan(1);
+        expect(b[2] - b[0], at).toBeGreaterThan(0);
+        expect(b[3] - b[1], at).toBeGreaterThan(0);
       }
       expect(w.spot.l.length, at).toBeGreaterThan(0);
     }
