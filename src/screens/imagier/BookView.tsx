@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
-import { boxStyle, BookPage, hitTest } from '../../components/BookPage';
+import { boxStyle, BookPage, hitTest, pageHeight } from '../../components/BookPage';
 import { CardImage } from '../../components/CardImage';
 import { Emoji } from '../../components/Emoji';
 import { Loader } from '../../components/Loader';
@@ -9,12 +9,12 @@ import { SpeakButton } from '../../components/SpeakButton';
 import { CHAPTER_BY_NUM } from '../../data/imagier';
 import { setFocus } from '../../lib/content';
 import { useChapterCards, type BookInfo } from '../../lib/imagier';
+import { drawnSpots } from '../../lib/imagier-layout';
 import { paletteColor } from '../../lib/palette';
 import { sfx } from '../../lib/sound';
 import { speak, stopSpeaking } from '../../lib/speech';
 import type { Card } from '../../types';
 import { fitWidth, Sticker, useSize, ZOOMS } from '../game/Seek';
-import { BookCard } from './BookCard';
 import { BackButton } from './Imagier';
 
 const TOUR_MS = 2600;
@@ -27,7 +27,9 @@ export function BookView({ book }: { book: BookInfo | null | undefined }) {
   const navigate = useNavigate();
   const { num } = useParams();
   const chapter = CHAPTER_BY_NUM.get(Number(num));
-  const cards = useChapterCards(chapter?.num ?? 0);
+  const bookCards = useChapterCards(chapter?.num ?? 0);
+  // without her book, Bonbon's own pages of drawings
+  const cards = useMemo(() => (bookCards && book === null ? drawnSpots(bookCards) : bookCards), [bookCards, book]);
   const [pageIdx, setPageIdx] = useState(0);
   const [showAll, setShowAll] = useState(false);
   const [opened, setOpened] = useState<Set<string>>(new Set());
@@ -84,35 +86,7 @@ export function BookView({ book }: { book: BookInfo | null | undefined }) {
   if (book === undefined || !cards) return <Loader />;
   const color = paletteColor(chapter.color);
 
-  if (!book) {
-    return (
-      <main className="screen img-book-none">
-        <div className="lesson-top">
-          <BackButton to={`/imagier/${chapter.num}`} label="Back to the chapter" />
-          <span className="badge" style={{ background: color, color: '#fff' }}>
-            {chapter.num}. {chapter.title}
-          </span>
-        </div>
-        <BookCard book={book} />
-        <h2 className="section-title">
-          Les mots <small>tap to hear</small>
-        </h2>
-        <div className="img-words">
-          {cards.map((c) => (
-            <button key={c.id} className="img-word" onClick={() => void speak(c.fr)}>
-              <span className="img-word-pic">
-                <CardImage card={c} size="100%" rounded={12} />
-              </span>
-              <strong>{c.fr}</strong>
-              <span>{c.en}</span>
-            </button>
-          ))}
-        </div>
-      </main>
-    );
-  }
-
-  const width = fitWidth(viewSize, ZOOMS[zoom]);
+  const width = fitWidth(viewSize, ZOOMS[zoom], pageHeight(words));
 
   return (
     <div className="img-book" style={{ '--ch': color } as React.CSSProperties}>
@@ -148,6 +122,7 @@ export function BookView({ book }: { book: BookInfo | null | undefined }) {
         {viewSize.w > 0 && (
           <BookPage
             page={page}
+            words={words}
             width={width}
             className="img-book-page"
             onClick={(_e, { x, y }) => {

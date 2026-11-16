@@ -48,6 +48,7 @@ export function wordToCard(w: ImagierWord, order: number, old: Card | undefined,
     ...(w.g === 'm' || w.g === 'f' ? { gender: w.g } : {}),
     ...(w.plural ? { plural: true } : {}),
     ...(w.emoji ? { emoji: w.emoji } : {}),
+    ...(w.drawing ? { drawing: true } : {}),
     // her book's drawing, once cut
     ...(old?.imageId ? { imageId: old.imageId } : {}),
     ...(w.note || w.g === 'mf' ? { note: [w.note, w.g === 'mf' ? 'masculin ou féminin' : ''].filter(Boolean).join(' · ') } : {}),
@@ -105,7 +106,7 @@ async function seedImagier(): Promise<void> {
       const old = existing.get(w.id);
       // a word she edited keeps her text; only its place in the book follows the new list
       if (old && old.updatedAt !== old.createdAt) {
-        rows.push({ ...old, spot: w.spot });
+        rows.push({ ...old, spot: w.spot, drawing: w.drawing || undefined });
         continue;
       }
       rows.push(wordToCard(w, n, old, now));

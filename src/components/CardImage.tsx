@@ -1,9 +1,10 @@
 import type { Card } from '../types';
+import { drawingUrl } from '../data/imagier';
 import { useImageUrl } from '../lib/images';
 import { Emoji } from './Emoji';
 
 interface Props {
-  card: Pick<Card, 'emoji' | 'imageId' | 'en' | 'fr'>;
+  card: Pick<Card, 'emoji' | 'imageId' | 'en' | 'fr'> & Partial<Pick<Card, 'id' | 'drawing'>>;
   size?: number | string;
   className?: string;
   /** What to show when the card has no picture: its English meaning, or nothing. */
@@ -11,14 +12,28 @@ interface Props {
   rounded?: number;
 }
 
-export function hasPicture(card: Pick<Card, 'emoji' | 'imageId'>): boolean {
-  return !!(card.imageId || card.emoji);
+export function hasPicture(card: Pick<Card, 'emoji' | 'imageId'> & Partial<Pick<Card, 'drawing'>>): boolean {
+  return !!(card.imageId || card.drawing || card.emoji);
 }
 
-/** Picture for a card: the learner's photo, else its emoji, else a word bubble. */
+/**
+ * Picture for a card: the learner's photo (or her book's drawing), else Bonbon's own drawing,
+ * else its emoji, else a word bubble.
+ */
 export function CardImage({ card, size = 96, className, fallback = 'en', rounded = 18 }: Props) {
   const url = useImageUrl(card.imageId);
   const dim = typeof size === 'number' ? `${size}px` : size;
+  if (!card.imageId && card.drawing && card.id) {
+    return (
+      <img
+        src={drawingUrl(card.id)}
+        alt=""
+        draggable={false}
+        className={className}
+        style={{ width: dim, height: dim, objectFit: 'contain', borderRadius: rounded, pointerEvents: 'none' }}
+      />
+    );
+  }
   if (card.imageId) {
     return url ? (
       <img

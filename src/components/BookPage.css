@@ -82,3 +82,22 @@
   border-color: var(--sunshine);
   box-shadow: 0 0 0 5px rgba(255, 200, 61, 0.35);
 }
+
+/* Bonbon's own page: a soft paper with its drawings in a grid */
+.book-page--drawn {
+  background: #fffaf2;
+  background-image: radial-gradient(rgba(59, 48, 71, 0.05) 1px, transparent 1.2px);
+  background-size: 14px 14px;
+}
+
+.book-page-drawing {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.book-page-drawing > * {
+  max-width: 100%;
+  max-height: 100%;
+}

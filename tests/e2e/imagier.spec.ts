@@ -16,8 +16,7 @@ test.describe('Mon imagier', () => {
     await expect(page.getByTestId('book-card')).toBeVisible();
     await page.locator('[data-chapter="1"]').click();
     await expect(page.getByRole('heading', { name: 'En classe' })).toBeVisible();
-    // the page games wait for the book; the others are there
-    await expect(page.locator('[data-game="seek"]')).toContainText('needs the book');
+    // every word has a drawing of Bonbon's own, and the page games play on Bonbon's own pages
     await expect(page.locator('[data-word]').first()).toBeVisible();
     await page.locator('[data-game="nomme"]').click();
     await playRound(page, { wrongEvery: 4 });
@@ -29,7 +28,7 @@ test.describe('Mon imagier', () => {
     expect(errors).toEqual([]);
   });
 
-  for (const mode of ['memory', 'imagier', 'gender', 'spell']) {
+  for (const mode of ['memory', 'imagier', 'gender', 'spell', 'seek', 'labels']) {
     test(`plays ${mode} on a chapter to the end`, async ({ page }) => {
       const errors: string[] = [];
       page.on('pageerror', (e) => errors.push(String(e)));

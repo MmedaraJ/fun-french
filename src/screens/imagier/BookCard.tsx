@@ -179,8 +179,8 @@ export function BookCard({ book, compact }: { book: BookInfo | null | undefined;
           <strong>{compact ? 'En option : les vrais dessins' : 'En option : les vrais dessins du livre'}</strong>
           <p className="muted">
             {compact
-              ? 'This chapter plays as it is. With your copy of the book, it also plays on the book’s own page, with its drawings.'
-              : 'The whole book is already here: 32 chapters, 1,521 words, 11 games, nothing to add. Its drawings can’t go on the public website, so they come from your copy instead: pick its PDF once and Bonbon cuts them out on this phone, about a minute. Nothing is uploaded.'}
+              ? 'Every word here has a drawing of Bonbon’s own. With your copy of the book, you can play on its real pages too.'
+              : 'Every word has a drawing of Bonbon’s own, and every game works as it is. If you’d also like the book’s own illustrations and pages, pick its PDF once: Bonbon cuts them out on this phone in about a minute, and nothing is uploaded.'}
           </p>
         </div>
       </div>

@@ -1,6 +1,6 @@
 import { motion, useAnimate } from 'framer-motion';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { boxStyle, BookPage, PAGE_H, PAGE_W } from '../../components/BookPage';
+import { boxStyle, BookPage, pageHeight, PAGE_W } from '../../components/BookPage';
 import { burstFrom } from '../../lib/confetti';
 import { shuffle } from '../../lib/engine/round';
 import { sfx } from '../../lib/sound';
@@ -18,7 +18,7 @@ export function patchOf(cards: Card[], pad = 10): Box {
   const x0 = Math.max(0, Math.min(...boxes.map((b) => b[0])) - pad);
   const y0 = Math.max(0, Math.min(...boxes.map((b) => b[1])) - pad);
   const x1 = Math.min(PAGE_W, Math.max(...boxes.map((b) => b[2])) + pad);
-  const y1 = Math.min(PAGE_H, Math.max(...boxes.map((b) => b[3])) + pad);
+  const y1 = Math.min(pageHeight(cards), Math.max(...boxes.map((b) => b[3])) + pad);
   return [x0, y0, x1, y1];
 }
 
@@ -128,7 +128,7 @@ export function Labels({ q, phase, onAnswer, onPartial }: QProps) {
       </div>
       <div className="labels-wrap" ref={wrapRef}>
         {wrapW > 0 && (
-          <BookPage page={words[0].spot!.p} width={width} view={view} className="labels-page">
+          <BookPage page={words[0].spot!.p} words={q.options ?? words} width={width} view={view} className="labels-page">
             {(k) => (
               <>
                 {others.map((c) => (

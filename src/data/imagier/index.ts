@@ -35,6 +35,8 @@ export interface ImagierWord {
   emoji?: string;
   /** Another way to say it, or what her book prints when Bonbon corrects it. */
   note?: string;
+  /** Bonbon has its own drawing of it. */
+  drawing?: boolean;
   spot: Spot;
 }
 
@@ -110,6 +112,9 @@ export function chapterOfDeck(deckId: string): number {
 
 export const isImagierDeck = (deckId: string) => chapterOfDeck(deckId) > 0;
 
+/** Bonbon's own drawing of a picture-dictionary word. */
+export const drawingUrl = (cardId: string) => `${import.meta.env.BASE_URL}imagier/d/${cardId}.svg`;
+
 interface RawWord {
   fr: string;
   en: string;
@@ -118,6 +123,7 @@ interface RawWord {
   pl?: 1;
   e?: string;
   n?: string;
+  d?: 1;
   p: number;
   b: Box;
   l: Box[];
@@ -143,6 +149,7 @@ export function expandWords(chapters: { num: number; words: RawWord[] }[]): Imag
         ...(w.pl ? { plural: true } : {}),
         ...(w.e ? { emoji: w.e } : {}),
         ...(w.n ? { note: w.n } : {}),
+        ...(w.d ? { drawing: true } : {}),
         spot: { p: w.p, b: w.b, l: w.l },
       });
     }

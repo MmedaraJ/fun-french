@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { boxStyle, BookPage, hitTest } from '../../components/BookPage';
+import { boxStyle, BookPage, hitTest, pageHeight } from '../../components/BookPage';
 import { SpeakButton } from '../../components/SpeakButton';
 import { burstFrom } from '../../lib/confetti';
 import { useSettings } from '../../lib/settings';
@@ -41,9 +41,12 @@ export function useWidth<T extends HTMLElement>(): [(el: T | null) => void, numb
   return [ref, size.w];
 }
 
-/** A whole page fits the box at zoom 1: as wide as it is, unless that makes it taller than the box. */
-export function fitWidth(box: { w: number; h: number }, zoom: number): number {
-  const fit = box.h > 0 ? Math.min(box.w, (box.h * 739) / 989) : box.w;
+/**
+ * A whole page fits the box at zoom 1: as wide as it is, unless that makes it taller than the box
+ * (a tall page of Bonbon's own drawings stays readable: it fits the width and scrolls).
+ */
+export function fitWidth(box: { w: number; h: number }, zoom: number, pageH = 989): number {
+  const fit = box.h > 0 && pageH <= 1100 ? Math.min(box.w, (box.h * 739) / pageH) : box.w;
   return Math.max(200, fit - 2) * zoom;
 }
 
@@ -88,7 +91,7 @@ export function Seek({ q, phase, result, onAnswer, autoplay }: QProps) {
   const [miss, setMiss] = useState<{ x: number; y: number; n: number } | null>(null);
   const targetRef = useRef<HTMLSpanElement>(null);
   const pending = useRef<{ cx: number; cy: number } | null>(null);
-  const width = fitWidth(viewSize, ZOOMS[zoom]);
+  const width = fitWidth(viewSize, ZOOMS[zoom], pageHeight(words));
 
   useEffect(() => {
     if (!autoplay) return;
@@ -167,7 +170,7 @@ export function Seek({ q, phase, result, onAnswer, autoplay }: QProps) {
       </div>
       <div className="seek-view" ref={viewRef} data-zoom={ZOOMS[zoom]}>
         {viewW > 0 && (
-          <BookPage page={page} width={width} onClick={tap} className="seek-page">
+          <BookPage page={page} words={words} width={width} onClick={tap} className="seek-page">
             {(k) => (
               <>
                 {words.map((c) => (

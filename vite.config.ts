@@ -36,7 +36,8 @@ export default defineConfig({
         skipWaiting: true,
         clientsClaim: true,
         globPatterns: ['**/*.{js,css,html,woff2,png,svg,json}'],
-        globIgnores: ['vendor/**'],
+        // Bonbon's picture-dictionary drawings (1,500 of them) are fetched as they're shown, then kept
+        globIgnores: ['vendor/**', 'imagier/**'],
         // the two courses' sentences make one large chunk: it must still be cached for offline use
         maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
         runtimeCaching: [
@@ -44,6 +45,11 @@ export default defineConfig({
             urlPattern: ({ url }) => url.pathname.includes('/vendor/twemoji/'),
             handler: 'CacheFirst',
             options: { cacheName: 'twemoji', expiration: { maxEntries: 4000 } },
+          },
+          {
+            urlPattern: ({ url }) => url.pathname.includes('/imagier/d/'),
+            handler: 'CacheFirst',
+            options: { cacheName: 'imagier-drawings', expiration: { maxEntries: 2000 } },
           },
           {
             urlPattern: ({ url }) => url.pathname.includes('/vendor/tesseract/'),

@@ -58,6 +58,8 @@ export interface Card {
   order: number;
   /** Picture-dictionary words: where the word's drawing and label are in her book. */
   spot?: Spot;
+  /** Picture-dictionary words with a drawing of Bonbon's own (public/imagier/d/<id>.svg). */
+  drawing?: boolean;
   createdAt: number;
   updatedAt: number;
 }
@@ -73,6 +75,11 @@ export interface Spot {
   b: Box;
   /** The printed label (English and French), hidden in the games: one box, or one per line where it wraps around a drawing. */
   l: Box[];
+  /**
+   * Height of the page in points, on Bonbon's own picture pages (drawn in a grid, as tall as their
+   * words need). Absent on her book's pages, which are all 739 × 989.
+   */
+  h?: number;
 }
 
 /** Spaced-repetition memory for one card. Missing row = never seen. */

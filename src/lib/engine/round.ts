@@ -101,7 +101,7 @@ export function shuffle<T>(arr: readonly T[], rand = Math.random): T[] {
 }
 
 const sameText = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase();
-const pictureKey = (c: Card) => c.imageId ?? c.emoji ?? '';
+const pictureKey = (c: Card) => c.imageId ?? (c.drawing ? `d:${c.id}` : c.emoji) ?? '';
 
 /**
  * Two picture-dictionary words drawn as one picture in the book (affilé / émoussé on the same two
