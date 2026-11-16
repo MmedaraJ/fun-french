@@ -1,0 +1,1 @@
+function e(){return typeof crypto<`u`&&`randomUUID`in crypto?crypto.randomUUID():`id-`+Date.now().toString(36)+`-`+Math.random().toString(36).slice(2,10)}function t(e){return e.normalize(`NFD`).replace(/[̀-ͯ]/g,``).toLowerCase().replace(/œ/g,`oe`).replace(/æ/g,`ae`).replace(/[^a-z0-9]+/g,`-`).replace(/^-+|-+$/g,``)}export{e as n,t};

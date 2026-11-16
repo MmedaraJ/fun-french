@@ -12,7 +12,7 @@ import { CHAPTER_BY_NUM, IMAGIER_CHAPTERS, IMAGIER_CUT, IMAGIER_WORD_COUNT, imag
 import { recognitionSupported } from '../../lib/engine/modes';
 import { canAsk } from '../../lib/engine/round';
 import { db } from '../../lib/db';
-import { drawnSpots } from '../../lib/imagier-layout';
+import { drawnPagesReady, drawnSpots } from '../../lib/imagier-layout';
 import { ensureImagierSeeded, useBookInfo, useChapterCards, useImagierProgress, type BookInfo, type ChapterProgress } from '../../lib/imagier';
 import { inkOn, paletteColor } from '../../lib/palette';
 import { sfx } from '../../lib/sound';
@@ -208,14 +208,16 @@ interface GameDef {
   en: string;
   emoji: string;
   color: PaletteKey;
+  /** Played on a page: her book's, or Bonbon's own once the chapter is drawn. */
+  page?: boolean;
   params?: Record<string, string>;
   len?: number | ((count: number) => number);
   when?: (cards: Card[]) => boolean;
 }
 
 const GAMES: GameDef[] = [
-  { id: 'seek', mode: 'seek', name: 'Cherche et trouve', en: 'Find it on the page', emoji: '🔍', color: 'sunshine', len: 12 },
-  { id: 'labels', mode: 'labels', name: 'Étiquettes', en: 'Put the labels back', emoji: '🏷️', color: 'leaf' },
+  { id: 'seek', mode: 'seek', name: 'Cherche et trouve', en: 'Find it on the page', emoji: '🔍', color: 'sunshine', page: true, len: 12 },
+  { id: 'labels', mode: 'labels', name: 'Étiquettes', en: 'Put the labels back', emoji: '🏷️', color: 'leaf', page: true },
   { id: 'nomme', mode: 'pick-word', name: 'Quel est ce mot ?', en: 'Name the picture', emoji: '🖼️', color: 'sky', len: 12 },
   { id: 'ecoute', mode: 'pick-image', name: 'Écoute et touche', en: 'Hear it, tap the picture', emoji: '🎧', color: 'grape', len: 12 },
   { id: 'memoire', mode: 'memory', name: 'Mémoire', en: 'Memory', emoji: '🧠', color: 'plum' },
@@ -247,10 +249,16 @@ function ChapterHome({ book }: { book: BookInfo | null | undefined }) {
   const prev = IMAGIER_CHAPTERS[index - 1];
   const next = IMAGIER_CHAPTERS[index + 1];
   const games = GAMES.filter((g) => !g.when || (cards && g.when(cards)));
-  // its pages: her book's, or Bonbon's own pages of drawings
+  // its pages: her book's, or Bonbon's own pages of drawings once the chapter is drawn
+  const pagesReady = !!book || (!!cards && drawnPagesReady(cards));
   const pageCards = cards ? (book ? cards : drawnSpots(cards)) : [];
 
   const play = async (g: GameDef, from: HTMLElement) => {
+    if (g.page && !pagesReady) {
+      sfx.wrong();
+      toast({ title: 'Il faut ton livre', body: 'This game is played on the pages of your book: add its PDF above first.', emoji: '📖' });
+      return;
+    }
     sfx.whoosh();
     await wipeFrom(from, paletteColor(g.color));
     const count = cards?.length ?? chapter.count;
@@ -295,15 +303,21 @@ function ChapterHome({ book }: { book: BookInfo | null | undefined }) {
       <BookCard book={book} compact />
 
       <motion.button className="img-read panel" onClick={() => navigate(`/imagier/${chapter.num}/livre`)} whileTap={{ scale: 0.98 }} data-testid="img-read">
-        {/* the chapter's pages, small: her book's, or Bonbon's own */}
-        <span className="img-read-pages" aria-hidden>
-          {chapter.pages.map((pg) => (
-            <BookPage key={pg} page={pg} words={pageCards.filter((c) => c.spot?.p === pg)} width={chapter.pages.length > 1 ? 44 : 60} />
-          ))}
-        </span>
+        {pagesReady ? (
+          // the chapter's pages, small: her book's, or Bonbon's own
+          <span className="img-read-pages" aria-hidden>
+            {chapter.pages.map((pg) => (
+              <BookPage key={pg} page={pg} words={pageCards.filter((c) => c.spot?.p === pg)} width={chapter.pages.length > 1 ? 44 : 60} />
+            ))}
+          </span>
+        ) : (
+          <span className="img-read-art" style={{ background: color }}>
+            <Emoji e="📖" size={34} />
+          </span>
+        )}
         <span className="course-ex-text">
           <strong>Lire la page · Read the page</strong>
-          <span>The chapter's pages, labels hidden: tap a drawing to hear its word, or let the tour read it to you</span>
+          <span>{pagesReady ? 'The chapter’s pages, labels hidden: tap a drawing to hear its word, or let the tour read it to you' : 'Every word of the chapter, with its picture: tap to hear it'}</span>
         </span>
         <span className="course-ex-go" aria-hidden>
           ▶
@@ -318,7 +332,7 @@ function ChapterHome({ book }: { book: BookInfo | null | undefined }) {
           return (
             <motion.button
               key={g.id}
-              className="img-game"
+              className={'img-game' + (g.page && !pagesReady ? ' is-locked' : '')}
               style={{ background: paletteColor(g.color), color: inkOn(g.color) }}
               onClick={(e) => void play(g, e.currentTarget)}
               initial={{ opacity: 0, y: 18, scale: 0.9 }}
@@ -331,6 +345,7 @@ function ChapterHome({ book }: { book: BookInfo | null | undefined }) {
               <Emoji e={g.emoji} size={40} />
               <span className="img-game-name">{g.name}</span>
               <span className="img-game-en">{g.id === 'test' && (cards?.length ?? chapter.count) > TEST_MAX ? `${TEST_MAX} words, no help` : g.en}</span>
+              {g.page && !pagesReady && <span className="img-game-lock">📖 needs the book</span>}
             </motion.button>
           );
         })}

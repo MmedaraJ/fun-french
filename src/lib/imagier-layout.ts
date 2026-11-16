@@ -52,3 +52,8 @@ export function drawnSpots(cards: Card[]): Card[] {
 
 /** Is this spot on one of Bonbon's own pages (rather than her book's)? */
 export const isDrawnSpot = (s?: Spot) => !!s && s.h !== undefined;
+
+/** Without her book, a chapter plays on Bonbon's own pages once nearly all its words have a drawing. */
+export function drawnPagesReady(cards: Pick<Card, 'drawing'>[]): boolean {
+  return cards.length > 0 && cards.filter((c) => c.drawing).length >= cards.length * 0.9;
+}

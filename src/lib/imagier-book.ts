@@ -9,7 +9,12 @@ import { BOOK_KEY, cropImageId, ensureImagierSeeded, pageImageId, type BookInfo 
 import { fileToImage, forgetImageUrl } from './images';
 import { openPdf, PdfError, type PdfDoc } from './pdf';
 
-export class BookError extends Error {}
+export class BookError extends Error {
+  /** It looked like a book with the right number of pages, but didn't match: she can try it anyway. */
+  canForce = false;
+  /** What was found, in plain words, for the message. */
+  details = '';
+}
 
 export interface BookProgress {
   /** 'check': is it the book? 'pages': reading its pages; 'drawings': cutting out the drawings. */
@@ -24,14 +29,141 @@ const PAGE_SCALE = 2;
 /** Side of a drawing's square picture, in pixels. */
 const CROP_SIZE = 288;
 
-/** Is this PDF her picture dictionary, the copy the words were mapped on? */
+/** The copy Bonbon's word list was mapped on: 84 pages, its chapter pages 739 × 989 points. */
+const BOOK_PAGES = 84;
+const BOOK_W = 739;
+const BOOK_H = 989;
+
+/**
+ * How her PDF lines up with the book Bonbon knows: her page = book page + offset, and her page is
+ * sx × sy times the size of the book's (a copy re-saved by another app can change both).
+ */
+export interface BookFit {
+  offset: number;
+  sx: number;
+  sy: number;
+}
+
+export interface BookCheck {
+  ok: boolean;
+  /** How to line her pages up with the book's: the found fit, or the best guess. */
+  fit: BookFit;
+  /** The exact file the words were mapped on. */
+  exact: boolean;
+  pages: number;
+  /** Size of the page where the first chapter is (or would be), in points. */
+  width: number;
+  height: number;
+  /** Chapter titles found in the text where they belong. */
+  anchors: number;
+  /** Plain-words summary of what was found, for messages. */
+  details: string;
+}
+
+/** Chapter titles on their pages: where they turn up in her PDF says how her pages line up. */
+const ANCHORS: [number, string[]][] = [
+  [6, ['our classroom', 'en classe']],
+  [20, ['in the city', 'en ville']],
+  [44, ['at the zoo', 'au zoo']],
+  [62, ['numbers', 'les nombres']],
+];
+
+const fold = (s: string) =>
+  s
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[’`]/g, "'")
+    .replace(/\s+/g, ' ');
+
+/**
+ * Is this PDF her picture dictionary, and how do its pages line up with the book's? The page
+ * count and size say it for the copy Bonbon was mapped on; for another copy (re-saved, a page
+ * added in front), the chapter titles in its text find the pages and their size gives the scale.
+ * A page whose text can't be read is just less evidence, never "the wrong book".
+ */
+export async function checkBook(doc: PdfDoc): Promise<BookCheck> {
+  const pages = doc.pages;
+  const shifts: number[] = [];
+  for (const [page, keys] of ANCHORS) {
+    for (const d of [0, 1, -1, 2, -2, 3, -3, 4, -4, 5, -5, 6, -6, 8, -8, 10, -10]) {
+      const q = page + d;
+      if (q < 1 || q > pages) continue;
+      let text: string;
+      try {
+        text = fold((await doc.read(q)).lines.map((l) => l.text).join(' '));
+      } catch {
+        continue;
+      }
+      if (keys.every((k) => text.includes(k))) {
+        shifts.push(d);
+        break;
+      }
+    }
+  }
+  // the shift most of the titles agree on
+  const counts = new Map<number, number>();
+  for (const d of shifts) counts.set(d, (counts.get(d) ?? 0) + 1);
+  const best = [...counts.entries()].sort((a, b) => b[1] - a[1])[0];
+  const offset = best ? best[0] : pages === BOOK_PAGES ? 0 : NaN;
+  const first = 6 + (Number.isNaN(offset) ? 0 : offset);
+  let width = 0;
+  let height = 0;
+  try {
+    if (first >= 1 && first <= pages) ({ width, height } = await doc.size(first));
+  } catch {
+    /* no size: no fit */
+  }
+  const sx = width / BOOK_W;
+  const sy = height / BOOK_H;
+  const exact = pages === BOOK_PAGES && offset === 0 && Math.abs(width - BOOK_W) <= 3 && Math.abs(height - BOOK_H) <= 3;
+  // the same pages, perhaps scaled: the shape of the page must match, and every chapter page must be there
+  const sameShape = width > 0 && height > 0 && Math.abs(sx / sy - 1) < 0.04;
+  const allThere = !Number.isNaN(offset) && IMAGIER_PAGES.every((p) => p + offset >= 1 && p + offset <= pages);
+  const evidence = exact || (best !== undefined && (best[1] >= 2 || pages === BOOK_PAGES));
+  const ok = exact || (sameShape && allThere && evidence);
+  const details =
+    `Ce PDF : ${pages} pages` +
+    (width ? `, ${Math.round(width)} × ${Math.round(height)} pt` : '') +
+    ` · titres de chapitre trouvés : ${shifts.length}/${ANCHORS.length}. ` +
+    `Le livre de Bonbon : ${BOOK_PAGES} pages, ${BOOK_W} × ${BOOK_H} pt.`;
+  return {
+    ok,
+    exact,
+    fit: { offset: Number.isNaN(offset) ? 0 : offset, sx: sx || 1, sy: sy || 1 },
+    pages,
+    width,
+    height,
+    anchors: shifts.length,
+    details,
+  };
+}
+
+/** Is this PDF her picture dictionary? */
 export async function isImagierBook(doc: PdfDoc): Promise<boolean> {
-  if (doc.pages !== 84) return false;
-  const { width, height } = await doc.size(6);
-  if (Math.abs(width - 739) > 3 || Math.abs(height - 989) > 3) return false;
-  // the scan's text layer on the first chapter's page (it misses a word here and there)
-  const text = (await doc.read(6)).lines.map((l) => l.text).join(' ').toLowerCase();
-  return ['calendrier', 'ciseaux', 'institutrice', 'aquarium', 'calculatrice'].filter((w) => text.includes(w)).length >= 3;
+  return (await checkBook(doc)).ok;
+}
+
+/**
+ * Draws a book page from her PDF on a canvas at `scale` pixels a book point, whatever her copy's
+ * page size: her page is drawn to the book's page size (both ways) so every box falls in place.
+ */
+async function drawBookPage(doc: PdfDoc, page: number, fit: BookFit, scale: number): Promise<HTMLCanvasElement> {
+  const canvas = await doc.draw(page + fit.offset, scale / fit.sx);
+  const W = Math.round(BOOK_W * scale);
+  const H = Math.round(BOOK_H * scale);
+  if (Math.abs(canvas.width - W) <= 1 && Math.abs(canvas.height - H) <= 1) return canvas;
+  const out = document.createElement('canvas');
+  out.width = W;
+  out.height = H;
+  const g = out.getContext('2d')!;
+  g.fillStyle = '#fff';
+  g.fillRect(0, 0, W, H);
+  g.imageSmoothingQuality = 'high';
+  g.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, W, H);
+  canvas.width = 0;
+  canvas.height = 0;
+  return out;
 }
 
 /** WebP where the browser can write it (smaller), JPEG elsewhere. */
@@ -118,12 +250,24 @@ async function putImage(id: string, blob: Blob) {
   forgetImageUrl(id);
 }
 
+/** Drawings cut in this import, and how many of them have a drawing in them (a copy that lines up badly cuts blank paper). */
+const inkStats = { cut: 0, inked: 0 };
+
+function hasInk(crop: HTMLCanvasElement): boolean {
+  const data = crop.getContext('2d')!.getImageData(0, 0, crop.width, crop.height).data;
+  let dark = 0;
+  for (let i = 0; i < data.length; i += 16) if (Math.min(data[i], data[i + 1], data[i + 2]) < 170) dark++;
+  return dark / (data.length / 16) > 0.01;
+}
+
 /** Cuts a page's drawings out of a canvas of it (`s` pixels a point); returns the bytes stored. */
 async function cutPage(canvas: HTMLCanvasElement, words: ImagierWord[], s: number): Promise<number> {
   blankLabels(canvas, words, s);
   let bytes = 0;
   for (const w of words) {
     const crop = cropSquare(canvas, w.spot.b, s);
+    inkStats.cut++;
+    if (hasInk(crop)) inkStats.inked++;
     const blob = await encode(crop, 0.84);
     crop.width = 0;
     crop.height = 0;
@@ -144,7 +288,7 @@ async function linkCards(words: ImagierWord[]) {
  * Reads her copy of the book: checks it's the right one, keeps each chapter page, and cuts out
  * every drawing. Throws BookError (in plain words) when the file isn't the book.
  */
-export async function importBook(file: Blob, onProgress?: (p: BookProgress) => void, signal?: AbortSignal): Promise<BookInfo> {
+export async function importBook(file: Blob, onProgress?: (p: BookProgress) => void, signal?: AbortSignal, opts: { force?: boolean } = {}): Promise<BookInfo> {
   onProgress?.({ phase: 'check', done: 0, total: 1 });
   let doc: PdfDoc;
   try {
@@ -153,17 +297,28 @@ export async function importBook(file: Blob, onProgress?: (p: BookProgress) => v
     throw new BookError(e instanceof PdfError ? e.message : 'This file couldn’t be opened as a PDF.');
   }
   try {
-    if (!(await isImagierBook(doc).catch(() => false))) {
-      throw new BookError('Ce n’est pas le bon livre. This PDF isn’t the picture dictionary Mon imagier was made from: its pages don’t match.');
+    const check = await checkBook(doc);
+    if (!check.ok && !opts.force) {
+      const err = new BookError(
+        check.pages < 40
+          ? 'Ce PDF ne ressemble pas à ton imagier. It has far fewer pages than the picture dictionary.'
+          : 'Ce PDF ne correspond pas tout à fait à l’imagier que Bonbon connaît. If it is your picture dictionary, you can still try: Bonbon will line its pages up as best it can.',
+      );
+      err.details = check.details;
+      err.canForce = check.pages >= 40;
+      throw err;
     }
+    const fit = check.fit;
     await ensureImagierSeeded();
     const words = byPage(await loadImagierWords());
     const pages = IMAGIER_PAGES;
     let bytes = 0;
+    inkStats.cut = 0;
+    inkStats.inked = 0;
     for (const [i, p] of pages.entries()) {
       if (signal?.aborted) throw new DOMException('Stopped', 'AbortError');
       onProgress?.({ phase: 'pages', done: i, total: pages.length });
-      const big = await doc.draw(p, CUT_SCALE);
+      const big = await drawBookPage(doc, p, fit, CUT_SCALE);
       try {
         // the page itself, for the games played on it
         const small = document.createElement('canvas');
@@ -188,7 +343,14 @@ export async function importBook(file: Blob, onProgress?: (p: BookProgress) => v
     }
     const all = [...words.values()].flat();
     await linkCards(all);
-    const info: BookInfo = { importedAt: Date.now(), version: IMAGIER_CUT, pages, words: all.length, bytes };
+    const info: BookInfo = {
+      importedAt: Date.now(),
+      version: IMAGIER_CUT,
+      pages,
+      words: all.length,
+      bytes,
+      ...(check.exact ? {} : { fit, inked: inkStats.inked / Math.max(1, inkStats.cut) }),
+    };
     await setMeta(BOOK_KEY, info);
     onProgress?.({ phase: 'drawings', done: 1, total: 1 });
     return info;

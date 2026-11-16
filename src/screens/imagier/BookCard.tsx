@@ -25,25 +25,41 @@ export function BookCard({ book, compact }: { book: BookInfo | null | undefined;
   const input = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState<BookProgress | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // what the check found, and the file to try again with "anyway"
+  const [errorDetails, setErrorDetails] = useState('');
+  const [retry, setRetry] = useState<File | null>(null);
   const [over, setOver] = useState(false);
   const [manage, setManage] = useState(false);
   const abort = useRef<AbortController | null>(null);
 
-  const read = async (file: File | undefined) => {
+  const read = async (file: File | undefined, force = false) => {
     if (!file || busy) return;
     setError(null);
+    setErrorDetails('');
+    setRetry(null);
     sfx.whoosh();
     const ctrl = new AbortController();
     abort.current = ctrl;
     setBusy({ phase: 'check', done: 0, total: 1 });
     try {
       const { importBook } = await import('../../lib/imagier-book');
-      const info = await importBook(file, setBusy, ctrl.signal);
-      celebrate(1.2);
-      sfx.levelUp();
-      toast({ title: 'Ton livre est là !', body: `${info.words} drawings cut out, on this device only.`, emoji: '📖' });
+      const info = await importBook(file, setBusy, ctrl.signal, { force });
+      if (info.inked !== undefined && info.inked < 0.75) {
+        // her copy didn't line up: most drawings came out empty
+        sfx.wrong();
+        toast({ title: 'Les dessins ne tombent pas juste', body: 'This copy of the book is laid out differently, so many drawings came out empty. You can remove them from this card.', emoji: '😕', tone: 'error' });
+      } else {
+        celebrate(1.2);
+        sfx.levelUp();
+        toast({ title: 'Ton livre est là !', body: `${info.words} drawings cut out, on this device only.`, emoji: '📖' });
+      }
     } catch (e) {
-      if ((e as Error).name !== 'AbortError') setError((e as Error).message || 'Something went wrong while reading the book.');
+      if ((e as Error).name !== 'AbortError') {
+        setError((e as Error).message || 'Something went wrong while reading the book.');
+        const err = e as { details?: string; canForce?: boolean };
+        setErrorDetails(err.details ?? '');
+        if (err.canForce) setRetry(file);
+      }
     } finally {
       setBusy(null);
       abort.current = null;
@@ -203,9 +219,15 @@ export function BookCard({ book, compact }: { book: BookInfo | null | undefined;
         </button>
       )}
       {error && (
-        <p className="book-card-error" role="alert">
-          {error}
-        </p>
+        <div className="book-card-error" role="alert" data-testid="book-error">
+          <p>{error}</p>
+          {errorDetails && <small>{errorDetails}</small>}
+          {retry && (
+            <button className="btn btn--ghost btn--sm" onClick={() => void read(retry, true)} data-testid="book-force">
+              C’est bien mon livre : essayer quand même
+            </button>
+          )}
+        </div>
       )}
       <input
         ref={input}

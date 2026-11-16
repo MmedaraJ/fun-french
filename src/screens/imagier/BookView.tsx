@@ -9,7 +9,8 @@ import { SpeakButton } from '../../components/SpeakButton';
 import { CHAPTER_BY_NUM } from '../../data/imagier';
 import { setFocus } from '../../lib/content';
 import { useChapterCards, type BookInfo } from '../../lib/imagier';
-import { drawnSpots } from '../../lib/imagier-layout';
+import { drawnPagesReady, drawnSpots } from '../../lib/imagier-layout';
+import { BookCard } from './BookCard';
 import { paletteColor } from '../../lib/palette';
 import { sfx } from '../../lib/sound';
 import { speak, stopSpeaking } from '../../lib/speech';
@@ -85,6 +86,35 @@ export function BookView({ book }: { book: BookInfo | null | undefined }) {
   if (!chapter) return <Navigate to="/imagier" replace />;
   if (book === undefined || !cards) return <Loader />;
   const color = paletteColor(chapter.color);
+
+  // no book, and the chapter not drawn yet: its words with their pictures
+  if (!book && !drawnPagesReady(cards)) {
+    return (
+      <main className="screen img-book-none">
+        <div className="lesson-top">
+          <BackButton to={`/imagier/${chapter.num}`} label="Back to the chapter" />
+          <span className="badge" style={{ background: color, color: '#fff' }}>
+            {chapter.num}. {chapter.title}
+          </span>
+        </div>
+        <BookCard book={book} />
+        <h2 className="section-title">
+          Les mots <small>tap to hear</small>
+        </h2>
+        <div className="img-words">
+          {cards.map((c) => (
+            <button key={c.id} className="img-word" onClick={() => void speak(c.fr)}>
+              <span className="img-word-pic">
+                <CardImage card={c} size="100%" rounded={12} />
+              </span>
+              <strong>{c.fr}</strong>
+              <span>{c.en}</span>
+            </button>
+          ))}
+        </div>
+      </main>
+    );
+  }
 
   const width = fitWidth(viewSize, ZOOMS[zoom], pageHeight(words));
 

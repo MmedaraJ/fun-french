@@ -171,9 +171,19 @@
 }
 
 .book-card-error {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
   color: var(--bad-deep);
   font-weight: 700;
   font-size: 0.9rem;
+}
+
+.book-card-error small {
+  color: var(--text-soft);
+  font-weight: 600;
+  font-size: 0.78rem;
 }
 
 /* the chapters */

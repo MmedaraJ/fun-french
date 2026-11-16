@@ -21,6 +21,10 @@ export interface BookInfo {
   words: number;
   /** Space used on the device, roughly. */
   bytes: number;
+  /** Her copy isn't the exact file Bonbon was mapped on: how its pages were lined up. */
+  fit?: { offset: number; sx: number; sy: number };
+  /** Then, the share of drawings that came out with a drawing in them (low: it didn't line up). */
+  inked?: number;
 }
 
 /** Her book's PDF, handed over from Ajouter → Un PDF to Mon imagier, which reads it. */
