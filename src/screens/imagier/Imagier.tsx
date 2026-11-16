@@ -128,8 +128,6 @@ function ImagierHome({ book }: { book: BookInfo | null | undefined }) {
         </div>
       </header>
 
-      <BookCard book={book} />
-
       {next && (
         <motion.button className="course-continue" style={{ background: paletteColor(next.color), color: inkOn(next.color) }} onClick={() => navigate(`/imagier/${next.num}`)} whileTap={{ scale: 0.97 }} data-testid="img-continue">
           <span>
@@ -149,6 +147,8 @@ function ImagierHome({ book }: { book: BookInfo | null | undefined }) {
           <Emoji e="🎲" size={24} /> Tout l’imagier · Mixed review
         </button>
       )}
+
+      <BookCard book={book} />
 
       <h2 className="section-title">
         Chapitres <small>Pick a page of the book</small>

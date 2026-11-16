@@ -176,11 +176,11 @@ export function BookCard({ book, compact }: { book: BookInfo | null | undefined;
           <Emoji e="🖍️" size={34} />
         </span>
         <div>
-          <strong>{compact ? 'Les vrais dessins du livre' : 'Mets les dessins de ton livre'}</strong>
+          <strong>{compact ? 'En option : les vrais dessins' : 'En option : les vrais dessins du livre'}</strong>
           <p className="muted">
             {compact
-              ? 'Add your copy of the book to play on its pages, with its own drawings.'
-              : 'Pick the PDF of your picture dictionary: Bonbon cuts out its drawings for every word and puts its pages in the games. It all happens on this device; nothing is uploaded.'}
+              ? 'This chapter plays as it is. With your copy of the book, it also plays on the book’s own page, with its drawings.'
+              : 'The whole book is already here: 32 chapters, 1,521 words, 11 games, nothing to add. Its drawings can’t go on the public website, so they come from your copy instead: pick its PDF once and Bonbon cuts them out on this phone, about a minute. Nothing is uploaded.'}
           </p>
         </div>
       </div>
